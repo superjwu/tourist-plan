@@ -579,12 +579,17 @@ body.season-winter {
   #swipe-arena { height: min(520px, 65vh); }
   #swipe-content.open { max-height: calc(65vh + 160px); }
 }
+@media (max-width: 600px) {
+  /* Season tabs: wrap into 2 rows instead of horizontal scroll */
+  #season-tabs { overflow-x: visible; flex-wrap: wrap; padding: 0.5rem 1rem; gap: 0.35rem; }
+  .season-tab { flex: 1 1 30%; justify-content: center; padding: 0.42rem 0.5rem; font-size: 0.82rem; white-space: nowrap; }
+}
 @media (max-width: 480px) {
   #month-strip { grid-template-columns: repeat(6, 1fr); }
   #attractions-grid { grid-template-columns: 1fr; }
   .ch5-actions { flex-direction: column; align-items: stretch; }
   .stats-grid { grid-template-columns: 1fr; }
-  #deck-buttons { gap: 0.5rem; }
+  #deck-buttons { gap: 0.5rem; margin-top: 1.75rem; }
   .deck-btn { padding: 0.45rem 0.85rem; font-size: 0.82rem; }
   /* Nav: prevent logo + badge overflow on small phones */
   #main-nav { padding: 0 1rem; }
@@ -1073,7 +1078,7 @@ function initDrag(wrapper, attraction) {
   document.addEventListener('mousemove',e=>{if(isDragging)onMove(e.clientX,e.clientY);});
   document.addEventListener('mouseup',()=>{if(isDragging)onEnd();});
   wrapper.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
-  wrapper.addEventListener('touchmove',e=>onMove(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
+  wrapper.addEventListener('touchmove',e=>{if(isDragging)e.preventDefault();onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
   wrapper.addEventListener('touchend',onEnd);
 }
 function doSwipe(dir,wrapper,attraction){
