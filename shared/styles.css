@@ -1,0 +1,385 @@
+/* ============================================================
+   SHARED STYLES — U.S. Tourist Attractions
+   Each version imports this file, then overrides the CSS
+   variables below with its own theme tokens.
+   ============================================================ */
+
+/* ---------- CSS Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { line-height: 1.6; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; height: auto; }
+button { cursor: pointer; border: none; background: none; font: inherit; }
+a { text-decoration: none; color: inherit; }
+ul, ol { list-style: none; }
+input, select { font: inherit; }
+
+/* ---------- Design Tokens (overridden per version) ---------- */
+:root {
+  --bg:           #F5F0E8;
+  --bg-alt:       #EDE8DF;
+  --primary:      #2D5016;
+  --primary-dark: #1e3610;
+  --primary-light:#3d6b1f;
+  --accent:       #C4622D;
+  --accent-light: #e07845;
+  --text:         #1A1A1A;
+  --text-muted:   #666;
+  --text-light:   #999;
+  --card-bg:      #FFFFFF;
+  --card-border:  rgba(0,0,0,0.08);
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.12);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.16);
+  --radius-sm:    6px;
+  --radius-md:    12px;
+  --radius-lg:    20px;
+  --nav-h:        64px;
+  --sidebar-w:    260px;
+  --transition:   0.25s ease;
+  --font-serif:   'Georgia', 'Times New Roman', serif;
+  --font-sans:    system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* ---------- Typography ---------- */
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+}
+
+h1, h2, h3 { font-family: var(--font-serif); line-height: 1.2; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+h2 { font-size: clamp(1.3rem, 3vw, 2rem); }
+h3 { font-size: clamp(1rem, 2vw, 1.3rem); }
+p  { font-size: 0.95rem; color: var(--text-muted); }
+
+/* ---------- Shared Navigation ---------- */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  box-shadow: var(--shadow-md);
+}
+
+.site-nav .nav-logo {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.site-nav .nav-logo span {
+  color: var(--accent-light);
+}
+
+.site-nav .nav-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+  align-items: center;
+}
+
+.site-nav .nav-links a {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.9rem;
+  transition: color var(--transition);
+}
+
+.site-nav .nav-links a:hover { color: #fff; }
+
+.nav-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  transition: background var(--transition);
+}
+.nav-back-btn:hover { background: rgba(255,255,255,0.25); }
+
+/* ---------- Search Bar ---------- */
+.search-wrap {
+  flex: 1;
+  max-width: 380px;
+  margin-left: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: background var(--transition);
+}
+
+.search-input::placeholder { color: rgba(255,255,255,0.6); }
+.search-input:focus { background: rgba(255,255,255,0.3); }
+
+/* ---------- Shared Card ---------- */
+.attraction-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--card-border);
+  transition: transform var(--transition), box-shadow var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.attraction-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.card-image-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+
+.card-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.attraction-card:hover .card-image-wrap img {
+  transform: scale(1.04);
+}
+
+.card-category-badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.card-fav-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: background var(--transition), transform var(--transition);
+  color: #ccc;
+  border: none;
+  cursor: pointer;
+}
+
+.card-fav-btn:hover { transform: scale(1.15); }
+.card-fav-btn.active { color: #e74c3c; background: #fff; }
+
+.card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.card-location {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.stars {
+  color: var(--accent);
+  letter-spacing: -1px;
+  font-size: 0.9rem;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.meta-chip {
+  background: var(--bg-alt);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.card-desc {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.btn-primary {
+  flex: 1;
+  background: var(--primary);
+  color: #fff;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background var(--transition);
+  text-align: center;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover { background: var(--primary-dark); }
+
+.btn-secondary {
+  flex: 1;
+  background: transparent;
+  color: var(--primary);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid var(--primary);
+  transition: background var(--transition), color var(--transition);
+  cursor: pointer;
+}
+
+.btn-secondary:hover { background: var(--primary); color: #fff; }
+
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.btn-accent:hover { background: var(--accent-light); }
+
+/* ---------- Filter Chips ---------- */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 0;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--primary);
+  color: #fff;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+}
+
+.filter-chip .chip-remove {
+  cursor: pointer;
+  opacity: 0.8;
+  font-size: 0.85rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 0;
+}
+
+.filter-chip .chip-remove:hover { opacity: 1; }
+
+/* ---------- No Results ---------- */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  grid-column: 1 / -1;
+}
+.no-results p { font-size: 1.1rem; color: var(--text-muted); }
+
+/* ---------- Rating Stars Util ---------- */
+.star-full  { color: var(--accent); }
+.star-empty { color: #ddd; }
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
+
+/* ---------- Print Styles ---------- */
+@media print {
+  .site-nav, .filter-panel, .sidebar-filter,
+  .itinerary-drawer, .card-actions { display: none !important; }
+  .attraction-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+}
+
+/* ---------- Utility Classes ---------- */
+.hidden   { display: none !important; }
+.sr-only  { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flex     { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.gap-1  { gap: 0.5rem; }
+.gap-2  { gap: 1rem; }
+.mt-1   { margin-top: 0.5rem; }
+.mt-2   { margin-top: 1rem; }

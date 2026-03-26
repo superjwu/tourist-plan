@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Your Perfect Destination — Discover America</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+    :root {
+      --bg: #1E1B4B;
+      --bg-alt: #2D2A6E;
+      --bg-card: #252260;
+      --primary: #818CF8;
+      --primary-dark: #4F46E5;
+      --primary-light: #A5B4FC;
+      --accent: #FB923C;
+      --text: #F1F0FF;
+      --text-muted: #A5A3C8;
+      --card-border: rgba(129,140,248,0.2);
+      --glow: 0 0 20px rgba(129,140,248,0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(ellipse at 20% 20%, rgba(79,70,229,0.3) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(251,146,60,0.1) 0%, transparent 50%);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ---- NAV ---- */
+    .quiz-nav {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem 2rem;
+      background: rgba(30,27,75,0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .quiz-nav a { color: var(--text-muted); font-size: 0.8rem; text-decoration: none; }
+    .quiz-nav a:hover { color: var(--primary-light); }
+    .quiz-nav-title { flex: 1; text-align: center; font-size: 0.9rem; font-weight: 700; color: var(--primary-light); letter-spacing: 0.05em; }
+    .nav-trip-btn {
+      background: rgba(129,140,248,0.15);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-trip-btn:hover { background: rgba(129,140,248,0.3); }
+
+    /* ---- SCREENS ---- */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ---- WELCOME ---- */
+    #welcome-screen {
+      min-height: calc(100vh - 60px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      text-align: center;
+      gap: 1.5rem;
+    }
+    #welcome-screen.active { display: flex; }
+    .welcome-icon {
+      font-size: 5rem;
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+    @keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    .welcome-title {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+      max-width: 600px;
+    }
+    .welcome-title span { color: var(--accent); }
+    .welcome-sub { color: var(--text-muted); font-size: 1rem; max-width: 480px; }
+    .welcome-stats {
+      display: flex; gap: 2rem;
+      background: rgba(129,140,248,0.1);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1rem 2rem;
+    }
+    .w-stat { text-align: center; }
+    .w-stat strong { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary-light); }
+    .w-stat span { font-size: 0.72rem; color: var(--text-muted); }
+    .start-quiz-btn {
+      padding: 1rem 3rem;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(79,70,229,0.4);
+      transition: all 0.2s;
+    }
+    .start-quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(79,70,229,0.5); }
+    .skip-link { color: var(--text-muted); font-size: 0.8rem; cursor: pointer; text-decoration: underline dotted; }
+    .skip-link:hover { color: var(--text); }
+
+    /* ---- QUIZ ---- */
+    #quiz-screen { min-height: calc(100vh - 60px); display: none; flex-direction: column; padding: 2rem; align-items: center; }
+    #quiz-screen.active { display: flex; }
+    .quiz-progress-wrap { width: 100%; max-width: 600px; margin-bottom: 2rem; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .progress-bar-bg { height: 6px; background: rgba(129,140,248,0.2); border-radius: 999px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-dark), var(--accent)); border-radius: 999px; transition: width 0.4s; }
+
+    .quiz-slide-container { width: 100%; max-width: 600px; position: relative; overflow: hidden; }
+    .quiz-slide {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      box-shadow: var(--glow);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s;
+    }
+    .quiz-slide.exit-left { transform: translateX(-100%); opacity: 0; position: absolute; top: 0; width: 100%; }
+    .quiz-slide.enter-right { transform: translateX(100%); opacity: 0; }
+
+    .q-number { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem; }
+    .q-text { font-size: 1.35rem; font-weight: 700; line-height: 1.3; margin-bottom: 1.75rem; }
+
+    .q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .q-option {
+      padding: 1rem;
+      background: rgba(129,140,248,0.08);
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+    }
+    .q-option:hover {
+      background: rgba(129,140,248,0.2);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .q-option.selected {
+      background: rgba(79,70,229,0.3);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(129,140,248,0.3);
+    }
+    .q-option-icon { font-size: 1.8rem; display: block; margin-bottom: 0.4rem; }
+    .q-option-label { font-size: 0.85rem; font-weight: 600; }
+
+    .quiz-nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; max-width: 600px; width: 100%; }
+    .q-nav-btn {
+      padding: 0.6rem 1.5rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .q-nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .q-nav-btn.primary {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      border-color: transparent;
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(79,70,229,0.3);
+    }
+    .q-nav-btn.primary:hover { transform: translateY(-1px); }
+
+    /* ---- RESULTS ---- */
+    #results-screen { display: none; min-height: calc(100vh - 60px); }
+    #results-screen.active { display: block; }
+    .results-hero {
+      text-align: center;
+      padding: 3rem 2rem 2rem;
+      background: linear-gradient(180deg, rgba(79,70,229,0.2) 0%, transparent 100%);
+    }
+    .personality-badge {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+      background: rgba(129,140,248,0.15);
+      border: 1px solid var(--primary);
+      border-radius: 999px;
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .personality-icon { font-size: 1.5rem; }
+    .personality-name { font-size: 0.85rem; font-weight: 700; color: var(--primary-light); letter-spacing: 0.05em; }
+    .personality-desc { color: var(--text-muted); font-size: 0.78rem; max-width: 500px; margin: 0 auto 1.5rem; }
+    .results-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .results-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .results-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .retake-btn {
+      padding: 0.6rem 1.5rem;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .retake-btn:hover { border-color: var(--primary); color: var(--text); }
+    .browse-btn {
+      padding: 0.6rem 1.5rem;
+      background: rgba(129,140,248,0.2);
+      border: 1.5px solid var(--primary);
+      color: var(--primary-light);
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .browse-btn:hover { background: rgba(129,140,248,0.3); }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+      padding: 0 2rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .result-card {
+      background: var(--bg-card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+      animation: cardIn 0.5s ease-out both;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .result-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(79,70,229,0.3); }
+    @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .result-img-wrap { position: relative; }
+    .result-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+    .match-badge {
+      position: absolute; top: 10px; right: 10px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .result-info { padding: 1rem; }
+    .result-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .result-state { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+    .result-reasons { list-style: none; margin-bottom: 0.75rem; }
+    .result-reasons li {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding: 0.15rem 0;
+    }
+    .result-reasons li::before { content: '✓ '; color: var(--accent); }
+    .result-card-btns { display: flex; gap: 0.4rem; }
+    .rc-btn {
+      flex: 1;
+      padding: 0.4rem;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .rc-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .rc-btn.active { background: rgba(79,70,229,0.3); border-color: var(--primary); color: var(--primary-light); }
+
+    /* ---- BROWSE ---- */
+    #browse-screen { display: none; padding: 2rem; }
+    #browse-screen.active { display: block; }
+    .browse-header { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .browse-search {
+      flex: 1; min-width: 200px;
+      padding: 0.6rem 1rem;
+      background: rgba(129,140,248,0.1);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      outline: none;
+    }
+    .browse-search:focus { border-color: var(--primary); }
+    .browse-select {
+      padding: 0.6rem 0.8rem;
+      background: rgba(129,140,248,0.1);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+    }
+    .browse-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ---- ITIN DRAWER ---- */
+    #itin-drawer {
+      position: fixed; top: 0; right: -420px; bottom: 0;
+      width: 400px;
+      background: var(--bg-card);
+      border-left: 1px solid var(--card-border);
+      z-index: 200;
+      transition: right 0.35s;
+      display: flex; flex-direction: column;
+    }
+    #itin-drawer.open { right: 0; }
+    .drawer-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .drawer-title { font-size: 0.95rem; font-weight: 700; flex: 1; color: var(--primary-light); }
+    .drawer-close { width: 28px; height: 28px; background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); border-radius: 6px; cursor: pointer; }
+    .drawer-items { flex: 1; overflow-y: auto; }
+    .drawer-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; border-bottom: 1px solid rgba(129,140,248,0.08); }
+    .drawer-num { font-size: 0.75rem; font-weight: 800; color: var(--primary); width: 20px; }
+    .drawer-thumb { width: 52px; height: 36px; object-fit: cover; border-radius: 6px; }
+    .drawer-info { flex: 1; }
+    .drawer-name { font-size: 0.82rem; font-weight: 600; }
+    .drawer-meta { font-size: 0.67rem; color: var(--text-muted); }
+    .drawer-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.2rem; }
+    .drawer-remove:hover { color: var(--accent); }
+    .drawer-empty { padding: 2rem; color: var(--text-muted); font-size: 0.85rem; text-align: center; }
+    .drawer-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--card-border); display: flex; gap: 0.5rem; }
+    .d-btn { flex: 1; padding: 0.5rem; border: 1px solid var(--card-border); background: transparent; color: var(--text-muted); border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 0.75rem; cursor: pointer; }
+    .d-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    @media (max-width: 600px) {
+      .q-options { grid-template-columns: 1fr; }
+      .welcome-stats { gap: 1rem; }
+      .results-grid { padding: 0 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="quiz-nav">
+  <a href="../gallery.html">← All Versions</a>
+  <div class="quiz-nav-title">🧭 Discover America — Trip Finder</div>
+  <button class="nav-trip-btn" onclick="toggleDrawer()">My Trip (<span id="tripCount">0</span>)</button>
+</nav>
+
+<!-- WELCOME -->
+<div id="welcome-screen" class="active">
+  <div class="welcome-icon">🧭</div>
+  <h1 class="welcome-title">Find Your Perfect <span>U.S. Destination</span></h1>
+  <p class="welcome-sub">Answer 6 quick questions and we'll match you with attractions you'll actually love — personalized to your travel style.</p>
+  <div class="welcome-stats">
+    <div class="w-stat"><strong>100</strong><span>Destinations</span></div>
+    <div class="w-stat"><strong>6</strong><span>Questions</span></div>
+    <div class="w-stat"><strong>8</strong><span>Top Matches</span></div>
+  </div>
+  <button class="start-quiz-btn" onclick="startQuiz()">✦ Start the Quiz</button>
+  <span class="skip-link" onclick="goToBrowse()">or browse all 100 destinations →</span>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen">
+  <div class="quiz-progress-wrap">
+    <div class="progress-label">
+      <span id="progressLabel">Question 1 of 6</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="quiz-slide-container">
+    <div class="quiz-slide" id="quizSlide"></div>
+  </div>
+  <div class="quiz-nav-btns">
+    <button class="q-nav-btn" id="backBtn" onclick="prevQuestion()" style="visibility:hidden">← Back</button>
+    <button class="q-nav-btn primary" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen">
+  <div class="results-hero">
+    <div class="personality-badge" id="personalityBadge">
+      <span class="personality-icon" id="personalityIcon">🧭</span>
+      <span class="personality-name" id="personalityName">The Adventurous Soul</span>
+    </div>
+    <div class="personality-desc" id="personalityDesc"></div>
+    <h2 class="results-title">Your Top Matches</h2>
+    <p class="results-sub" id="resultsSub">Based on your travel personality</p>
+    <div class="results-btns">
+      <button class="retake-btn" onclick="startQuiz()">↩ Retake Quiz</button>
+      <button class="browse-btn" onclick="goToBrowse()">Browse All 100 →</button>
+    </div>
+  </div>
+  <div class="results-grid" id="resultsGrid"></div>
+</div>
+
+<!-- BROWSE -->
+<div id="browse-screen">
+  <div class="browse-header">
+    <input class="browse-search" id="browseSearch" placeholder="🔍 Search destinations…" autocomplete="off">
+    <select class="browse-select" id="browseRegion"><option value="">All Regions</option></select>
+    <select class="browse-select" id="browseCategory"><option value="">All Categories</option></select>
+  </div>
+  <div class="browse-grid" id="browseGrid"></div>
+</div>
+
+<!-- ITINERARY DRAWER -->
+<div id="itin-drawer">
+  <div class="drawer-header">
+    <div class="drawer-title">My Trip</div>
+    <button class="drawer-close" onclick="toggleDrawer()">✕</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-footer">
+    <button class="d-btn" onclick="App.clearItinerary();renderDrawer();updateBadge()">Clear</button>
+    <button class="d-btn" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+const QUESTIONS = [
+  {
+    text: "What kind of trip are you dreaming of?",
+    options: [
+      { icon: '🏔', label: 'Epic Adventure', value: 'adventure', keywords: ['hiking','backpacking','climbing','strenuous'] },
+      { icon: '🌅', label: 'Total Relaxation', value: 'relaxation', keywords: ['beach','scenic','easy','swimming'] },
+      { icon: '📚', label: 'Learning & History', value: 'history', keywords: ['history','culture','archaeology','monument'] },
+      { icon: '📸', label: 'Photo Obsession', value: 'photo', keywords: ['photography','scenic','iconic','views'] },
+    ]
+  },
+  {
+    text: "Who are you bringing?",
+    options: [
+      { icon: '🧑‍🤝‍🧑', label: 'Solo explorer', value: 'solo', keywords: [] },
+      { icon: '💑', label: 'Romantic partner', value: 'romantic', keywords: ['scenic','sunset','waterfall'] },
+      { icon: '👨‍👩‍👧‍👦', label: 'Family with kids', value: 'family', keywords: ['easy','accessible','swimming'] },
+      { icon: '👫', label: 'Group of friends', value: 'friends', keywords: ['hiking','kayaking','wildlife'] },
+    ]
+  },
+  {
+    text: "Your dream landscape?",
+    options: [
+      { icon: '🌊', label: 'Ocean & Beaches', value: 'ocean', regions: ['Northeast','Southeast','Hawaii','Pacific West'], tags: ['beach','ocean','coastal','island'] },
+      { icon: '🏔', label: 'Mountains & Peaks', value: 'mountains', regions: ['Rocky Mountains','Pacific West'], tags: ['mountain','alpine','glacier','peak'] },
+      { icon: '🌵', label: 'Desert & Canyons', value: 'desert', regions: ['Southwest'], tags: ['desert','canyon','sandstone','arid'] },
+      { icon: '🌲', label: 'Forests & Waterfalls', value: 'forest', regions: ['Pacific West','Southeast','Northeast','Great Plains'], tags: ['forest','waterfall','trees','lush'] },
+    ]
+  },
+  {
+    text: "When are you planning to go?",
+    options: [
+      { icon: '☀️', label: 'Summer (Jun–Aug)', value: 'summer', months: ['Jun','Jul','Aug','June','July','August'] },
+      { icon: '🍂', label: 'Fall (Sep–Nov)', value: 'fall', months: ['Sep','Oct','Nov','September','October','November'] },
+      { icon: '❄️', label: 'Winter (Dec–Feb)', value: 'winter', months: ['Dec','Jan','Feb','December','January','February'] },
+      { icon: '🌸', label: 'Spring (Mar–May)', value: 'spring', months: ['Mar','Apr','May','March','April'] },
+    ]
+  },
+  {
+    text: "What's your entry fee comfort zone?",
+    options: [
+      { icon: '💚', label: 'Free is best', value: 'free', maxFee: 0 },
+      { icon: '💛', label: 'Under $20/person', value: 'cheap', maxFee: 20 },
+      { icon: '🧡', label: 'Happy to pay', value: 'moderate', maxFee: 50 },
+      { icon: '❤️', label: 'Money is no object', value: 'splurge', maxFee: 999 },
+    ]
+  },
+  {
+    text: "Your favorite park activity?",
+    options: [
+      { icon: '🥾', label: 'Hiking long trails', value: 'hiking', keywords: ['hiking','backpacking','trail'] },
+      { icon: '🏊', label: 'Water activities', value: 'water', keywords: ['swimming','kayaking','snorkeling','diving','rafting'] },
+      { icon: '🦁', label: 'Wildlife watching', value: 'wildlife', keywords: ['wildlife','birdwatching','wildlife watching'] },
+      { icon: '🚗', label: 'Scenic drives', value: 'scenic', keywords: ['scenic drive','photography','views','overlook'] },
+    ]
+  },
+];
+
+const PERSONALITY_TYPES = [
+  { test: a => a[0]==='adventure' && a[2]==='mountains', name: 'The Summit Chaser', icon: '🏔', desc: 'You live for the climb and the view from the very top.' },
+  { test: a => a[0]==='relaxation' && a[2]==='ocean', name: 'The Beach Wanderer', icon: '🌊', desc: 'Sun, sand, and saltwater — your ultimate happy place.' },
+  { test: a => a[0]==='history', name: 'The History Hunter', icon: '📚', desc: 'Every stone has a story you desperately want to know.' },
+  { test: a => a[0]==='photo' && a[2]==='desert', name: 'The Canyon Explorer', icon: '🌵', desc: 'Ancient rocks and painted skies are your favorite subjects.' },
+  { test: a => a[0]==='photo', name: 'The Lens Chaser', icon: '📸', desc: 'You see the world in frames and golden hours.' },
+  { test: a => a[2]==='forest' && a[5]==='wildlife', name: 'The Forest Wanderer', icon: '🌲', desc: 'You find peace in the cathedral of tall trees and birdsong.' },
+  { test: a => a[5]==='scenic', name: 'The Road Tripper', icon: '🚗', desc: 'For you, the journey is as much the destination.' },
+];
+
+let answers = new Array(6).fill(null);
+let currentQ = 0;
+
+function startQuiz() {
+  const saved = localStorage.getItem('tourist_quiz_answers');
+  // Check URL param
+  const urlA = new URLSearchParams(location.search).get('a');
+  if (urlA) {
+    try { answers = JSON.parse(atob(urlA)); showResults(); return; } catch(e) {}
+  }
+  answers = new Array(6).fill(null);
+  currentQ = 0;
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  ['welcome-screen','quiz-screen','results-screen','browse-screen'].forEach(s => {
+    document.getElementById(s).classList.toggle('active', s === id);
+  });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const pct = Math.round((currentQ / 6) * 100);
+  document.getElementById('progressLabel').textContent = `Question ${currentQ + 1} of 6`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  const slide = document.getElementById('quizSlide');
+  slide.innerHTML = `
+    <div class="q-number">Question ${currentQ + 1} / 6</div>
+    <div class="q-text">${q.text}</div>
+    <div class="q-options">
+      ${q.options.map((opt, i) => `
+        <div class="q-option ${answers[currentQ] === opt.value ? 'selected' : ''}"
+             onclick="selectOption('${opt.value}', this)">
+          <span class="q-option-icon">${opt.icon}</span>
+          <span class="q-option-label">${opt.label}</span>
+        </div>`).join('')}
+    </div>`;
+
+  document.getElementById('backBtn').style.visibility = currentQ > 0 ? 'visible' : 'hidden';
+  document.getElementById('nextBtn').textContent = currentQ === 5 ? 'See My Matches ✦' : 'Next →';
+  document.getElementById('nextBtn').disabled = !answers[currentQ];
+}
+
+function selectOption(value, el) {
+  answers[currentQ] = value;
+  document.querySelectorAll('.q-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  if (!answers[currentQ]) return;
+  if (currentQ === 5) { showResults(); return; }
+  const slide = document.getElementById('quizSlide');
+  slide.classList.add('exit-left');
+  setTimeout(() => {
+    currentQ++;
+    slide.classList.remove('exit-left');
+    slide.classList.add('enter-right');
+    renderQuestion();
+    requestAnimationFrame(() => requestAnimationFrame(() => slide.classList.remove('enter-right')));
+  }, 350);
+}
+
+function prevQuestion() {
+  if (currentQ === 0) return;
+  const slide = document.getElementById('quizSlide');
+  slide.style.transform = 'translateX(100%)';
+  slide.style.opacity = '0';
+  setTimeout(() => {
+    currentQ--;
+    slide.style.transform = 'translateX(-100%)';
+    slide.style.opacity = '0';
+    renderQuestion();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      slide.style.transform = '';
+      slide.style.opacity = '';
+    }));
+  }, 300);
+}
+
+// ---- Scoring ----
+function scoreAttraction(a, ans) {
+  let score = 0;
+  const reasons = [];
+  const [vibe, buddy, landscape, season, budget, activity] = ans;
+  const vibeQ = QUESTIONS[0].options.find(o => o.value === vibe);
+  const buddyQ = QUESTIONS[1].options.find(o => o.value === buddy);
+  const landscapeQ = QUESTIONS[2].options.find(o => o.value === landscape);
+  const seasonQ = QUESTIONS[3].options.find(o => o.value === season);
+  const budgetQ = QUESTIONS[4].options.find(o => o.value === budget);
+  const actQ = QUESTIONS[5].options.find(o => o.value === activity);
+
+  // Vibe (0-25)
+  if (vibeQ) {
+    const acts = a.activities.join(' ').toLowerCase() + ' ' + (a.tags||[]).join(' ').toLowerCase();
+    const matches = vibeQ.keywords.filter(k => acts.includes(k)).length;
+    const pts = Math.min(25, matches * 8 + (a.difficulty === 'Strenuous' && vibe === 'adventure' ? 10 : 0));
+    score += pts;
+    if (pts >= 8) reasons.push(`Perfect for your ${vibe} vibe`);
+  }
+
+  // Buddy (0-20)
+  if (buddy === 'family') {
+    if (a.accessibility) { score += 12; reasons.push('Wheelchair accessible & family-friendly'); }
+    if (a.difficulty === 'Easy') { score += 8; reasons.push('Easy difficulty — great for all ages'); }
+  } else if (buddy === 'romantic') {
+    const romanticKw = ['waterfall','scenic','sunset','ocean','beach','island'];
+    const m = romanticKw.filter(k => (a.tags||[]).includes(k) || a.description.toLowerCase().includes(k)).length;
+    score += Math.min(20, m * 7);
+    if (m >= 2) reasons.push('Romantic landscapes & scenic views');
+  } else if (buddyQ) {
+    const acts = a.activities.join(' ').toLowerCase();
+    const m = buddyQ.keywords.filter(k => acts.includes(k)).length;
+    score += Math.min(20, m * 7);
+  }
+
+  // Landscape (0-20)
+  if (landscapeQ) {
+    const regMatch = landscapeQ.regions && landscapeQ.regions.includes(a.region);
+    const tagMatch = landscapeQ.tags ? landscapeQ.tags.filter(t => (a.tags||[]).includes(t) || a.description.toLowerCase().includes(t)).length : 0;
+    const pts = (regMatch ? 12 : 0) + Math.min(8, tagMatch * 4);
+    score += pts;
+    if (pts >= 10) reasons.push(`Exactly the ${landscape} landscape you want`);
+  }
+
+  // Season (0-15)
+  if (seasonQ && a.bestTime) {
+    const bt = a.bestTime.toLowerCase();
+    const m = seasonQ.months.filter(mo => bt.includes(mo.toLowerCase())).length;
+    const pts = Math.min(15, m * 6);
+    score += pts;
+    if (pts >= 6) reasons.push(`Great to visit in ${seasonQ.label.split(' ')[0]} ${seasonQ.label.split(' ')[1] || ''}`);
+  }
+
+  // Budget (0-10)
+  if (budgetQ) {
+    const feeMatch = a.fee.match(/\$(\d+)/);
+    const fee = feeMatch ? parseInt(feeMatch[1]) : 0;
+    if (budget === 'free' && fee === 0) { score += 10; reasons.push('Free entry — no cost to visit'); }
+    else if (budget === 'cheap' && fee <= 20) { score += 8; }
+    else if (budget === 'moderate' && fee <= 50) { score += 6; }
+    else if (budget === 'splurge') { score += 5; }
+    else if (fee === 0) { score += 4; }
+  }
+
+  // Activity (0-10)
+  if (actQ) {
+    const acts = a.activities.join(' ').toLowerCase();
+    const m = actQ.keywords.filter(k => acts.includes(k)).length;
+    const pts = Math.min(10, m * 5);
+    score += pts;
+    if (pts >= 5) reasons.push(`Top-rated for ${activity.replace('_',' ')}`);
+  }
+
+  return { score: Math.min(100, score), reasons: reasons.slice(0, 3) };
+}
+
+function getPersonality(ans) {
+  for (const p of PERSONALITY_TYPES) {
+    if (p.test(ans)) return p;
+  }
+  return { name: 'The Adventurous Soul', icon: '🧭', desc: 'Every destination is an adventure waiting to happen.' };
+}
+
+function showResults() {
+  localStorage.setItem('tourist_quiz_answers', JSON.stringify(answers));
+  // Update URL
+  history.replaceState(null, '', '?a=' + btoa(JSON.stringify(answers)));
+
+  const scored = attractions.map(a => ({ ...a, ...scoreAttraction(a, answers) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+
+  const personality = getPersonality(answers);
+  document.getElementById('personalityIcon').textContent = personality.icon;
+  document.getElementById('personalityName').textContent = personality.name;
+  document.getElementById('personalityDesc').textContent = personality.desc;
+
+  showScreen('results-screen');
+
+  document.getElementById('resultsGrid').innerHTML = scored.map((a, i) => {
+    const inTrip = App.isInItinerary(a.id);
+    const isFav = App.isFavorite(a.id);
+    return `<div class="result-card" style="animation-delay:${i * 0.07}s">
+      <div class="result-img-wrap">
+        <img class="result-img" src="${a.image}" alt="${a.name}"
+             onerror="this.src='https://picsum.photos/seed/${a.id}/400/200'">
+        <div class="match-badge">${a.score}% Match</div>
+      </div>
+      <div class="result-info">
+        <div class="result-name">${a.name}</div>
+        <div class="result-state">📍 ${a.state} · ★ ${a.rating}</div>
+        <ul class="result-reasons">
+          ${(a.reasons.length > 0 ? a.reasons : ['Beautiful destination worth visiting']).map(r => `<li>${r}</li>`).join('')}
+        </ul>
+        <div class="result-card-btns">
+          <button class="rc-btn ${isFav?'active':''}" onclick="toggleFav(${a.id}, this)">
+            ${isFav ? '♥ Saved' : '♡ Save'}
+          </button>
+          <button class="rc-btn ${inTrip?'active':''}" onclick="toggleTrip(${a.id}, this)">
+            ${inTrip ? '✓ Added' : '+ Add to Trip'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFav(id, btn) {
+  App.toggleFavorite(id);
+  const now = App.isFavorite(id);
+  btn.className = `rc-btn ${now ? 'active' : ''}`;
+  btn.textContent = now ? '♥ Saved' : '♡ Save';
+}
+function toggleTrip(id, btn) {
+  if (App.isInItinerary(id)) App.removeFromItinerary(id);
+  else App.addToItinerary(id);
+  const now = App.isInItinerary(id);
+  btn.className = `rc-btn ${now ? 'active' : ''}`;
+  btn.textContent = now ? '✓ Added' : '+ Add to Trip';
+  updateBadge();
+  renderDrawer();
+}
+
+// ---- Browse ----
+function goToBrowse() {
+  showScreen('browse-screen');
+  renderBrowse();
+}
+
+function renderBrowse() {
+  const q = document.getElementById('browseSearch').value.toLowerCase().trim();
+  const region = document.getElementById('browseRegion').value;
+  const cat = document.getElementById('browseCategory').value;
+  const list = attractions.filter(a => {
+    if (region && a.region !== region) return false;
+    if (cat && a.category !== cat) return false;
+    if (q && !a.name.toLowerCase().includes(q) && !a.state.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('browseGrid').innerHTML = list.map(a => {
+    const inTrip = App.isInItinerary(a.id);
+    return `<div class="result-card">
+      <div class="result-img-wrap">
+        <img class="result-img" src="${a.image}" alt="${a.name}"
+             onerror="this.src='https://picsum.photos/seed/${a.id}/400/200'">
+      </div>
+      <div class="result-info">
+        <div class="result-name">${a.name}</div>
+        <div class="result-state">📍 ${a.state} · ★ ${a.rating}</div>
+        <div class="result-card-btns">
+          <button class="rc-btn ${inTrip?'active':''}" onclick="toggleTrip(${a.id}, this)">
+            ${inTrip ? '✓ Added' : '+ Add to Trip'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Populate browse filters
+[...new Set(attractions.map(a => a.region))].sort().forEach(r => {
+  document.getElementById('browseRegion').innerHTML += `<option value="${r}">${r}</option>`;
+});
+[...new Set(attractions.map(a => a.category))].sort().forEach(c => {
+  document.getElementById('browseCategory').innerHTML += `<option value="${c}">${c}</option>`;
+});
+document.getElementById('browseSearch').addEventListener('input', renderBrowse);
+document.getElementById('browseRegion').addEventListener('change', renderBrowse);
+document.getElementById('browseCategory').addEventListener('change', renderBrowse);
+
+// ---- Drawer ----
+function toggleDrawer() {
+  document.getElementById('itin-drawer').classList.toggle('open');
+  renderDrawer();
+}
+function renderDrawer() {
+  const itin = App.getItinerary();
+  const el = document.getElementById('drawerItems');
+  if (itin.length === 0) {
+    el.innerHTML = '<div class="drawer-empty">No trips planned yet.<br>Add attractions to build your itinerary!</div>';
+    return;
+  }
+  el.innerHTML = itin.map((id, i) => {
+    const a = attractions.find(x => x.id === id);
+    return a ? `<div class="drawer-item">
+      <div class="drawer-num">${i+1}</div>
+      <img class="drawer-thumb" src="${a.image}" alt="${a.name}" onerror="this.src='https://picsum.photos/seed/${a.id}/52/36'">
+      <div class="drawer-info">
+        <div class="drawer-name">${a.name}</div>
+        <div class="drawer-meta">${a.state} · ${a.fee}</div>
+      </div>
+      <button class="drawer-remove" onclick="removeTrip(${id})">✕</button>
+    </div>` : '';
+  }).join('');
+}
+function removeTrip(id) {
+  App.removeFromItinerary(id);
+  renderDrawer();
+  updateBadge();
+}
+function updateBadge() {
+  document.getElementById('tripCount').textContent = App.getItinerary().length;
+}
+
+// Check for previous results on load
+window.addEventListener('load', () => {
+  const urlA = new URLSearchParams(location.search).get('a');
+  if (urlA) { try { answers = JSON.parse(atob(urlA)); showResults(); return; } catch(e) {} }
+  const saved = localStorage.getItem('tourist_quiz_answers');
+  if (saved) { try { answers = JSON.parse(saved); } catch(e) {} }
+  showScreen('welcome-screen');
+  updateBadge();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('itin-drawer').classList.remove('open');
+});
+</script>
+</body>
+</html>

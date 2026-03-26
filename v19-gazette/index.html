@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The American Wilderness Gazette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   ROOT VARIABLES & PAPER TEXTURE
+   ============================================= */
+:root {
+  --newsprint: #f0e6c8;
+  --newsprint-dark: #e8d9b0;
+  --ink: #1a0f00;
+  --crimson: #8b1a1a;
+  --sepia: #4a3200;
+  --sepia-light: #7a5c2e;
+  --rule-color: #8b1a1a;
+  --caption-color: #5a4010;
+  --ad-bg: #ede0c0;
+  --clipping-bg: #f5e8c0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--newsprint);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(26,15,0,0.015) 2px,
+      rgba(26,15,0,0.015) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(26,15,0,0.008) 40px,
+      rgba(26,15,0,0.008) 41px
+    );
+  color: var(--ink);
+  font-family: 'Courier Prime', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* =============================================
+   MASTHEAD
+   ============================================= */
+.masthead {
+  text-align: center;
+  padding: 24px 20px 0;
+  border-bottom: 3px double var(--crimson);
+  position: relative;
+}
+
+.masthead::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, var(--crimson) 0px, var(--crimson) 8px, transparent 8px, transparent 14px);
+  margin-bottom: 12px;
+}
+
+.masthead-kicker {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--sepia);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.masthead-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 6vw, 72px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.masthead-rule {
+  border: none;
+  border-top: 2px solid var(--crimson);
+  margin: 8px auto;
+  width: 80%;
+}
+
+.masthead-rule-thin {
+  border: none;
+  border-top: 1px solid var(--sepia-light);
+  margin: 4px auto;
+  width: 90%;
+}
+
+.masthead-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--sepia);
+  margin: 6px 0;
+}
+
+.masthead-date {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: var(--sepia-light);
+  margin: 4px 0 12px;
+  letter-spacing: 0.05em;
+}
+
+/* =============================================
+   SECTION TABS
+   ============================================= */
+.section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  background: var(--ink);
+  padding: 0 20px;
+  border-bottom: 3px solid var(--crimson);
+  overflow-x: auto;
+}
+
+.section-tab {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #c8b88a;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(200,184,138,0.2);
+  padding: 9px 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.section-tab:hover {
+  background: rgba(139,26,26,0.4);
+  color: #f0e6c8;
+}
+
+.section-tab.active {
+  background: var(--crimson);
+  color: #f0e6c8;
+}
+
+/* =============================================
+   NEWSPAPER PAGES
+   ============================================= */
+.newspaper-page {
+  display: none;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.newspaper-page.active {
+  display: block;
+}
+
+/* =============================================
+   SECTION MASTHEAD
+   ============================================= */
+.section-head {
+  text-align: center;
+  padding: 12px 0 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--crimson);
+}
+
+.section-head-label {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--crimson);
+  text-transform: uppercase;
+}
+
+.section-head-rule {
+  border: none;
+  border-top: 1px solid var(--sepia-light);
+  margin: 6px auto;
+  width: 60%;
+}
+
+/* =============================================
+   FRONT PAGE LAYOUT
+   ============================================= */
+.front-page-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto;
+  gap: 0;
+}
+
+.top-story-wrap {
+  grid-column: 1 / 3;
+  border-right: 1px solid var(--sepia-light);
+  padding-right: 20px;
+}
+
+.sidebar-stories {
+  grid-column: 3 / 4;
+  padding-left: 20px;
+  border-left: 1px solid var(--sepia-light);
+}
+
+.sidebar-stories .article-card {
+  border-bottom: 1px solid var(--sepia-light);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+}
+
+.sidebar-stories .article-card:last-child {
+  border-bottom: none;
+}
+
+/* =============================================
+   ARTICLE CARDS
+   ============================================= */
+.article-card {
+  position: relative;
+  cursor: default;
+}
+
+.article-card.top-story {
+  margin-bottom: 0;
+}
+
+.article-headline {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.article-headline:hover {
+  color: var(--crimson);
+}
+
+.top-story .article-headline {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.medium-story .article-headline {
+  font-size: 22px;
+}
+
+.small-story .article-headline {
+  font-size: 18px;
+}
+
+.article-byline {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--crimson);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.article-dateline {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.article-body {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.7;
+}
+
+/* Drop cap */
+.top-story .article-body::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 0.75;
+  float: left;
+  margin-right: 6px;
+  margin-top: 8px;
+  color: var(--crimson);
+}
+
+/* Two-column body text for large articles */
+.two-col-body {
+  column-count: 2;
+  column-gap: 20px;
+  column-rule: 1px solid var(--sepia-light);
+}
+
+.article-img {
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  filter: sepia(30%) contrast(1.1);
+  display: block;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.article-img:hover {
+  filter: sepia(40%) contrast(1.15) brightness(1.05);
+}
+
+.article-caption {
+  font-family: 'Courier Prime', monospace;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--caption-color);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.article-rule {
+  border: none;
+  border-top: 1px solid var(--sepia-light);
+  margin: 10px 0;
+}
+
+/* Stats sidebar box */
+.stats-box {
+  border: 2px solid var(--ink);
+  padding: 10px 12px;
+  margin: 12px 0;
+  background: rgba(26,15,0,0.04);
+}
+
+.stats-box-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-bottom: 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--sepia-light);
+  padding-bottom: 4px;
+}
+
+.stats-box-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  font-size: 11px;
+}
+
+.stats-box-item strong {
+  color: var(--sepia);
+  font-weight: 700;
+}
+
+.stats-box-item span {
+  display: block;
+  font-size: 10px;
+  color: var(--sepia-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* =============================================
+   COLUMN GRID BELOW FOLD
+   ============================================= */
+.below-fold-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 2px solid var(--crimson);
+  margin-top: 20px;
+  padding-top: 16px;
+}
+
+.below-fold-col {
+  padding: 0 18px;
+  border-right: 1px solid var(--sepia-light);
+}
+
+.below-fold-col:first-child {
+  padding-left: 0;
+}
+
+.below-fold-col:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+/* =============================================
+   STANDARD GRID (non-front pages)
+   ============================================= */
+.standard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.standard-col {
+  padding: 0 18px;
+  border-right: 1px solid var(--sepia-light);
+}
+
+.standard-col:first-child { padding-left: 0; }
+.standard-col:last-child { border-right: none; padding-right: 0; }
+
+.standard-col .article-card {
+  border-bottom: 1px solid var(--sepia-light);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.standard-col .article-card:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* =============================================
+   ADVERTISEMENT BLOCKS
+   ============================================= */
+.ad-block {
+  background: var(--ad-bg);
+  border: 3px double var(--ink);
+  padding: 16px;
+  text-align: center;
+  position: relative;
+  margin: 12px 0;
+  cursor: pointer;
+}
+
+.ad-block::before,
+.ad-block::after {
+  content: '✦  ✦  ✦';
+  display: block;
+  font-size: 10px;
+  color: var(--sepia-light);
+  letter-spacing: 0.3em;
+  margin: 4px 0;
+}
+
+.ad-headline {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: var(--crimson);
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin: 6px 0;
+}
+
+.ad-tagline {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--sepia);
+  text-transform: uppercase;
+  margin: 4px 0;
+}
+
+.ad-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink);
+  margin: 6px 0 2px;
+}
+
+.ad-flourish {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  color: var(--sepia-light);
+  letter-spacing: 0.1em;
+}
+
+/* =============================================
+   CLIP THIS BUTTON
+   ============================================= */
+.clip-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: 1px dashed var(--sepia-light);
+  color: var(--sepia-light);
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  padding: 3px 7px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+  z-index: 2;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.article-card:hover .clip-btn {
+  opacity: 1;
+}
+
+.clip-btn:hover {
+  color: var(--crimson);
+  border-color: var(--crimson);
+}
+
+.clip-btn.clipped {
+  opacity: 1;
+  color: var(--crimson);
+  border-color: var(--crimson);
+  background: rgba(139,26,26,0.08);
+}
+
+/* Clipped article treatment */
+.article-card.is-clipped {
+  clip-path: polygon(0 0, 98% 0, 100% 2%, 100% 98%, 97% 100%, 0 100%);
+  box-shadow: 4px 4px 12px rgba(26,15,0,0.25);
+  background: var(--clipping-bg);
+  padding: 6px;
+}
+
+/* =============================================
+   MY CLIPPINGS COUNTER
+   ============================================= */
+.clippings-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--ink);
+  color: var(--newsprint);
+  border: 2px solid var(--crimson);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 10px 16px;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 3px 3px 10px rgba(26,15,0,0.4);
+  transition: background 0.15s;
+  text-transform: uppercase;
+}
+
+.clippings-fab:hover {
+  background: var(--crimson);
+}
+
+.clippings-count {
+  display: inline-block;
+  background: var(--crimson);
+  color: #f0e6c8;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 10px;
+  margin-left: 6px;
+}
+
+.clippings-fab.hidden { display: none; }
+
+/* =============================================
+   SCRAPBOOK OVERLAY
+   ============================================= */
+.scrapbook-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,15,0,0.75);
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.scrapbook-overlay.open {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.scrapbook-inner {
+  background: #c8a96e;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(100,70,20,0.08) 28px, rgba(100,70,20,0.08) 29px),
+    repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(100,70,20,0.05) 28px, rgba(100,70,20,0.05) 29px);
+  max-width: 800px;
+  width: 100%;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  min-height: 400px;
+}
+
+.scrapbook-title {
+  font-family: 'Cinzel', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--crimson);
+  text-align: center;
+  letter-spacing: 0.2em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.scrapbook-sub {
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: var(--sepia);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.scrapbook-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--ink);
+  color: var(--newsprint);
+  border: none;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+
+.clipping-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.clipping-item {
+  background: var(--newsprint);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(26,15,0,0.015) 2px, rgba(26,15,0,0.015) 4px);
+  width: 200px;
+  padding: 12px;
+  box-shadow: 4px 4px 14px rgba(26,15,0,0.3);
+  clip-path: polygon(0 0, 97% 0, 100% 3%, 100% 97%, 98% 100%, 2% 100%, 0 97%);
+  position: relative;
+}
+
+.clipping-item:nth-child(odd) { transform: rotate(-1.5deg); }
+.clipping-item:nth-child(even) { transform: rotate(1.2deg); }
+.clipping-item:nth-child(3n) { transform: rotate(-0.5deg); }
+.clipping-item:nth-child(4n) { transform: rotate(2deg); }
+
+.clipping-item img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  filter: sepia(40%) contrast(1.1);
+  margin-bottom: 6px;
+}
+
+.clipping-item-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.clipping-item-stat {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  color: var(--sepia);
+}
+
+.clipping-item-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: transparent;
+  border: none;
+  color: var(--sepia-light);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px;
+}
+
+.clipping-item-remove:hover { color: var(--crimson); }
+
+.plan-journey-btn {
+  display: block;
+  margin: 0 auto;
+  background: var(--crimson);
+  color: var(--newsprint);
+  border: 2px solid var(--ink);
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 12px 32px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+
+.plan-journey-btn:hover { background: #6b1212; }
+
+.empty-scrapbook {
+  font-family: 'Courier Prime', monospace;
+  font-style: italic;
+  color: var(--sepia);
+  text-align: center;
+  padding: 40px;
+  font-size: 14px;
+}
+
+/* =============================================
+   DETAIL MODAL (BROADSHEET SPREAD)
+   ============================================= */
+.detail-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,15,0,0.85);
+  z-index: 300;
+  overflow-y: auto;
+}
+
+.detail-modal.open {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+}
+
+.detail-spread {
+  background: var(--newsprint);
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(26,15,0,0.015) 2px, rgba(26,15,0,0.015) 4px);
+  max-width: 1100px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 600px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  position: relative;
+}
+
+.detail-left-page {
+  border-right: 2px solid var(--sepia-light);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-right-page {
+  padding: 30px;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.detail-frame {
+  border: 6px double var(--sepia);
+  outline: 2px solid var(--sepia-light);
+  outline-offset: 4px;
+  padding: 4px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-frame img {
+  width: 100%;
+  flex: 1;
+  object-fit: cover;
+  filter: sepia(30%) contrast(1.1);
+  display: block;
+}
+
+.detail-close-btn {
+  margin-top: 12px;
+  background: var(--ink);
+  color: var(--newsprint);
+  border: 2px solid var(--crimson);
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 8px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background 0.15s;
+}
+
+.detail-close-btn:hover { background: var(--crimson); }
+
+.detail-spread-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 8px;
+  cursor: default;
+}
+
+.detail-spread-byline {
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--crimson);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.detail-spread-rule {
+  border: none;
+  border-top: 2px solid var(--crimson);
+  margin: 10px 0;
+}
+
+.detail-spread-body {
+  font-family: 'Courier Prime', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.75;
+  column-count: 2;
+  column-gap: 18px;
+  column-rule: 1px solid var(--sepia-light);
+  margin-bottom: 14px;
+}
+
+.detail-spread-body::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 60px;
+  font-weight: 900;
+  line-height: 0.75;
+  float: left;
+  margin-right: 5px;
+  margin-top: 6px;
+  color: var(--crimson);
+}
+
+.what-to-do-box {
+  border: 2px solid var(--ink);
+  padding: 10px 14px;
+  margin: 12px 0;
+  background: rgba(26,15,0,0.04);
+}
+
+.what-to-do-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  text-align: center;
+  border-bottom: 1px solid var(--sepia-light);
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+.what-to-do-list {
+  list-style: none;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: var(--sepia);
+  columns: 2;
+  column-gap: 12px;
+}
+
+.what-to-do-list li::before {
+  content: '» ';
+  color: var(--crimson);
+}
+
+.detail-tags {
+  margin-top: 10px;
+}
+
+.detail-tag {
+  display: inline-block;
+  border: 1px solid var(--sepia-light);
+  color: var(--sepia);
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  margin: 2px 3px 2px 0;
+  letter-spacing: 0.06em;
+}
+
+/* =============================================
+   MISC UTILITIES
+   ============================================= */
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--crimson);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.ornament-rule {
+  text-align: center;
+  font-size: 12px;
+  color: var(--sepia-light);
+  letter-spacing: 0.4em;
+  margin: 10px 0;
+  user-select: none;
+}
+
+.rating-stars {
+  color: var(--sepia);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.article-card.ad-item {
+  cursor: pointer;
+}
+
+/* journey confirmed toast */
+.journey-toast {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  background: var(--ink);
+  color: var(--newsprint);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 10px 18px;
+  border: 1px solid var(--crimson);
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  text-transform: uppercase;
+}
+
+.journey-toast.show {
+  opacity: 1;
+}
+
+/* responsive tweaks */
+@media (max-width: 900px) {
+  .front-page-grid {
+    grid-template-columns: 1fr;
+  }
+  .top-story-wrap {
+    grid-column: 1 / 2;
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid var(--sepia-light);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+  .sidebar-stories {
+    grid-column: 1 / 2;
+    padding-left: 0;
+    border-left: none;
+  }
+  .below-fold-grid,
+  .standard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .detail-spread {
+    grid-template-columns: 1fr;
+  }
+  .detail-left-page {
+    border-right: none;
+    border-bottom: 2px solid var(--sepia-light);
+    max-height: 300px;
+  }
+  .two-col-body {
+    column-count: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .below-fold-grid,
+  .standard-grid {
+    grid-template-columns: 1fr;
+  }
+  .below-fold-col,
+  .standard-col {
+    border-right: none;
+    padding: 0 0 16px;
+    border-bottom: 1px solid var(--sepia-light);
+    margin-bottom: 16px;
+  }
+  .masthead-title {
+    font-size: 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-kicker">The Voice of America's Wild Places</div>
+  <h1 class="masthead-title">The American Wilderness Gazette</h1>
+  <hr class="masthead-rule">
+  <div class="masthead-sub">Established 1872 &nbsp;·&nbsp; 100 Destinations &nbsp;·&nbsp; Vol. CLII</div>
+  <div class="masthead-date" id="masthead-date">Thursday, 26th March 2026</div>
+  <hr class="masthead-rule-thin">
+</header>
+
+<!-- SECTION TABS -->
+<nav class="section-nav" id="section-nav"></nav>
+
+<!-- NEWSPAPER PAGES -->
+<main id="pages-container"></main>
+
+<!-- MY CLIPPINGS FAB -->
+<button class="clippings-fab hidden" id="clippings-fab" aria-label="My Clippings">
+  MY CLIPPINGS ✂ <span class="clippings-count" id="clippings-count">0</span>
+</button>
+
+<!-- SCRAPBOOK OVERLAY -->
+<div class="scrapbook-overlay" id="scrapbook-overlay" role="dialog" aria-modal="true" aria-label="My Clippings Scrapbook">
+  <div class="scrapbook-inner">
+    <button class="scrapbook-close" id="scrapbook-close">× CLOSE</button>
+    <div class="scrapbook-title">My Clippings</div>
+    <div class="scrapbook-sub" id="scrapbook-sub">Your curated collection of wilderness destinations</div>
+    <div class="clipping-items" id="clipping-items"></div>
+    <button class="plan-journey-btn" id="plan-journey-btn">Plan My Journey</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-modal" id="detail-modal" role="dialog" aria-modal="true" aria-label="Park Detail">
+  <div class="detail-spread" id="detail-spread-content"></div>
+</div>
+
+<!-- JOURNEY TOAST -->
+<div class="journey-toast" id="journey-toast">Added to itinerary!</div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+(function() {
+  // ===================================================
+  //  CONSTANTS & STATE
+  // ===================================================
+  const CLIP_KEY = 'gazette_clippings';
+
+  const SECTIONS = [
+    { id: 'front',       label: 'Front Page',       regions: null },
+    { id: 'rockies',     label: 'Rockies',          regions: ['Rocky Mountains'] },
+    { id: 'southwest',   label: 'Southwest',        regions: ['Southwest'] },
+    { id: 'pacific',     label: 'Pacific',          regions: ['Pacific West'] },
+    { id: 'southeast',   label: 'Southeast',        regions: ['Southeast'] },
+    { id: 'plains',      label: 'Great Plains',     regions: ['Great Plains', 'Midwest'] },
+    { id: 'alaska',      label: 'Alaska & Hawaii',  regions: ['Alaska', 'Hawaii'] },
+    { id: 'northeast',   label: 'Northeast',        regions: ['Northeast', 'Mid-Atlantic'] },
+  ];
+
+  let currentSection = 'front';
+  let clippings = loadClippings();
+
+  // ===================================================
+  //  STORAGE
+  // ===================================================
+  function loadClippings() {
+    try { return JSON.parse(localStorage.getItem(CLIP_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveClippings() {
+    localStorage.setItem(CLIP_KEY, JSON.stringify(clippings));
+  }
+
+  function isClipped(id) { return clippings.includes(id); }
+
+  function toggleClipping(id) {
+    const idx = clippings.indexOf(id);
+    if (idx === -1) clippings.push(id);
+    else clippings.splice(idx, 1);
+    saveClippings();
+    updateClippingsFab();
+  }
+
+  function updateClippingsFab() {
+    const fab = document.getElementById('clippings-fab');
+    const cnt = document.getElementById('clippings-count');
+    cnt.textContent = clippings.length;
+    fab.classList.toggle('hidden', clippings.length === 0);
+  }
+
+  // ===================================================
+  //  DATE
+  // ===================================================
+  function formatDate(d) {
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+    const ord = n => {
+      const s = ['th','st','nd','rd'], v = n % 100;
+      return n + (s[(v-20)%10] || s[v] || s[0]);
+    };
+    return `${days[d.getDay()]}, ${ord(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  document.getElementById('masthead-date').textContent = formatDate(new Date(2026, 2, 26));
+
+  // ===================================================
+  //  HEADLINE SIZE BY RATING
+  // ===================================================
+  function headlineSize(rating) {
+    if (rating >= 4.9) return '42px';
+    if (rating >= 4.8) return '34px';
+    if (rating >= 4.7) return '26px';
+    if (rating >= 4.6) return '22px';
+    return '18px';
+  }
+
+  // ===================================================
+  //  ARTICLE HTML BUILDERS
+  // ===================================================
+  function dateline(a) {
+    return `<span class="article-dateline">${a.state.toUpperCase()} —</span> `;
+  }
+
+  function statsBoxHTML(a) {
+    return `
+      <div class="stats-box">
+        <div class="stats-box-title">Essential Details</div>
+        <div class="stats-box-grid">
+          <div class="stats-box-item"><strong>${a.fee}</strong><span>Entry Fee</span></div>
+          <div class="stats-box-item"><strong>${a.bestTime}</strong><span>Best Time</span></div>
+          <div class="stats-box-item"><strong>${a.duration}</strong><span>Duration</span></div>
+          <div class="stats-box-item"><strong>${a.difficulty}</strong><span>Difficulty</span></div>
+        </div>
+      </div>`;
+  }
+
+  function ratingStars(r) {
+    const full = Math.round(r);
+    return '★'.repeat(full) + '☆'.repeat(5 - full);
+  }
+
+  function clipBtn(a) {
+    const clipped = isClipped(a.id);
+    return `<button class="clip-btn${clipped ? ' clipped' : ''}" data-clip="${a.id}" title="Clip this article">✂ ${clipped ? 'Clipped' : 'Clip this'}</button>`;
+  }
+
+  function topStoryHTML(a) {
+    return `
+      <div class="article-card top-story" data-id="${a.id}">
+        ${clipBtn(a)}
+        <div class="section-label">Feature Report</div>
+        <h2 class="article-headline" style="font-size:${headlineSize(a.rating)}" data-open="${a.id}">${a.name}</h2>
+        <div class="article-byline">By Our Wilderness Correspondent · ${a.region} Bureau</div>
+        <img class="article-img" src="${a.image}" alt="${a.name}"
+          onerror="this.src='https://picsum.photos/seed/p${a.id}/900/400'"
+          data-open="${a.id}">
+        <div class="article-caption"><em>${a.name} — ${a.activities.join(', ')} — a destination of unparalleled natural grandeur, photographed circa present day.</em></div>
+        <div class="rating-stars">${ratingStars(a.rating)} &nbsp;${a.rating} (${App.formatReviews(a.reviews)} reviews)</div>
+        <div class="article-body two-col-body">${dateline(a)}${a.description}</div>
+        ${statsBoxHTML(a)}
+      </div>`;
+  }
+
+  function mediumStoryHTML(a) {
+    return `
+      <div class="article-card medium-story" data-id="${a.id}">
+        ${clipBtn(a)}
+        <div class="section-label">${a.category}</div>
+        <h3 class="article-headline" style="font-size:${headlineSize(a.rating)}" data-open="${a.id}">${a.name}</h3>
+        <div class="article-byline">Special Correspondent · ${a.region} Bureau</div>
+        <img class="article-img" src="${a.image}" alt="${a.name}"
+          onerror="this.src='https://picsum.photos/seed/p${a.id}/600/300'"
+          data-open="${a.id}" style="max-height:180px">
+        <div class="article-caption"><em>${a.state} — ${a.bestTime}</em></div>
+        <div class="rating-stars">${ratingStars(a.rating)} ${a.rating}</div>
+        <div class="article-body">${dateline(a)}${a.description.slice(0, 200)}…</div>
+        ${statsBoxHTML(a)}
+      </div>`;
+  }
+
+  function smallStoryHTML(a) {
+    return `
+      <div class="article-card small-story" data-id="${a.id}">
+        ${clipBtn(a)}
+        <div class="section-label">${a.region}</div>
+        <h4 class="article-headline" style="font-size:${headlineSize(a.rating)}" data-open="${a.id}">${a.name}</h4>
+        <div class="article-byline">Correspondent · ${a.state}</div>
+        <img class="article-img" src="${a.image}" alt="${a.name}"
+          onerror="this.src='https://picsum.photos/seed/p${a.id}/600/300'"
+          data-open="${a.id}" style="max-height:150px">
+        <div class="article-caption"><em>${a.activities.slice(0,3).join(' · ')}</em></div>
+        <div class="rating-stars">${ratingStars(a.rating)} ${a.rating}</div>
+        <div class="article-body">${dateline(a)}${a.description.slice(0, 150)}…</div>
+        ${statsBoxHTML(a)}
+      </div>`;
+  }
+
+  function adBlockHTML(a) {
+    return `
+      <div class="article-card ad-item ad-block" data-id="${a.id}" data-open="${a.id}">
+        <div class="ad-headline">EXPLORE<br>${a.name.toUpperCase()}</div>
+        <div class="ad-tagline">${a.activities.slice(0,3).join(' · ')}</div>
+        <div class="ornament-rule">— ✦ —</div>
+        <div class="ad-price">${a.fee} &nbsp;|&nbsp; ${a.bestTime}</div>
+        <div class="ad-flourish">${a.state} · ${a.difficulty}</div>
+      </div>`;
+  }
+
+  // ===================================================
+  //  FRONT PAGE
+  // ===================================================
+  function buildFrontPage() {
+    const sorted = [...attractions].sort((a,b) => b.rating - a.rating || b.reviews - a.reviews);
+    const top = sorted[0];
+    const side1 = sorted[1];
+    const side2 = sorted[2];
+
+    // Below fold: next 9, every 4th replaced by an ad
+    const belowItems = sorted.slice(3, 30);
+    const col0 = [], col1 = [], col2 = [];
+    let adPool = sorted.slice(30, 40);
+    let adIdx = 0;
+
+    belowItems.forEach((a, i) => {
+      const isAd = (i % 6 === 5);
+      const item = isAd ? adBlockHTML(adPool[adIdx++ % adPool.length]) : smallStoryHTML(a);
+      if (i % 3 === 0) col0.push(item);
+      else if (i % 3 === 1) col1.push(item);
+      else col2.push(item);
+    });
+
+    return `
+      <div class="section-head">
+        <div class="section-head-label">Front Page</div>
+        <hr class="section-head-rule">
+        <div class="ornament-rule">✦ &nbsp; America's Greatest Natural Wonders &nbsp; ✦</div>
+      </div>
+      <div class="front-page-grid">
+        <div class="top-story-wrap">
+          ${topStoryHTML(top)}
+        </div>
+        <div class="sidebar-stories">
+          ${mediumStoryHTML(side1)}
+          <hr class="article-rule">
+          ${mediumStoryHTML(side2)}
+        </div>
+      </div>
+      <div class="below-fold-grid">
+        <div class="below-fold-col">${col0.join('<hr class="article-rule">')}</div>
+        <div class="below-fold-col">${col1.join('<hr class="article-rule">')}</div>
+        <div class="below-fold-col">${col2.join('<hr class="article-rule">')}</div>
+      </div>`;
+  }
+
+  // ===================================================
+  //  REGIONAL PAGE
+  // ===================================================
+  function buildRegionPage(section) {
+    const pool = attractions.filter(a => section.regions.includes(a.region));
+    if (pool.length === 0) {
+      return `<div style="padding:40px;text-align:center;font-family:'Courier Prime',monospace;font-style:italic;color:var(--sepia)">No reports from this bureau at present.</div>`;
+    }
+    const sorted = [...pool].sort((a,b) => b.rating - a.rating);
+    const top = sorted[0];
+    const rest = sorted.slice(1);
+
+    const col0 = [], col1 = [], col2 = [];
+    let adPool = sorted.slice(Math.max(0, sorted.length - 5));
+    let adIdx = 0;
+
+    rest.forEach((a, i) => {
+      const isAd = (i % 5 === 4 && adPool.length);
+      const item = isAd ? adBlockHTML(adPool[adIdx++ % adPool.length]) : smallStoryHTML(a);
+      if (i % 3 === 0) col0.push(item);
+      else if (i % 3 === 1) col1.push(item);
+      else col2.push(item);
+    });
+
+    const hasCols = col0.length || col1.length || col2.length;
+
+    return `
+      <div class="section-head">
+        <div class="section-head-label">${section.label} Bureau</div>
+        <hr class="section-head-rule">
+        <div class="ornament-rule">✦ &nbsp; ${section.regions.join(' &amp; ')} Dispatch &nbsp; ✦</div>
+      </div>
+      <div class="front-page-grid">
+        <div class="top-story-wrap">
+          ${topStoryHTML(top)}
+        </div>
+        ${rest.length >= 2 ? `
+        <div class="sidebar-stories">
+          ${mediumStoryHTML(rest[0])}
+          <hr class="article-rule">
+          ${mediumStoryHTML(rest[1])}
+        </div>` : `<div class="sidebar-stories">${rest.length === 1 ? mediumStoryHTML(rest[0]) : ''}</div>`}
+      </div>
+      ${hasCols ? `
+      <div class="below-fold-grid">
+        <div class="below-fold-col">${col0.join('<hr class="article-rule">')}</div>
+        <div class="below-fold-col">${col1.join('<hr class="article-rule">')}</div>
+        <div class="below-fold-col">${col2.join('<hr class="article-rule">')}</div>
+      </div>` : ''}`;
+  }
+
+  // ===================================================
+  //  BUILD ALL PAGES & TABS
+  // ===================================================
+  function buildUI() {
+    const nav = document.getElementById('section-nav');
+    const container = document.getElementById('pages-container');
+
+    nav.innerHTML = '';
+    container.innerHTML = '';
+
+    SECTIONS.forEach(section => {
+      // Tab
+      const tab = document.createElement('button');
+      tab.className = 'section-tab' + (section.id === currentSection ? ' active' : '');
+      tab.dataset.section = section.id;
+      tab.textContent = section.label;
+      nav.appendChild(tab);
+
+      // Page
+      const page = document.createElement('div');
+      page.className = 'newspaper-page' + (section.id === currentSection ? ' active' : '');
+      page.id = 'page-' + section.id;
+
+      if (section.id === 'front') {
+        page.innerHTML = buildFrontPage();
+      } else {
+        page.innerHTML = buildRegionPage(section);
+      }
+
+      container.appendChild(page);
+    });
+
+    updateClippingsFab();
+  }
+
+  // ===================================================
+  //  DETAIL MODAL
+  // ===================================================
+  function openDetail(id) {
+    const a = attractions.find(x => x.id === id);
+    if (!a) return;
+
+    const content = document.getElementById('detail-spread-content');
+    content.innerHTML = `
+      <div class="detail-left-page">
+        <div class="detail-frame">
+          <img src="${a.image}" alt="${a.name}"
+            onerror="this.src='https://picsum.photos/seed/p${a.id}/900/700'">
+        </div>
+        <button class="detail-close-btn" id="detail-close-btn">× Close Edition</button>
+      </div>
+      <div class="detail-right-page">
+        <div class="section-label">${a.category} · ${a.region}</div>
+        <div class="detail-spread-title">${a.name}</div>
+        <div class="detail-spread-byline">By Our Wilderness Correspondent · ${a.region} Bureau</div>
+        <hr class="detail-spread-rule">
+        <div class="rating-stars" style="margin-bottom:8px">${ratingStars(a.rating)} &nbsp;${a.rating} (${App.formatReviews(a.reviews)} reviews)</div>
+        <div class="detail-spread-body">${a.state.toUpperCase()} — ${a.description}</div>
+        ${statsBoxHTML(a)}
+        <div class="what-to-do-box">
+          <div class="what-to-do-title">What To Do</div>
+          <ul class="what-to-do-list">
+            ${a.activities.map(act => `<li>${act}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="detail-tags">
+          ${a.tags.map(t => `<span class="detail-tag">${t}</span>`).join('')}
+        </div>
+      </div>`;
+
+    document.getElementById('detail-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    document.getElementById('detail-close-btn').addEventListener('click', closeDetail);
+  }
+
+  function closeDetail() {
+    document.getElementById('detail-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ===================================================
+  //  SCRAPBOOK
+  // ===================================================
+  function openScrapbook() {
+    renderScrapbook();
+    document.getElementById('scrapbook-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeScrapbook() {
+    document.getElementById('scrapbook-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function renderScrapbook() {
+    const container = document.getElementById('clipping-items');
+    const sub = document.getElementById('scrapbook-sub');
+
+    if (clippings.length === 0) {
+      container.innerHTML = `<div class="empty-scrapbook">No articles have been clipped yet.<br>Hover over any article and click "✂ Clip this" to begin your collection.</div>`;
+      sub.textContent = 'Your personal collection of wilderness destinations';
+      return;
+    }
+
+    sub.textContent = `${clippings.length} destination${clippings.length !== 1 ? 's' : ''} in your collection`;
+
+    container.innerHTML = clippings.map(id => {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return '';
+      return `
+        <div class="clipping-item">
+          <button class="clipping-item-remove" data-unclip="${a.id}" title="Remove clipping">×</button>
+          <img src="${a.image}" alt="${a.name}"
+            onerror="this.src='https://picsum.photos/seed/p${a.id}/400/200'">
+          <div class="clipping-item-name">${a.name}</div>
+          <div class="clipping-item-stat">${a.state}</div>
+          <div class="clipping-item-stat">${a.fee} · ${a.rating}★</div>
+          <div class="clipping-item-stat">${a.bestTime}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function showJourneyToast(msg) {
+    const t = document.getElementById('journey-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ===================================================
+  //  GLOBAL EVENT DELEGATION
+  // ===================================================
+  document.addEventListener('click', function(e) {
+    // Section tab
+    const tab = e.target.closest('.section-tab');
+    if (tab) {
+      currentSection = tab.dataset.section;
+      document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.newspaper-page').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const page = document.getElementById('page-' + currentSection);
+      if (page) page.classList.add('active');
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    // Open detail (headline click or image click)
+    const openTrigger = e.target.closest('[data-open]');
+    if (openTrigger) {
+      const id = parseInt(openTrigger.dataset.open);
+      openDetail(id);
+      return;
+    }
+
+    // Ad block click
+    const adBlock = e.target.closest('.ad-block');
+    if (adBlock && adBlock.dataset.id) {
+      openDetail(parseInt(adBlock.dataset.id));
+      return;
+    }
+
+    // Clip button
+    const clipBtnEl = e.target.closest('[data-clip]');
+    if (clipBtnEl) {
+      e.stopPropagation();
+      const id = parseInt(clipBtnEl.dataset.clip);
+      toggleClipping(id);
+      const clipped = isClipped(id);
+      clipBtnEl.textContent = (clipped ? '✂ Clipped' : '✂ Clip this');
+      clipBtnEl.classList.toggle('clipped', clipped);
+      const card = clipBtnEl.closest('.article-card');
+      if (card) card.classList.toggle('is-clipped', clipped);
+      return;
+    }
+
+    // Detail modal backdrop
+    const modal = document.getElementById('detail-modal');
+    if (e.target === modal) {
+      closeDetail();
+      return;
+    }
+
+    // Clippings FAB
+    if (e.target.closest('#clippings-fab')) {
+      openScrapbook();
+      return;
+    }
+
+    // Scrapbook close
+    if (e.target.closest('#scrapbook-close')) {
+      closeScrapbook();
+      return;
+    }
+
+    // Scrapbook backdrop
+    const scrapOverlay = document.getElementById('scrapbook-overlay');
+    if (e.target === scrapOverlay) {
+      closeScrapbook();
+      return;
+    }
+
+    // Unclip from scrapbook
+    const unclipBtn = e.target.closest('[data-unclip]');
+    if (unclipBtn) {
+      const id = parseInt(unclipBtn.dataset.unclip);
+      const idx = clippings.indexOf(id);
+      if (idx !== -1) clippings.splice(idx, 1);
+      saveClippings();
+      updateClippingsFab();
+      renderScrapbook();
+
+      // Update clip buttons on page
+      document.querySelectorAll(`[data-clip="${id}"]`).forEach(btn => {
+        btn.textContent = '✂ Clip this';
+        btn.classList.remove('clipped');
+        const card = btn.closest('.article-card');
+        if (card) card.classList.remove('is-clipped');
+      });
+      return;
+    }
+
+    // Plan Journey
+    if (e.target.closest('#plan-journey-btn')) {
+      if (clippings.length === 0) return;
+      clippings.forEach(id => App.addToItinerary(id));
+      showJourneyToast(`${clippings.length} destination${clippings.length !== 1 ? 's' : ''} added to your itinerary!`);
+      closeScrapbook();
+      return;
+    }
+  });
+
+  // Close detail modal on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeDetail();
+      closeScrapbook();
+    }
+  });
+
+  // ===================================================
+  //  INIT — apply clipped state from storage on load
+  // ===================================================
+  function applyClippedState() {
+    clippings.forEach(id => {
+      document.querySelectorAll(`[data-clip="${id}"]`).forEach(btn => {
+        btn.textContent = '✂ Clipped';
+        btn.classList.add('clipped');
+        const card = btn.closest('.article-card');
+        if (card) card.classList.add('is-clipped');
+      });
+    });
+  }
+
+  buildUI();
+  applyClippedState();
+
+})();
+</script>
+</body>
+</html>

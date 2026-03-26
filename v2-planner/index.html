@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover America — Trip Planner</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ---- v2: Trip Planner First — Clean Modern Travel Theme ---- */
+    :root {
+      --bg:           #F0F4FF;
+      --bg-alt:       #E3EAFF;
+      --primary:      #1E40AF;
+      --primary-dark: #1530820;
+      --primary-light:#2d5abf;
+      --accent:       #D97706;
+      --accent-light: #F59E0B;
+      --text:         #111827;
+      --text-muted:   #4B5563;
+      --text-light:   #9CA3AF;
+      --card-bg:      #FFFFFF;
+      --card-border:  rgba(30,64,175,0.1);
+      --shadow-sm:    0 1px 4px rgba(30,64,175,0.08);
+      --shadow-md:    0 4px 16px rgba(30,64,175,0.12);
+    }
+
+    body { overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+    /* ---- Top Bar ---- */
+    .top-bar {
+      background: var(--primary);
+      color: #fff;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-md);
+    }
+    .top-bar .nav-logo { font-family: var(--font-serif); font-size: 1.1rem; font-weight: bold; color: #fff; white-space: nowrap; }
+    .top-bar .nav-logo span { color: var(--accent-light); }
+
+    .trip-name-wrap {
+      flex: 1;
+      max-width: 320px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.75rem;
+    }
+    .trip-name-input {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      flex: 1;
+      min-width: 0;
+    }
+    .trip-name-input::placeholder { color: rgba(255,255,255,0.6); }
+
+    .trip-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-left: auto;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.85);
+    }
+    .trip-stat { text-align: center; }
+    .trip-stat strong { display: block; font-size: 1rem; color: #fff; }
+
+    /* ---- Split Pane Layout ---- */
+    .split-pane {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ---- Left: Trip Canvas ---- */
+    .trip-canvas {
+      width: 55%;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid var(--card-border);
+    }
+
+    .canvas-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .canvas-header h2 { font-size: 1.1rem; color: var(--text); }
+    .canvas-header-actions { display: flex; gap: 0.5rem; }
+
+    .trip-stops {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .trip-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      color: var(--text-muted);
+      gap: 0.75rem;
+      padding: 2rem;
+    }
+    .trip-empty-icon { font-size: 3rem; opacity: 0.4; }
+    .trip-empty h3 { color: var(--text-muted); font-family: var(--font-sans); font-size: 1rem; font-weight: 600; }
+    .trip-empty p  { font-size: 0.85rem; max-width: 280px; }
+
+    .stop-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1rem;
+      overflow: hidden;
+      display: flex;
+      position: relative;
+      transition: box-shadow var(--transition);
+    }
+    .stop-card:hover { box-shadow: var(--shadow-md); }
+
+    .stop-number {
+      width: 44px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .stop-image {
+      width: 100px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .stop-info {
+      padding: 0.85rem 1rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .stop-name { font-family: var(--font-serif); font-size: 1rem; color: var(--text); margin-bottom: 0.2rem; }
+    .stop-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .stop-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .stop-chip {
+      background: var(--bg-alt);
+      color: var(--primary);
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .stop-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0.75rem 0.75rem 0.75rem 0;
+      justify-content: center;
+    }
+    .stop-btn {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition), color var(--transition);
+    }
+    .stop-btn:hover { background: var(--primary); color: #fff; }
+    .stop-btn.remove:hover { background: #ef4444; color: #fff; }
+
+    .drive-connector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0 0.3rem 2.5rem;
+      color: var(--text-light);
+      font-size: 0.75rem;
+    }
+    .drive-connector::before {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 24px;
+      background: repeating-linear-gradient(to bottom, var(--primary) 0px, var(--primary) 6px, transparent 6px, transparent 12px);
+    }
+
+    .canvas-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--card-border);
+      background: var(--card-bg);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    /* ---- Right: Attraction Browser ---- */
+    .attraction-browser {
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      background: var(--card-bg);
+    }
+
+    .browser-header {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .browser-search {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--card-border);
+      font-size: 0.88rem;
+      outline: none;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color var(--transition);
+    }
+    .browser-search:focus { border-color: var(--primary); }
+
+    .browser-filters {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .browser-select {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--card-border);
+      font-size: 0.8rem;
+      color: var(--text);
+      background: var(--bg);
+      cursor: pointer;
+    }
+
+    .browser-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .browser-count {
+      padding: 0.5rem 1rem;
+      font-size: 0.78rem;
+      color: var(--text-light);
+      border-bottom: 1px solid var(--card-border);
+      background: var(--bg);
+    }
+
+    /* Compact row for browser */
+    .compact-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+      transition: background var(--transition);
+      cursor: pointer;
+    }
+    .compact-row:hover { background: var(--bg); }
+    .compact-row.in-trip { background: #EFF6FF; }
+
+    .row-thumb {
+      width: 64px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .row-info { flex: 1; min-width: 0; }
+    .row-title { font-size: 0.88rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-sub   { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .row-category { font-size: 0.68rem; background: var(--bg-alt); color: var(--primary); padding: 0.1rem 0.45rem; border-radius: 999px; font-weight: 600; margin-top: 0.25rem; display: inline-block; }
+
+    .row-actions { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
+    .row-add-btn {
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-sm);
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+      white-space: nowrap;
+    }
+    .row-add-btn:hover { background: var(--primary-light); }
+    .row-add-btn.added { background: #10b981; }
+    .row-add-btn.added:hover { background: #059669; }
+
+    .fav-btn-small {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: #ccc;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color var(--transition), border-color var(--transition);
+    }
+    .fav-btn-small.active { color: #ef4444; border-color: #ef4444; }
+
+    /* ---- Print styles ---- */
+    @media print {
+      .attraction-browser, .top-bar .trip-stat,
+      .canvas-header-actions, .stop-actions { display: none !important; }
+      .trip-canvas { width: 100%; border: none; }
+      body { overflow: visible; height: auto; }
+    }
+
+    /* ---- Mobile ---- */
+    @media (max-width: 768px) {
+      .split-pane { flex-direction: column; }
+      .trip-canvas { width: 100%; height: 50vh; border-right: none; border-bottom: 2px solid var(--card-border); }
+      .attraction-browser { width: 100%; }
+      .trip-stats { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="top-bar">
+  <a href="../gallery.html" class="nav-back-btn">← All Versions</a>
+  <span class="nav-logo">Discover <span>America</span></span>
+  <div class="trip-name-wrap">
+    ✏️
+    <input type="text" class="trip-name-input" id="tripName" value="My U.S. Road Trip" placeholder="Name your trip…">
+  </div>
+  <div class="trip-stats">
+    <div class="trip-stat"><strong id="statsStops">0</strong><span>Stops</span></div>
+    <div class="trip-stat"><strong id="statsStates">0</strong><span>States</span></div>
+    <div class="trip-stat"><strong id="statsFee">$0</strong><span>Est. Fees</span></div>
+  </div>
+</header>
+
+<!-- Split Pane -->
+<div class="split-pane">
+
+  <!-- LEFT: Trip Canvas -->
+  <section class="trip-canvas">
+    <div class="canvas-header">
+      <h2>🗺 Your Itinerary</h2>
+      <div class="canvas-header-actions">
+        <button class="btn-accent" style="font-size:0.8rem;padding:0.35rem 0.85rem" onclick="window.print()">🖨 Print</button>
+        <button class="btn-secondary" style="font-size:0.8rem;padding:0.35rem 0.85rem" id="clearTrip">Clear</button>
+      </div>
+    </div>
+    <div class="trip-stops" id="tripStops">
+      <div class="trip-empty" id="tripEmpty">
+        <span class="trip-empty-icon">🌎</span>
+        <h3>Start Planning Your Trip</h3>
+        <p>Search or browse attractions on the right, then click <strong>+ Add</strong> to build your itinerary.</p>
+      </div>
+    </div>
+    <div class="canvas-footer">
+      <span style="font-size:0.82rem;color:var(--text-muted);flex:1" id="footerNote">
+        Add attractions to get started
+      </span>
+    </div>
+  </section>
+
+  <!-- RIGHT: Attraction Browser -->
+  <section class="attraction-browser">
+    <div class="browser-header">
+      <input type="text" class="browser-search" id="browserSearch" placeholder="🔍 Search parks, states…" autocomplete="off">
+      <div class="browser-filters">
+        <select class="browser-select" id="regionFilter">
+          <option value="">All Regions</option>
+        </select>
+        <select class="browser-select" id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+    </div>
+    <div class="browser-count" id="browserCount">25 attractions</div>
+    <div class="browser-list" id="browserList"></div>
+  </section>
+</div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+  // ---- Populate filter selects ----
+  const regionSel   = document.getElementById('regionFilter');
+  const categorySel = document.getElementById('categoryFilter');
+
+  [...new Set(attractions.map(a => a.region))].sort().forEach(r => {
+    regionSel.innerHTML += `<option value="${r}">${r}</option>`;
+  });
+  [...new Set(attractions.map(a => a.category))].sort().forEach(c => {
+    categorySel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+
+  // ---- Render browser list ----
+  function renderBrowser() {
+    const q    = document.getElementById('browserSearch').value.toLowerCase().trim();
+    const reg  = regionSel.value;
+    const cat  = categorySel.value;
+
+    const list = attractions.filter(a => {
+      if (q && !a.name.toLowerCase().includes(q) &&
+               !a.state.toLowerCase().includes(q) &&
+               !a.tags.join(' ').toLowerCase().includes(q)) return false;
+      if (reg && a.region   !== reg) return false;
+      if (cat && a.category !== cat) return false;
+      return true;
+    });
+
+    document.getElementById('browserCount').textContent = `${list.length} attraction${list.length !== 1 ? 's' : ''}`;
+
+    const browserList = document.getElementById('browserList');
+    if (list.length === 0) {
+      browserList.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted);font-size:0.9rem">No results found.</div>';
+      return;
+    }
+
+    browserList.innerHTML = list.map(a => {
+      const inTrip = App.isInItinerary(a.id);
+      const isFav  = App.isFavorite(a.id);
+      return `
+        <div class="compact-row ${inTrip ? 'in-trip' : ''}" data-id="${a.id}">
+          <img class="row-thumb" src="${a.image}" alt="${a.name}"
+               onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+          <div class="row-info">
+            <div class="row-title">${a.name}</div>
+            <div class="row-sub">📍 ${a.state} &nbsp;·&nbsp; <span style="color:var(--accent)">${App.starsHTML(a.rating)}</span> ${a.rating}</div>
+            <span class="row-category">${a.category}</span>
+          </div>
+          <div class="row-actions">
+            <button class="fav-btn-small ${isFav ? 'active' : ''}" data-fav="${a.id}">${isFav ? '♥' : '♡'}</button>
+            <button class="row-add-btn ${inTrip ? 'added' : ''}" data-itin="${a.id}">
+              ${inTrip ? '✓ Added' : '+ Add'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---- Render trip stops ----
+  function renderTrip() {
+    const itin = App.getItinerary();
+    const stopsEl = document.getElementById('tripStops');
+    const emptyEl = document.getElementById('tripEmpty');
+
+    if (itin.length === 0) {
+      if (!document.getElementById('tripEmpty')) {
+        stopsEl.innerHTML = '';
+        const empty = document.createElement('div');
+        empty.className = 'trip-empty';
+        empty.id = 'tripEmpty';
+        empty.innerHTML = `
+          <span class="trip-empty-icon">🌎</span>
+          <h3>Start Planning Your Trip</h3>
+          <p>Search or browse attractions on the right, then click <strong>+ Add</strong> to build your itinerary.</p>`;
+        stopsEl.appendChild(empty);
+      }
+      updateStats(itin);
+      return;
+    }
+
+    stopsEl.innerHTML = itin.map((id, i) => {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return '';
+      const connector = i < itin.length - 1
+        ? `<div class="drive-connector">📍 Next stop</div>` : '';
+      return `
+        <div class="stop-card" data-stop="${a.id}">
+          <div class="stop-number">${i + 1}</div>
+          <img class="stop-image" src="${a.image}" alt="${a.name}"
+               onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+          <div class="stop-info">
+            <div class="stop-name">${a.name}</div>
+            <div class="stop-meta">📍 ${a.state} · ${a.fee} · ${a.duration}</div>
+            <div class="stop-chips">
+              ${a.activities.slice(0,3).map(act => `<span class="stop-chip">${act}</span>`).join('')}
+            </div>
+          </div>
+          <div class="stop-actions">
+            <button class="stop-btn" data-up="${a.id}" title="Move up">↑</button>
+            <button class="stop-btn" data-down="${a.id}" title="Move down">↓</button>
+            <button class="stop-btn remove" data-remove="${a.id}" title="Remove">✕</button>
+          </div>
+        </div>
+        ${connector}`;
+    }).join('');
+
+    updateStats(itin);
+    document.getElementById('footerNote').textContent =
+      `${itin.length} stop${itin.length !== 1 ? 's' : ''} · Print or share your itinerary`;
+  }
+
+  function updateStats(itin) {
+    const stops  = itin.length;
+    const states = new Set(itin.map(id => { const a = attractions.find(x => x.id === id); return a ? a.state : ''; })).size;
+    let totalFee = 0;
+    itin.forEach(id => {
+      const a = attractions.find(x => x.id === id);
+      if (a) {
+        const m = a.fee.match(/\$(\d+)/);
+        if (m) totalFee += parseInt(m[1]);
+      }
+    });
+    document.getElementById('statsStops').textContent  = stops;
+    document.getElementById('statsStates').textContent = states;
+    document.getElementById('statsFee').textContent    = totalFee > 0 ? `$${totalFee}+` : 'Free';
+  }
+
+  // ---- Trip stop controls (move up/down/remove) ----
+  document.getElementById('tripStops').addEventListener('click', e => {
+    const up     = e.target.closest('[data-up]');
+    const down   = e.target.closest('[data-down]');
+    const remove = e.target.closest('[data-remove]');
+
+    if (remove) {
+      const id = parseInt(remove.dataset.remove);
+      App.removeFromItinerary(id);
+      renderTrip();
+      renderBrowser();
+    } else if (up) {
+      const id   = parseInt(up.dataset.up);
+      const itin = App.getItinerary();
+      const idx  = itin.indexOf(id);
+      if (idx > 0) { [itin[idx-1], itin[idx]] = [itin[idx], itin[idx-1]]; App.reorderItinerary(itin); renderTrip(); }
+    } else if (down) {
+      const id   = parseInt(down.dataset.down);
+      const itin = App.getItinerary();
+      const idx  = itin.indexOf(id);
+      if (idx < itin.length - 1) { [itin[idx], itin[idx+1]] = [itin[idx+1], itin[idx]]; App.reorderItinerary(itin); renderTrip(); }
+    }
+  });
+
+  // ---- Browser interactions ----
+  document.getElementById('browserList').addEventListener('click', e => {
+    const favBtn = e.target.closest('[data-fav]');
+    const addBtn = e.target.closest('[data-itin]');
+
+    if (favBtn) {
+      const id = parseInt(favBtn.dataset.fav);
+      const isNow = App.toggleFavorite(id);
+      favBtn.classList.toggle('active', isNow);
+      favBtn.textContent = isNow ? '♥' : '♡';
+    } else if (addBtn) {
+      const id = parseInt(addBtn.dataset.itin);
+      if (App.isInItinerary(id)) {
+        App.removeFromItinerary(id);
+      } else {
+        App.addToItinerary(id);
+      }
+      renderTrip();
+      renderBrowser();
+    }
+  });
+
+  // ---- Clear trip ----
+  document.getElementById('clearTrip').addEventListener('click', () => {
+    if (confirm('Clear your entire itinerary?')) {
+      App.clearItinerary();
+      renderTrip();
+      renderBrowser();
+    }
+  });
+
+  // ---- Filter events ----
+  document.getElementById('browserSearch').addEventListener('input', renderBrowser);
+  regionSel.addEventListener('change', renderBrowser);
+  categorySel.addEventListener('change', renderBrowser);
+
+  // ---- Init ----
+  renderBrowser();
+  renderTrip();
+</script>
+</body>
+</html>

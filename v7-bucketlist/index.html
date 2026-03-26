@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your U.S. Bucket List — Tourist Attractions</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <style>
+    /* ============================================================
+       THEME — Warm Coral Bucket List Tracker
+    ============================================================ */
+    :root {
+      --bg:           #FFF5F0;
+      --bg-alt:       #FFE8DF;
+      --primary:      #EA4C1D;
+      --accent:       #F97316;
+      --primary-dark: #C03A12;
+      --text:         #1C0A00;
+      --text-muted:   #7C3A1A;
+      --card-bg:      #FFFFFF;
+      --visited-bg:   #F0FDF4;
+      --visited-border: #86EFAC;
+      --wishlist-bg:  #FFFBEB;
+      --wishlist-border: #FCD34D;
+      --radius:       12px;
+      --radius-sm:    8px;
+      --shadow:       0 2px 12px rgba(234,76,29,0.10);
+      --shadow-lg:    0 8px 32px rgba(234,76,29,0.16);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ---- Navigation ---- */
+    .site-nav {
+      background: var(--primary-dark);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .nav-back-btn {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.375rem 0.875rem;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 20px;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .nav-back-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.7); }
+
+    .nav-title {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      flex: 1;
+      text-align: center;
+    }
+
+    .nav-badge-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      display: none;
+      animation: badgePop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .badge.visible { display: flex; align-items: center; gap: 0.3rem; }
+
+    @keyframes badgePop {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    /* ---- Hero ---- */
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 60%, #FBBF24 100%);
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-heading {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .hero-sub {
+      color: rgba(255,255,255,0.88);
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    /* ---- Progress Ring ---- */
+    .hero-progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .progress-ring-wrap {
+      position: relative;
+      width: 130px;
+      height: 130px;
+      flex-shrink: 0;
+    }
+    .progress-ring-svg {
+      width: 130px;
+      height: 130px;
+      transform: rotate(-90deg);
+    }
+    .ring-track {
+      fill: none;
+      stroke: rgba(255,255,255,0.25);
+      stroke-width: 10;
+    }
+    .ring-fill {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 345.4; /* 2π×55 */
+      stroke-dashoffset: 345.4;
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .ring-pct {
+      font-size: 1.8rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .ring-label {
+      font-size: 0.7rem;
+      opacity: 0.85;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stat-pill {
+      background: rgba(255,255,255,0.2);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 16px;
+      padding: 0.85rem 1.3rem;
+      min-width: 110px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .stat-pill-num {
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .stat-pill-num.bump {
+      transform: scale(1.35);
+    }
+    .stat-pill-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Progress bar under ring */
+    .hero-bar-wrap {
+      width: min(480px, 90%);
+      margin: 1.5rem auto 0;
+      position: relative;
+    }
+    .hero-bar-label {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+    .hero-bar-track {
+      background: rgba(255,255,255,0.25);
+      border-radius: 99px;
+      height: 14px;
+      overflow: hidden;
+    }
+    .hero-bar-fill {
+      background: #fff;
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 12px rgba(255,255,255,0.5);
+    }
+
+    /* ---- Tabs ---- */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      background: var(--bg-alt);
+      border-bottom: 2px solid #F0C8B8;
+      overflow-x: auto;
+      scrollbar-width: none;
+      position: sticky;
+      top: 52px;
+      z-index: 100;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.875rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .tab-btn:hover { background: rgba(234,76,29,0.06); color: var(--primary); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(234,76,29,0.05); }
+
+    /* ---- Toolbar ---- */
+    .toolbar {
+      padding: 1rem 1.25rem;
+      background: var(--card-bg);
+      border-bottom: 1px solid #F0C8B8;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.6rem 0.75rem 0.6rem 2.2rem;
+      border: 1.5px solid #E8C4B4;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(234,76,29,0.12); }
+
+    .sort-select {
+      padding: 0.6rem 0.75rem;
+      border: 1.5px solid #E8C4B4;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+    }
+
+    .result-count {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ---- List ---- */
+    .list-area {
+      padding: 0.75rem 1.25rem 4rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .attraction-row {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      background: var(--card-bg);
+      border: 1.5px solid #F0D0C4;
+      border-radius: var(--radius);
+      padding: 0.875rem 1rem;
+      margin-bottom: 0.625rem;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.2s, transform 0.2s, opacity 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .attraction-row:hover {
+      box-shadow: var(--shadow);
+      transform: translateX(2px);
+    }
+    .attraction-row.visited {
+      background: var(--visited-bg);
+      border-color: var(--visited-border);
+    }
+    .attraction-row.wishlist {
+      background: var(--wishlist-bg);
+      border-color: var(--wishlist-border);
+    }
+    .attraction-row.animating-in {
+      animation: rowSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .attraction-row.hidden {
+      display: none;
+    }
+
+    @keyframes rowSlideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to   { transform: translateX(0);     opacity: 1; }
+    }
+
+    /* Custom checkbox */
+    .row-check-wrap {
+      flex-shrink: 0;
+      position: relative;
+    }
+    .row-check {
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 2.5px solid #D1B0A0;
+      border-radius: 6px;
+      background: var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      position: relative;
+    }
+    .row-check:hover {
+      border-color: var(--primary);
+      transform: scale(1.1);
+    }
+    .row-check:checked {
+      background: #22C55E;
+      border-color: #16A34A;
+    }
+    .row-check:checked::after {
+      content: '✓';
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 900;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Thumbnail */
+    .row-thumb {
+      width: 80px;
+      height: 60px;
+      border-radius: 7px;
+      object-fit: cover;
+      flex-shrink: 0;
+      filter: none;
+      transition: filter 0.3s;
+    }
+    .visited .row-thumb {
+      filter: saturate(0.7) brightness(0.95);
+    }
+
+    /* Row body */
+    .row-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .row-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      transition: color 0.3s, text-decoration 0.3s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .visited .row-name {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+    .row-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .row-meta-sep { color: #C4A090; }
+    .row-rating { color: var(--accent); font-weight: 700; }
+    .row-state-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: var(--bg-alt);
+      color: var(--primary-dark);
+      border: 1px solid #F0C8B8;
+    }
+
+    /* Row actions */
+    .row-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-shrink: 0;
+      align-items: center;
+    }
+    .row-btn {
+      width: 34px;
+      height: 34px;
+      border: 1.5px solid #E8C4B4;
+      border-radius: 8px;
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      color: var(--text-muted);
+    }
+    .row-btn:hover { transform: scale(1.12); }
+    .row-btn.star-btn:hover { background: #FFFBEB; border-color: #FCD34D; }
+    .row-btn.star-btn.active { background: #FFFBEB; border-color: #FCD34D; color: #D97706; }
+    .row-btn.info-btn:hover { background: var(--bg-alt); border-color: var(--primary); color: var(--primary); }
+
+    /* Visited badge on row */
+    .visited-tag {
+      display: none;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #16A34A;
+      background: #DCFCE7;
+      border: 1px solid #86EFAC;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.25rem;
+    }
+    .visited .visited-tag { display: inline-flex; align-items: center; gap: 0.2rem; }
+    .wishlist-tag {
+      display: none;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #92400E;
+      background: #FEF3C7;
+      border: 1px solid #FCD34D;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.25rem;
+    }
+    .wishlist:not(.visited) .wishlist-tag { display: inline-flex; align-items: center; gap: 0.2rem; }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .empty-state-msg { font-size: 1.05rem; font-weight: 600; }
+    .empty-state-sub { font-size: 0.85rem; margin-top: 0.25rem; }
+
+    /* ---- Confetti (CSS only, per row) ---- */
+    .confetti-container {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: var(--radius);
+    }
+    .confetti-dot {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: confettiFly 0.9s ease-out forwards;
+    }
+    @keyframes confettiFly {
+      0%   { transform: translate(0, 0) rotate(0deg) scale(1);  opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.4); opacity: 0; }
+    }
+
+    /* ---- Detail Modal ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(28,10,0,0.55);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: var(--card-bg);
+      border-radius: 18px;
+      max-width: 540px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      scrollbar-width: thin;
+    }
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+    .modal-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 18px 18px 0 0;
+    }
+    .modal-body {
+      padding: 1.5rem;
+    }
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .modal-location {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .modal-rating-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .modal-desc {
+      color: var(--text);
+      font-size: 0.92rem;
+      line-height: 1.65;
+      margin-bottom: 1rem;
+    }
+    .modal-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .modal-chip {
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: var(--bg-alt);
+      color: var(--primary-dark);
+      border: 1px solid #F0C8B8;
+    }
+    .modal-facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.625rem;
+      margin-bottom: 1.25rem;
+    }
+    .modal-fact {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.82rem;
+    }
+    .modal-fact-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.15rem;
+    }
+    .modal-fact-val {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-primary-coral {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary-coral:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary-coral {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-secondary-coral:hover { background: rgba(234,76,29,0.07); transform: translateY(-1px); }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(28,10,0,0.5);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      z-index: 10;
+    }
+    .modal-close:hover { background: rgba(28,10,0,0.75); }
+    .modal-inner { position: relative; }
+
+    /* ---- Celebration Modal ---- */
+    .celebrate-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(28,10,0,0.6);
+      z-index: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .celebrate-overlay.open { opacity: 1; pointer-events: all; }
+
+    .celebrate-box {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(234,76,29,0.25);
+      transform: scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .celebrate-overlay.open .celebrate-box { transform: scale(1); }
+    .celebrate-emoji { font-size: 4rem; margin-bottom: 0.75rem; display: block; animation: bounce 0.6s ease infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    .celebrate-title { font-size: 1.6rem; font-weight: 900; color: var(--primary); margin-bottom: 0.5rem; }
+    .celebrate-msg { font-size: 1rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    .celebrate-close {
+      padding: 0.75rem 2rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .celebrate-close:hover { background: var(--primary-dark); transform: scale(1.04); }
+
+    /* Celebrate confetti burst (full screen) */
+    .celebrate-confetti-wrap {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .big-confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: bigConfetti 1.4s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes bigConfetti {
+      0%   { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.3); opacity: 0; }
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 600px) {
+      .hero { padding: 2rem 1rem 2rem; }
+      .hero-progress-row { gap: 1.5rem; }
+      .stat-pill { min-width: 85px; padding: 0.65rem 0.9rem; }
+      .stat-pill-num { font-size: 1.5rem; }
+      .list-area { padding: 0.5rem 0.75rem 4rem; }
+      .row-thumb { width: 60px; height: 46px; }
+      .row-name { font-size: 0.9rem; }
+      .modal-facts { grid-template-columns: 1fr; }
+      .nav-badge-row { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="site-nav">
+    <a href="../gallery.html" class="nav-back-btn">← All Versions</a>
+    <span class="nav-title">🗺️ Bucket List Tracker</span>
+    <div class="nav-badge-row" id="badgeRow"></div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-heading">Your U.S. Bucket List</h1>
+    <p class="hero-sub">Track the incredible places you've explored across America</p>
+
+    <div class="hero-progress-row">
+      <!-- Circular progress ring -->
+      <div class="progress-ring-wrap">
+        <svg class="progress-ring-svg" viewBox="0 0 130 130" aria-hidden="true">
+          <circle class="ring-track" cx="65" cy="65" r="55" />
+          <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="55" />
+        </svg>
+        <div class="ring-center">
+          <span class="ring-pct" id="ringPct">0%</span>
+          <span class="ring-label">Complete</span>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="hero-stats">
+        <div class="stat-pill">
+          <div class="stat-pill-num" id="statVisited">0</div>
+          <div class="stat-pill-label">✓ Visited</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-num" id="statWishlist">0</div>
+          <div class="stat-pill-label">⭐ Want to Go</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-pill-num" id="statRemaining">0</div>
+          <div class="stat-pill-label">📍 Remaining</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linear progress bar -->
+    <div class="hero-bar-wrap">
+      <div class="hero-bar-label" id="barLabel">0 of 0 parks visited</div>
+      <div class="hero-bar-track">
+        <div class="hero-bar-fill" id="barFill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab bar -->
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" data-tab="all"       role="tab" aria-selected="true">All</button>
+    <button class="tab-btn"        data-tab="wishlist"  role="tab">Want to Go ⭐</button>
+    <button class="tab-btn"        data-tab="visited"   role="tab">Visited ✓</button>
+    <button class="tab-btn"        data-tab="remaining" role="tab">Remaining</button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" class="search-input" id="searchInput"
+             placeholder="Search by name, state, or tag…" aria-label="Search attractions" />
+    </div>
+    <select class="sort-select" id="sortSelect" aria-label="Sort by">
+      <option value="default">Sort: Default</option>
+      <option value="name">Name A–Z</option>
+      <option value="rating">Top Rated</option>
+      <option value="state">By State</option>
+    </select>
+    <span class="result-count" id="resultCount">— results</span>
+  </div>
+
+  <!-- Attraction list -->
+  <main class="list-area" id="listArea" role="main" aria-label="Attraction list">
+    <div id="listContainer"></div>
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <div class="empty-state-icon">🗺️</div>
+      <div class="empty-state-msg">Nothing here yet</div>
+      <div class="empty-state-sub">Try a different filter or search term</div>
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-label="Attraction details">
+    <div class="modal">
+      <div class="modal-inner">
+        <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+        <img class="modal-img" id="modalImg" src="" alt="" />
+        <div class="modal-body">
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <div class="modal-location" id="modalLocation"></div>
+          <div class="modal-rating-row" id="modalRating"></div>
+          <p class="modal-desc" id="modalDesc"></p>
+          <div class="modal-chips" id="modalChips"></div>
+          <div class="modal-facts" id="modalFacts"></div>
+          <div class="modal-actions">
+            <button class="btn-primary-coral" id="modalVisitBtn">Mark as Visited ✓</button>
+            <button class="btn-secondary-coral" id="modalWishBtn">⭐ Want to Go</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Celebration Modal -->
+  <div class="celebrate-overlay" id="celebrateOverlay" role="alertdialog" aria-modal="true">
+    <div class="celebrate-box" id="celebrateBox">
+      <div class="celebrate-confetti-wrap" id="celebrateConfetti"></div>
+      <span class="celebrate-emoji">🎉</span>
+      <div class="celebrate-title" id="celebrateTitle"></div>
+      <div class="celebrate-msg" id="celebrateMsg"></div>
+      <button class="celebrate-close" id="celebrateClose">Keep Exploring!</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../shared/data.js"></script>
+  <script src="../shared/app.js"></script>
+  <script>
+  /* ============================================================
+     Bucket List Tracker — Main Logic
+  ============================================================ */
+
+  const VISITED_KEY  = 'tourist_visited';
+  const WISHLIST_KEY = 'tourist_wishlist';
+  const MILESTONE_KEY = 'tourist_milestones';
+
+  // ---- State ----
+  const state = {
+    visited:    loadSet(VISITED_KEY),
+    wishlist:   loadSet(WISHLIST_KEY),
+    milestones: loadSet(MILESTONE_KEY),
+    tab:        'all',
+    search:     '',
+    sort:       'default',
+    openId:     null,
+  };
+
+  const MILESTONES   = [10, 25, 50, 100];
+  const MILESTONE_BADGES = [
+    { min: 5,   label: '🌿 Park Enthusiast' },
+    { min: 10,  label: '🧭 Explorer' },
+    { min: 25,  label: '🏔️ Adventurer' },
+    { min: 50,  label: '🦅 National Hero' },
+    { min: 100, label: '🏆 Legend' },
+  ];
+  const CONFETTI_COLORS = ['#EA4C1D','#F97316','#FBBF24','#22C55E','#3B82F6','#A855F7','#EC4899'];
+
+  // ---- Storage helpers ----
+  function loadSet(key) {
+    try { return new Set(JSON.parse(localStorage.getItem(key)) || []); }
+    catch { return new Set(); }
+  }
+  function saveSet(key, set) {
+    localStorage.setItem(key, JSON.stringify([...set]));
+  }
+
+  // ---- DOM refs ----
+  const listContainer  = document.getElementById('listContainer');
+  const emptyState     = document.getElementById('emptyState');
+  const resultCount    = document.getElementById('resultCount');
+  const searchInput    = document.getElementById('searchInput');
+  const sortSelect     = document.getElementById('sortSelect');
+  const barFill        = document.getElementById('barFill');
+  const barLabel       = document.getElementById('barLabel');
+  const ringFill       = document.getElementById('ringFill');
+  const ringPct        = document.getElementById('ringPct');
+  const statVisited    = document.getElementById('statVisited');
+  const statWishlist   = document.getElementById('statWishlist');
+  const statRemaining  = document.getElementById('statRemaining');
+  const badgeRow       = document.getElementById('badgeRow');
+  const detailOverlay  = document.getElementById('detailOverlay');
+  const celebrateOverlay = document.getElementById('celebrateOverlay');
+  const CIRCUMFERENCE = 2 * Math.PI * 55; // 345.4
+
+  // ---- Init ----
+  function init() {
+    buildList();
+    updateHero();
+    setupTabs();
+    setupSearch();
+    setupSort();
+    setupModalClose();
+    setupCelebrateClose();
+    updateBadges();
+  }
+
+  // ---- Build list ----
+  function getFilteredSorted() {
+    let list = [...attractions];
+
+    // Tab filter
+    if (state.tab === 'visited')   list = list.filter(a => state.visited.has(a.id));
+    if (state.tab === 'wishlist')  list = list.filter(a => state.wishlist.has(a.id) && !state.visited.has(a.id));
+    if (state.tab === 'remaining') list = list.filter(a => !state.visited.has(a.id));
+
+    // Search filter
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      list = list.filter(a =>
+        a.name.toLowerCase().includes(q) ||
+        a.state.toLowerCase().includes(q) ||
+        a.category.toLowerCase().includes(q) ||
+        (a.tags || []).join(' ').toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    if (state.sort === 'name')   list.sort((a,b) => a.name.localeCompare(b.name));
+    if (state.sort === 'rating') list.sort((a,b) => b.rating - a.rating);
+    if (state.sort === 'state')  list.sort((a,b) => a.state.localeCompare(b.state));
+
+    return list;
+  }
+
+  function buildList() {
+    const list = getFilteredSorted();
+    listContainer.innerHTML = '';
+
+    if (list.length === 0) {
+      emptyState.style.display = '';
+      resultCount.textContent = '0 results';
+      return;
+    }
+    emptyState.style.display = 'none';
+    resultCount.textContent = `${list.length} result${list.length !== 1 ? 's' : ''}`;
+
+    list.forEach((a, i) => {
+      const row = buildRow(a, i);
+      listContainer.appendChild(row);
+    });
+  }
+
+  function buildRow(a, delay = 0) {
+    const isVisited  = state.visited.has(a.id);
+    const isWishlist = state.wishlist.has(a.id);
+    const stars      = '★'.repeat(Math.round(a.rating)) + '☆'.repeat(5 - Math.round(a.rating));
+
+    const row = document.createElement('div');
+    row.className = 'attraction-row' +
+                    (isVisited  ? ' visited'  : '') +
+                    (isWishlist ? ' wishlist' : '');
+    row.dataset.id = a.id;
+
+    row.innerHTML = `
+      <div class="confetti-container" id="confetti-${a.id}"></div>
+      <div class="row-check-wrap">
+        <input type="checkbox" class="row-check" id="check-${a.id}" data-id="${a.id}"
+               ${isVisited ? 'checked' : ''} aria-label="Mark ${a.name} as visited" />
+      </div>
+      <img class="row-thumb" src="${a.image}" alt="${a.name}"
+           onerror="this.src='https://picsum.photos/seed/fallback${a.id}/160/120'" loading="lazy" />
+      <div class="row-body">
+        <div class="row-name">
+          ${a.name}
+          <span class="visited-tag">✓ Visited</span>
+          <span class="wishlist-tag">⭐ Want to Go</span>
+        </div>
+        <div class="row-meta">
+          <span class="row-state-badge">${a.state}</span>
+          <span class="row-meta-sep">·</span>
+          <span>${a.category}</span>
+          <span class="row-meta-sep">·</span>
+          <span class="row-rating">${stars} ${a.rating}</span>
+        </div>
+      </div>
+      <div class="row-actions">
+        <button class="row-btn star-btn ${isWishlist ? 'active' : ''}"
+                data-star="${a.id}" title="Want to Go" aria-label="Toggle want to go for ${a.name}">
+          ${isWishlist ? '⭐' : '☆'}
+        </button>
+        <button class="row-btn info-btn" data-info="${a.id}" title="View details" aria-label="View details for ${a.name}">
+          ℹ️
+        </button>
+      </div>
+    `;
+
+    // Stagger entrance
+    row.style.opacity = '0';
+    setTimeout(() => {
+      row.style.opacity = '1';
+      row.classList.add('animating-in');
+      setTimeout(() => row.classList.remove('animating-in'), 400);
+    }, Math.min(delay * 40, 600));
+
+    // Checkbox listener
+    row.querySelector('.row-check').addEventListener('change', (e) => {
+      handleVisitToggle(a.id, e.target.checked, row);
+    });
+
+    // Star listener
+    row.querySelector('.star-btn').addEventListener('click', () => {
+      handleWishlistToggle(a.id, row);
+    });
+
+    // Info listener
+    row.querySelector('.info-btn').addEventListener('click', () => {
+      openDetail(a.id);
+    });
+
+    return row;
+  }
+
+  // ---- Visit toggle ----
+  function handleVisitToggle(id, isChecked, row) {
+    const prevCount = state.visited.size;
+
+    if (isChecked) {
+      state.visited.add(id);
+      row.classList.add('visited');
+      triggerConfetti(id, row);
+    } else {
+      state.visited.delete(id);
+      row.classList.remove('visited');
+    }
+    saveSet(VISITED_KEY, state.visited);
+    updateHero(isChecked ? prevCount : null);
+    updateBadges();
+
+    // Milestone check
+    if (isChecked) {
+      const count = state.visited.size;
+      MILESTONES.forEach(m => {
+        if (count >= m && !state.milestones.has(m)) {
+          state.milestones.add(m);
+          saveSet(MILESTONE_KEY, state.milestones);
+          setTimeout(() => showCelebration(m), 600);
+        }
+      });
+    }
+
+    // If tab filter makes row invisible, rebuild
+    if (state.tab !== 'all') {
+      setTimeout(() => buildList(), 400);
+    }
+  }
+
+  // ---- Wishlist toggle ----
+  function handleWishlistToggle(id, row) {
+    const isNow = !state.wishlist.has(id);
+    if (isNow) state.wishlist.add(id);
+    else       state.wishlist.delete(id);
+    saveSet(WISHLIST_KEY, state.wishlist);
+
+    const starBtn = row.querySelector('.star-btn');
+    if (isNow) {
+      state.wishlist.add(id);
+      row.classList.add('wishlist');
+      starBtn.classList.add('active');
+      starBtn.textContent = '⭐';
+    } else {
+      row.classList.remove('wishlist');
+      starBtn.classList.remove('active');
+      starBtn.textContent = '☆';
+    }
+    updateHero();
+
+    if (state.tab === 'wishlist') {
+      setTimeout(() => buildList(), 300);
+    }
+  }
+
+  // ---- Confetti (CSS) ----
+  function triggerConfetti(id, row) {
+    const container = document.getElementById(`confetti-${id}`);
+    if (!container) return;
+    container.innerHTML = '';
+
+    const count = 22;
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      const startX = 20 + Math.random() * 60; // % from left
+      const dx = (Math.random() - 0.5) * 120;
+      const dy = -(30 + Math.random() * 90);
+      const rot = (Math.random() - 0.5) * 360;
+      const delay = Math.random() * 0.25;
+      dot.style.cssText = `
+        left: ${startX}%;
+        bottom: 10px;
+        background: ${color};
+        --dx: ${dx}px;
+        --dy: ${dy}px;
+        --rot: ${rot}deg;
+        animation-delay: ${delay}s;
+        width: ${5 + Math.random() * 5}px;
+        height: ${5 + Math.random() * 5}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      `;
+      container.appendChild(dot);
+    }
+    // Clean up after animation
+    setTimeout(() => { container.innerHTML = ''; }, 1500);
+  }
+
+  // ---- Hero update ----
+  function updateHero(prevVisited) {
+    const total     = attractions.length;
+    const visited   = state.visited.size;
+    const wishlist  = state.wishlist.size;
+    const remaining = total - visited;
+    const pct       = total > 0 ? Math.round((visited / total) * 100) : 0;
+
+    barFill.style.width = pct + '%';
+    barLabel.textContent = `${visited} of ${total} parks visited`;
+
+    // Ring
+    const offset = CIRCUMFERENCE - (pct / 100) * CIRCUMFERENCE;
+    ringFill.style.strokeDashoffset = offset;
+    ringPct.textContent = pct + '%';
+
+    // Stats — bump animation on change
+    animateCount(statVisited,   visited);
+    animateCount(statWishlist,  wishlist);
+    animateCount(statRemaining, remaining);
+  }
+
+  function animateCount(el, val) {
+    if (el.textContent !== String(val)) {
+      el.textContent = val;
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+  }
+
+  // ---- Badges ----
+  function updateBadges() {
+    const count = state.visited.size;
+    badgeRow.innerHTML = '';
+    MILESTONE_BADGES.forEach(b => {
+      if (count >= b.min) {
+        const el = document.createElement('div');
+        el.className = 'badge visible';
+        el.textContent = b.label;
+        badgeRow.appendChild(el);
+      }
+    });
+  }
+
+  // ---- Celebration modal ----
+  function showCelebration(milestone) {
+    const title  = document.getElementById('celebrateTitle');
+    const msg    = document.getElementById('celebrateMsg');
+    const wrap   = document.getElementById('celebrateConfetti');
+
+    title.textContent = `You've visited ${milestone} parks!`;
+    msg.textContent   = getMilestoneMsg(milestone);
+    celebrateOverlay.classList.add('open');
+
+    // Big confetti burst
+    wrap.innerHTML = '';
+    for (let i = 0; i < 40; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'big-confetti';
+      const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      const startX = 20 + Math.random() * 60;
+      const dx = (Math.random() - 0.5) * 300;
+      const dy = -(80 + Math.random() * 250);
+      const rot = (Math.random() - 0.5) * 720;
+      const delay = Math.random() * 0.5;
+      dot.style.cssText = `
+        left: ${startX}%; bottom: 0;
+        background: ${color};
+        --dx: ${dx}px; --dy: ${dy}px; --rot: ${rot}deg;
+        animation-delay: ${delay}s;
+        animation-duration: ${1.2 + Math.random() * 0.5}s;
+        width: ${8 + Math.random() * 8}px;
+        height: ${8 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      `;
+      wrap.appendChild(dot);
+    }
+    setTimeout(() => { wrap.innerHTML = ''; }, 2500);
+  }
+
+  function getMilestoneMsg(n) {
+    if (n >= 100) return "Incredible! You've seen it ALL. A true American legend. 🏆";
+    if (n >= 50)  return "Half a century of national wonders! You're a natural explorer. 🦅";
+    if (n >= 25)  return "A quarter of the list done — you're on a serious adventure! 🏔️";
+    if (n >= 10)  return "Double digits! You're officially an Explorer. Keep going! 🧭";
+    return "🎉 Amazing start! The journey of a lifetime begins!";
+  }
+
+  // ---- Tabs ----
+  function setupTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        state.tab = btn.dataset.tab;
+        buildList();
+      });
+    });
+  }
+
+  // ---- Search ----
+  function setupSearch() {
+    let timer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        state.search = searchInput.value;
+        buildList();
+      }, 200);
+    });
+  }
+
+  // ---- Sort ----
+  function setupSort() {
+    sortSelect.addEventListener('change', () => {
+      state.sort = sortSelect.value;
+      buildList();
+    });
+  }
+
+  // ---- Detail Modal ----
+  function openDetail(id) {
+    const a = attractions.find(x => x.id === id);
+    if (!a) return;
+    state.openId = id;
+
+    document.getElementById('modalImg').src = a.image;
+    document.getElementById('modalImg').alt = a.name;
+    document.getElementById('modalTitle').textContent = a.name;
+    document.getElementById('modalLocation').innerHTML =
+      `<span>📍 ${a.state}</span><span>·</span><span>${a.region}</span><span>·</span><span>${a.category}</span>`;
+
+    const stars = '★'.repeat(Math.round(a.rating)) + '☆'.repeat(5 - Math.round(a.rating));
+    document.getElementById('modalRating').innerHTML =
+      `<span>${stars}</span><span>${a.rating}</span><span style="color:var(--text-muted);font-weight:400;">(${(a.reviews/1000).toFixed(1)}k reviews)</span>`;
+
+    document.getElementById('modalDesc').textContent = a.description;
+
+    const chips = (a.tags || []).concat(a.activities || []).slice(0, 8);
+    document.getElementById('modalChips').innerHTML =
+      chips.map(t => `<span class="modal-chip">${t}</span>`).join('');
+
+    document.getElementById('modalFacts').innerHTML = `
+      <div class="modal-fact"><div class="modal-fact-label">Entry Fee</div><div class="modal-fact-val">${a.fee}</div></div>
+      <div class="modal-fact"><div class="modal-fact-label">Best Time</div><div class="modal-fact-val">${a.bestTime}</div></div>
+      <div class="modal-fact"><div class="modal-fact-label">Duration</div><div class="modal-fact-val">${a.duration}</div></div>
+      <div class="modal-fact"><div class="modal-fact-label">Difficulty</div><div class="modal-fact-val">${a.difficulty}</div></div>
+    `;
+
+    updateModalButtons(id);
+    detailOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function updateModalButtons(id) {
+    const visitBtn = document.getElementById('modalVisitBtn');
+    const wishBtn  = document.getElementById('modalWishBtn');
+    const isVisited  = state.visited.has(id);
+    const isWishlist = state.wishlist.has(id);
+
+    visitBtn.textContent = isVisited ? '✓ Visited!' : 'Mark as Visited ✓';
+    visitBtn.style.background = isVisited ? '#22C55E' : '';
+    wishBtn.textContent = isWishlist ? '⭐ In Wishlist' : '☆ Want to Go';
+    wishBtn.style.background = isWishlist ? '#FEF3C7' : '';
+    wishBtn.style.color = isWishlist ? '#92400E' : '';
+
+    visitBtn.onclick = () => {
+      const row = document.querySelector(`.attraction-row[data-id="${id}"]`);
+      const cb  = document.getElementById(`check-${id}`);
+      const newState = !state.visited.has(id);
+      if (cb) cb.checked = newState;
+      if (row) handleVisitToggle(id, newState, row);
+      else {
+        if (newState) state.visited.add(id); else state.visited.delete(id);
+        saveSet(VISITED_KEY, state.visited);
+        updateHero();
+        updateBadges();
+      }
+      updateModalButtons(id);
+    };
+
+    wishBtn.onclick = () => {
+      const row = document.querySelector(`.attraction-row[data-id="${id}"]`);
+      if (row) handleWishlistToggle(id, row);
+      else {
+        if (state.wishlist.has(id)) state.wishlist.delete(id);
+        else state.wishlist.add(id);
+        saveSet(WISHLIST_KEY, state.wishlist);
+        updateHero();
+      }
+      updateModalButtons(id);
+    };
+  }
+
+  function setupModalClose() {
+    document.getElementById('modalClose').addEventListener('click', closeDetail);
+    detailOverlay.addEventListener('click', (e) => {
+      if (e.target === detailOverlay) closeDetail();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDetail();
+        closeCelebrate();
+      }
+    });
+  }
+
+  function closeDetail() {
+    detailOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    state.openId = null;
+  }
+
+  // ---- Celebrate close ----
+  function setupCelebrateClose() {
+    document.getElementById('celebrateClose').addEventListener('click', closeCelebrate);
+    celebrateOverlay.addEventListener('click', (e) => {
+      if (e.target === celebrateOverlay) closeCelebrate();
+    });
+  }
+  function closeCelebrate() {
+    celebrateOverlay.classList.remove('open');
+  }
+
+  // ---- Boot ----
+  init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discover America — Photo Mosaic</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <style>
+    /* ─── Theme Override ─── */
+    :root {
+      --bg:           #111111;
+      --bg-alt:       #1A1A1A;
+      --primary:      #FFFFFF;
+      --accent:       #FFD700;
+      --text:         #FFFFFF;
+      --text-muted:   #AAAAAA;
+      --card-bg:      #1A1A1A;
+
+      --cat-park:     #4CAF50;
+      --cat-monument: #FFD700;
+      --cat-wonder:   #42A5F5;
+      --cat-tribal:   #FF7043;
+      --cat-default:  #9E9E9E;
+
+      --nav-h: 60px;
+      --overlay-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ─── Base ─── */
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+    }
+
+    /* ─── Floating Nav ─── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%);
+      backdrop-filter: blur(0px);
+      transition: background 0.4s ease, backdrop-filter 0.4s ease;
+    }
+    .nav.scrolled {
+      background: rgba(17,17,17,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+    .nav-logo span {
+      color: var(--accent);
+    }
+    .nav-back {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: rgba(255,255,255,0.9); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-icon-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.85);
+      font-size: 1.1rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.2s, transform 0.15s;
+      cursor: pointer;
+    }
+    .nav-icon-btn:hover {
+      background: rgba(255,255,255,0.18);
+      transform: scale(1.08);
+    }
+    .trip-badge {
+      background: var(--accent);
+      color: #111;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: 50%;
+      min-width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      margin-left: -10px; margin-top: -18px;
+      position: relative;
+    }
+
+    /* ─── Search Overlay ─── */
+    .search-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .search-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .search-box-wrap {
+      width: min(560px, 92vw);
+      transform: translateY(-20px);
+      transition: transform 0.3s var(--overlay-ease);
+    }
+    .search-overlay.open .search-box-wrap {
+      transform: translateY(0);
+    }
+    .search-input-big {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 50px;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input-big::placeholder { color: rgba(255,255,255,0.35); }
+    .search-input-big:focus { border-color: var(--accent); }
+    .search-hint {
+      text-align: center;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+
+    /* ─── Filter Panel (slides from top) ─── */
+    .filter-panel {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 150;
+      background: rgba(20,20,20,0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 5rem 2rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transform: translateY(-110%);
+      transition: transform 0.4s var(--overlay-ease);
+    }
+    .filter-panel.open {
+      transform: translateY(0);
+    }
+    .filter-panel-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .filter-panel h2 {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+    .filter-section {
+      margin-bottom: 1.5rem;
+    }
+    .filter-section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.6rem;
+    }
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .filter-chip {
+      padding: 0.35rem 0.85rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .filter-chip:hover {
+      border-color: rgba(255,255,255,0.4);
+      color: #fff;
+    }
+    .filter-chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #111;
+      font-weight: 600;
+    }
+    .filter-panel-close {
+      position: absolute;
+      top: 1.2rem; right: 1.5rem;
+      color: rgba(255,255,255,0.5);
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .filter-panel-close:hover { color: #fff; }
+
+    /* ─── Results count bar ─── */
+    .results-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 90;
+      background: rgba(20,20,20,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .results-bar.visible {
+      opacity: 1;
+    }
+    .results-bar strong { color: var(--accent); }
+
+    /* ─── Photo Mosaic Grid ─── */
+    .mosaic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0;
+      padding-top: 0; /* full bleed from top */
+    }
+
+    /* Span rules for visual variety */
+    .mosaic-cell:nth-child(5n) {
+      grid-column: span 2;
+    }
+    .mosaic-cell:nth-child(7n) {
+      grid-row: span 2;
+    }
+
+    /* ─── Mosaic Cell ─── */
+    .mosaic-cell {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: #0a0a0a;
+      aspect-ratio: 4/3;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .mosaic-cell.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+    }
+    .mosaic-cell:nth-child(7n) {
+      aspect-ratio: 4/5;
+    }
+    .mosaic-cell:nth-child(5n) {
+      aspect-ratio: 16/7;
+    }
+    .mosaic-cell:nth-child(5n):nth-child(7n) {
+      aspect-ratio: 4/3;
+    }
+
+    /* ─── Cell Image ─── */
+    .mosaic-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s var(--overlay-ease), filter 0.3s;
+      will-change: transform;
+    }
+    .mosaic-cell:hover .mosaic-img {
+      transform: scale(1.06);
+      filter: brightness(0.75);
+    }
+
+    /* ─── Hover Overlay ─── */
+    .mosaic-hover {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 1.8rem 1.2rem 1.2rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+      transform: translateY(100%);
+      transition: transform 0.32s var(--overlay-ease);
+      pointer-events: none;
+    }
+    .mosaic-cell:hover .mosaic-hover {
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    /* Category color border */
+    .mosaic-cell::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      transform: scaleX(0);
+      transition: transform 0.3s var(--overlay-ease);
+      transform-origin: left;
+    }
+    .mosaic-cell[data-cat-color="park"]::after     { background: var(--cat-park); }
+    .mosaic-cell[data-cat-color="monument"]::after { background: var(--cat-monument); }
+    .mosaic-cell[data-cat-color="wonder"]::after   { background: var(--cat-wonder); }
+    .mosaic-cell[data-cat-color="tribal"]::after   { background: var(--cat-tribal); }
+    .mosaic-cell[data-cat-color="default"]::after  { background: var(--cat-default); }
+    .mosaic-cell:hover::after {
+      transform: scaleX(1);
+    }
+
+    .mosaic-name {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: #fff;
+      margin-bottom: 0.2rem;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .mosaic-state {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .mosaic-rating {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .mosaic-rating span {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.7rem;
+    }
+
+    .mosaic-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .cell-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .cell-btn-fav {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    .cell-btn-fav:hover, .cell-btn-fav.active {
+      background: rgba(255, 90, 90, 0.25);
+      border-color: #FF5A5A;
+      color: #FF8A8A;
+    }
+    .cell-btn-fav.active {
+      color: #FF5A5A;
+    }
+    .cell-btn-trip {
+      background: rgba(255,215,0,0.15);
+      color: var(--accent);
+      border-color: rgba(255,215,0,0.35);
+    }
+    .cell-btn-trip:hover {
+      background: rgba(255,215,0,0.3);
+      border-color: var(--accent);
+    }
+    .cell-btn-trip.in-trip {
+      background: var(--accent);
+      color: #111;
+      border-color: var(--accent);
+    }
+
+    /* ─── Skeleton shimmer ─── */
+    .mosaic-cell.skeleton .mosaic-img {
+      visibility: hidden;
+    }
+    .mosaic-cell.skeleton::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.04) 25%,
+        rgba(255,255,255,0.10) 50%,
+        rgba(255,255,255,0.04) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+      z-index: 2;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ─── Detail Modal ─── */
+    .detail-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0,0,0,0.0);
+      pointer-events: none;
+      transition: background 0.35s ease;
+    }
+    .detail-modal-backdrop.open {
+      background: rgba(0,0,0,0.88);
+      pointer-events: all;
+    }
+
+    .detail-modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      z-index: 301;
+      width: min(1040px, 96vw);
+      max-height: 90vh;
+      background: #161616;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s var(--overlay-ease);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+    }
+    .detail-modal.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-image-side {
+      flex: 0 0 60%;
+      position: relative;
+      overflow: hidden;
+    }
+    .modal-image-side img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .modal-image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, transparent 60%, #161616 100%),
+                  linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 40%);
+    }
+    .modal-category-badge {
+      position: absolute;
+      top: 1.2rem; left: 1.2rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 50px;
+      font-weight: 600;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-info-side {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 1.75rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .modal-info-side::-webkit-scrollbar { width: 4px; }
+    .modal-info-side::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      z-index: 10;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    .modal-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 0.35rem;
+    }
+    .modal-location {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .modal-rating-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .modal-stars {
+      color: var(--accent);
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+    }
+    .modal-rating-num {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .modal-reviews {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .modal-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+    .modal-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 0.6rem 0.8rem;
+    }
+    .modal-stat-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.2rem;
+    }
+    .modal-stat-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .modal-desc {
+      font-size: 0.85rem;
+      line-height: 1.75;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.6rem;
+    }
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .chip {
+      padding: 0.3rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.7);
+    }
+    .chip-accent {
+      border-color: rgba(255,215,0,0.3);
+      background: rgba(255,215,0,0.08);
+      color: var(--accent);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1.5px solid;
+    }
+    .modal-btn-trip {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #111;
+    }
+    .modal-btn-trip:hover {
+      background: #ffe44d;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(255,215,0,0.35);
+    }
+    .modal-btn-trip.in-trip {
+      background: transparent;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .modal-btn-fav {
+      background: transparent;
+      border-color: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+    }
+    .modal-btn-fav:hover, .modal-btn-fav.active {
+      border-color: #FF5A5A;
+      color: #FF5A5A;
+      background: rgba(255,90,90,0.08);
+    }
+
+    /* ─── Mobile adjustments ─── */
+    @media (max-width: 680px) {
+      .detail-modal {
+        flex-direction: column;
+        max-height: 96vh;
+        width: 98vw;
+        border-radius: 12px;
+      }
+      .modal-image-side {
+        flex: 0 0 220px;
+      }
+      .mosaic-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+      .mosaic-cell:nth-child(5n) {
+        grid-column: span 2;
+        aspect-ratio: 16/7;
+      }
+    }
+
+    /* ─── Empty state ─── */
+    .empty-state {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .empty-state.visible { display: block; }
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.4;
+    }
+    .empty-state h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .empty-state p {
+      font-size: 0.82rem;
+    }
+
+    /* ─── Toast ─── */
+    .toast-container {
+      position: fixed;
+      bottom: 4.5rem;
+      right: 1.5rem;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .toast {
+      background: rgba(30,30,30,0.96);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      transform: translateX(120%);
+      transition: transform 0.3s var(--overlay-ease), opacity 0.3s;
+      opacity: 0;
+      max-width: 260px;
+    }
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Floating Nav ─── -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-left">
+      <span class="nav-logo">Discover<span>America</span></span>
+      <a href="../gallery.html" class="nav-back">← All Versions</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="searchToggle" title="Search" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <button class="nav-icon-btn" id="filterToggle" title="Filters" aria-label="Filters">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+      </button>
+      <div style="display:flex;align-items:flex-start">
+        <button class="nav-icon-btn" id="tripNavBtn" title="My Trip" aria-label="Trip">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </button>
+        <span class="trip-badge" id="tripBadge" style="display:none">0</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── Search Overlay ─── -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-box-wrap">
+      <input class="search-input-big" id="searchInput" type="text"
+             placeholder="Search parks, states, tags…" autocomplete="off" />
+      <p class="search-hint">Press Escape to close</p>
+    </div>
+  </div>
+
+  <!-- ─── Filter Panel ─── -->
+  <div class="filter-panel" id="filterPanel">
+    <button class="filter-panel-close" id="filterClose" aria-label="Close filters">✕</button>
+    <div class="filter-panel-inner">
+      <h2>Filter Attractions</h2>
+      <div class="filter-section">
+        <div class="filter-section-label">Region</div>
+        <div class="filter-chips" id="regionChips"></div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-section-label">Category</div>
+        <div class="filter-chips" id="categoryChips"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Mosaic Grid ─── -->
+  <main class="mosaic-grid" id="mosaicGrid"></main>
+
+  <!-- ─── Empty State ─── -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-state-icon">🏔</div>
+    <h3>No results found</h3>
+    <p>Try a different search or clear the filters.</p>
+  </div>
+
+  <!-- ─── Results Bar ─── -->
+  <div class="results-bar" id="resultsBar">
+    Showing <strong id="resultsCount">0</strong> attractions
+  </div>
+
+  <!-- ─── Detail Modal ─── -->
+  <div class="detail-modal-backdrop" id="modalBackdrop"></div>
+  <div class="detail-modal" id="detailModal" role="dialog" aria-modal="true" aria-label="Attraction Detail">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <div class="modal-image-side" id="modalImageSide">
+      <img id="modalImage" src="" alt="" />
+      <div class="modal-image-overlay"></div>
+      <span class="modal-category-badge" id="modalCategory"></span>
+    </div>
+    <div class="modal-info-side" id="modalInfoSide">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ─── Toast Container ─── -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ─── Scripts ─── -->
+  <script src="../shared/data.js"></script>
+  <script src="../shared/app.js"></script>
+  <script>
+  (() => {
+    'use strict';
+
+    // ─── State ───
+    const state = {
+      search: '',
+      region: '',
+      category: '',
+      filtered: [...attractions],
+      modalId: null,
+    };
+
+    // ─── DOM refs ───
+    const grid       = document.getElementById('mosaicGrid');
+    const emptyState = document.getElementById('emptyState');
+    const resultsBar = document.getElementById('resultsBar');
+    const resultsCount = document.getElementById('resultsCount');
+    const tripBadge  = document.getElementById('tripBadge');
+    const backdrop   = document.getElementById('modalBackdrop');
+    const modal      = document.getElementById('detailModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalImg   = document.getElementById('modalImage');
+    const modalCat   = document.getElementById('modalCategory');
+    const modalInfo  = document.getElementById('modalInfoSide');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput   = document.getElementById('searchInput');
+    const filterPanel   = document.getElementById('filterPanel');
+    const nav        = document.getElementById('mainNav');
+
+    // ─── Category color mapping ───
+    function getCatColor(category) {
+      const c = category.toLowerCase();
+      if (c.includes('park'))     return 'park';
+      if (c.includes('monument')) return 'monument';
+      if (c.includes('wonder'))   return 'wonder';
+      if (c.includes('tribal'))   return 'tribal';
+      return 'default';
+    }
+
+    // ─── Render stars ───
+    function stars(rating) {
+      return App.starsHTML(rating);
+    }
+
+    // ─── Update trip badge ───
+    function updateTripBadge() {
+      const count = App.getItinerary().length;
+      if (count > 0) {
+        tripBadge.textContent = count;
+        tripBadge.style.display = 'flex';
+      } else {
+        tripBadge.style.display = 'none';
+      }
+    }
+
+    // ─── Build mosaic cell ───
+    function buildCell(a) {
+      const fav  = App.isFavorite(a.id);
+      const itin = App.isInItinerary(a.id);
+      const catColor = getCatColor(a.category);
+
+      const cell = document.createElement('div');
+      cell.className = 'mosaic-cell skeleton';
+      cell.dataset.id = a.id;
+      cell.dataset.catColor = catColor;
+      cell.dataset.region   = a.region;
+      cell.dataset.category = a.category;
+
+      cell.innerHTML = `
+        <img class="mosaic-img" src="${a.image}" alt="${a.name}" loading="lazy"
+             onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'" />
+        <div class="mosaic-hover">
+          <div class="mosaic-name">${a.name}</div>
+          <div class="mosaic-state">${a.state}</div>
+          <div class="mosaic-rating">
+            ${stars(a.rating)}
+            <span>${a.rating} · ${App.formatReviews(a.reviews)} reviews</span>
+          </div>
+          <div class="mosaic-actions">
+            <button class="cell-btn cell-btn-fav ${fav ? 'active' : ''}"
+                    data-fav="${a.id}" title="${fav ? 'Unfavorite' : 'Favorite'}"
+                    aria-label="Favorite">
+              ${fav ? '♥' : '♡'}
+            </button>
+            <button class="cell-btn cell-btn-trip ${itin ? 'in-trip' : ''}"
+                    data-itin="${a.id}" title="${itin ? 'In Trip' : 'Add to Trip'}"
+                    aria-label="Add to trip">
+              ${itin ? '✓ In Trip' : '+ Trip'}
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Remove skeleton when image loads
+      const img = cell.querySelector('.mosaic-img');
+      img.addEventListener('load', () => {
+        cell.classList.remove('skeleton');
+      });
+      img.addEventListener('error', () => {
+        cell.classList.remove('skeleton');
+      });
+
+      return cell;
+    }
+
+    // ─── Render grid ───
+    function renderGrid() {
+      // Track existing cells by id
+      const existing = new Map();
+      grid.querySelectorAll('.mosaic-cell').forEach(el => {
+        existing.set(parseInt(el.dataset.id), el);
+      });
+
+      const ids = new Set(state.filtered.map(a => a.id));
+
+      // Hide/show cells
+      existing.forEach((el, id) => {
+        if (ids.has(id)) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      // Add new cells that aren't in DOM
+      state.filtered.forEach(a => {
+        if (!existing.has(a.id)) {
+          const cell = buildCell(a);
+          grid.appendChild(cell);
+        }
+      });
+
+      // Results bar
+      const count = state.filtered.length;
+      resultsCount.textContent = count;
+      resultsBar.classList.toggle('visible', count < attractions.length);
+      emptyState.classList.toggle('visible', count === 0);
+    }
+
+    // ─── Full initial render (all cells once) ───
+    function initialRender() {
+      attractions.forEach(a => {
+        const cell = buildCell(a);
+        grid.appendChild(cell);
+      });
+    }
+
+    // ─── Apply filters ───
+    function applyFilters() {
+      state.filtered = App.filterAttractions(attractions, {
+        search:   state.search,
+        region:   state.region,
+        category: state.category,
+      });
+      renderGrid();
+    }
+
+    // ─── Build filter chips ───
+    function buildFilterChips() {
+      const regions    = [...new Set(attractions.map(a => a.region))].sort();
+      const categories = [...new Set(attractions.map(a => a.category))].sort();
+
+      const regionWrap = document.getElementById('regionChips');
+      const catWrap    = document.getElementById('categoryChips');
+
+      // All chip
+      regionWrap.innerHTML = `<button class="filter-chip active" data-region="">All</button>`;
+      regions.forEach(r => {
+        regionWrap.insertAdjacentHTML('beforeend',
+          `<button class="filter-chip" data-region="${r}">${r}</button>`);
+      });
+
+      catWrap.innerHTML = `<button class="filter-chip active" data-category="">All</button>`;
+      categories.forEach(c => {
+        catWrap.insertAdjacentHTML('beforeend',
+          `<button class="filter-chip" data-category="${c}">${c}</button>`);
+      });
+
+      // Chip click handlers
+      regionWrap.addEventListener('click', e => {
+        const btn = e.target.closest('[data-region]');
+        if (!btn) return;
+        regionWrap.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.region = btn.dataset.region;
+        applyFilters();
+      });
+      catWrap.addEventListener('click', e => {
+        const btn = e.target.closest('[data-category]');
+        if (!btn) return;
+        catWrap.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.category = btn.dataset.category;
+        applyFilters();
+      });
+    }
+
+    // ─── Toast ───
+    function showToast(msg) {
+      const container = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      container.appendChild(t);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => t.classList.add('show'));
+      });
+      setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => t.remove(), 350);
+      }, 2400);
+    }
+
+    // ─── Open Detail Modal ───
+    function openModal(attraction) {
+      state.modalId = attraction.id;
+      const a = attraction;
+
+      modalImg.src = a.image.replace('800/450', '1200/600');
+      modalImg.alt = a.name;
+      modalCat.textContent = a.category;
+
+      const fav  = App.isFavorite(a.id);
+      const itin = App.isInItinerary(a.id);
+
+      modalInfo.innerHTML = `
+        <div class="modal-name">${a.name}</div>
+        <div class="modal-location">${a.state} · ${a.region}</div>
+        <div class="modal-rating-row">
+          <span class="modal-stars">${stars(a.rating)}</span>
+          <span class="modal-rating-num">${a.rating}</span>
+          <span class="modal-reviews">(${App.formatReviews(a.reviews)} reviews)</span>
+        </div>
+        <div class="modal-stats-grid">
+          <div class="modal-stat">
+            <div class="modal-stat-label">Entry Fee</div>
+            <div class="modal-stat-value">${a.fee}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Duration</div>
+            <div class="modal-stat-value">${a.duration}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Best Time</div>
+            <div class="modal-stat-value">${a.bestTime}</div>
+          </div>
+          <div class="modal-stat">
+            <div class="modal-stat-label">Difficulty</div>
+            <div class="modal-stat-value">${a.difficulty}</div>
+          </div>
+        </div>
+        <p class="modal-desc">${a.description}</p>
+        <div class="modal-section-label">Activities</div>
+        <div class="chip-group">
+          ${a.activities.map(act => `<span class="chip">${act}</span>`).join('')}
+        </div>
+        <div class="modal-section-label">Tags</div>
+        <div class="chip-group">
+          ${a.tags.map(t => `<span class="chip chip-accent">${t}</span>`).join('')}
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn modal-btn-trip ${itin ? 'in-trip' : ''}"
+                  id="modalTripBtn" data-itin="${a.id}">
+            ${itin ? '✓ Added to Trip' : '+ Add to Trip'}
+          </button>
+          <button class="modal-btn modal-btn-fav ${fav ? 'active' : ''}"
+                  id="modalFavBtn" data-fav="${a.id}">
+            ${fav ? '♥ Favorited' : '♡ Favorite'}
+          </button>
+        </div>
+      `;
+
+      backdrop.classList.add('open');
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      // Modal action buttons
+      const tripBtn = document.getElementById('modalTripBtn');
+      const favBtn  = document.getElementById('modalFavBtn');
+
+      tripBtn.addEventListener('click', () => {
+        const id = parseInt(tripBtn.dataset.itin);
+        if (App.isInItinerary(id)) {
+          App.removeFromItinerary(id);
+          tripBtn.textContent = '+ Add to Trip';
+          tripBtn.classList.remove('in-trip');
+          // sync grid cell
+          syncCellButtons(id);
+          showToast('Removed from your trip.');
+        } else {
+          App.addToItinerary(id);
+          tripBtn.textContent = '✓ Added to Trip';
+          tripBtn.classList.add('in-trip');
+          syncCellButtons(id);
+          showToast('Added to your trip!');
+        }
+        updateTripBadge();
+      });
+
+      favBtn.addEventListener('click', () => {
+        const id = parseInt(favBtn.dataset.fav);
+        const isNow = App.toggleFavorite(id);
+        favBtn.classList.toggle('active', isNow);
+        favBtn.textContent = isNow ? '♥ Favorited' : '♡ Favorite';
+        syncCellButtons(id);
+        showToast(isNow ? 'Added to favorites!' : 'Removed from favorites.');
+      });
+    }
+
+    // ─── Close modal ───
+    function closeModal() {
+      backdrop.classList.remove('open');
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      state.modalId = null;
+    }
+
+    // ─── Sync grid cell buttons after modal actions ───
+    function syncCellButtons(id) {
+      const cell = grid.querySelector(`.mosaic-cell[data-id="${id}"]`);
+      if (!cell) return;
+      const favBtn  = cell.querySelector('[data-fav]');
+      const itinBtn = cell.querySelector('[data-itin]');
+      if (favBtn) {
+        const fav = App.isFavorite(id);
+        favBtn.classList.toggle('active', fav);
+        favBtn.textContent = fav ? '♥' : '♡';
+      }
+      if (itinBtn) {
+        const itin = App.isInItinerary(id);
+        itinBtn.classList.toggle('in-trip', itin);
+        itinBtn.textContent = itin ? '✓ In Trip' : '+ Trip';
+      }
+    }
+
+    // ─── Grid click delegation ───
+    grid.addEventListener('click', e => {
+      // Don't open modal for button clicks
+      if (e.target.closest('.cell-btn')) return;
+
+      const cell = e.target.closest('.mosaic-cell');
+      if (!cell) return;
+      const id = parseInt(cell.dataset.id);
+      const a  = attractions.find(x => x.id === id);
+      if (a) openModal(a);
+    });
+
+    // Fav button in grid
+    grid.addEventListener('click', e => {
+      const btn = e.target.closest('[data-fav]');
+      if (!btn || !btn.classList.contains('cell-btn')) return;
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.fav);
+      const isNow = App.toggleFavorite(id);
+      btn.classList.toggle('active', isNow);
+      btn.textContent = isNow ? '♥' : '♡';
+      showToast(isNow ? 'Added to favorites!' : 'Removed from favorites.');
+    });
+
+    // Trip button in grid
+    grid.addEventListener('click', e => {
+      const btn = e.target.closest('[data-itin]');
+      if (!btn || !btn.classList.contains('cell-btn')) return;
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.itin);
+      if (App.isInItinerary(id)) {
+        App.removeFromItinerary(id);
+        btn.classList.remove('in-trip');
+        btn.textContent = '+ Trip';
+        showToast('Removed from your trip.');
+      } else {
+        App.addToItinerary(id);
+        btn.classList.add('in-trip');
+        btn.textContent = '✓ In Trip';
+        showToast('Added to your trip!');
+      }
+      updateTripBadge();
+    });
+
+    // ─── Close modal on backdrop / button ───
+    backdrop.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', closeModal);
+
+    // ─── Search overlay ───
+    document.getElementById('searchToggle').addEventListener('click', () => {
+      searchOverlay.classList.add('open');
+      searchInput.focus();
+    });
+    searchOverlay.addEventListener('click', e => {
+      if (e.target === searchOverlay) {
+        searchOverlay.classList.remove('open');
+      }
+    });
+    searchInput.addEventListener('input', () => {
+      state.search = searchInput.value;
+      applyFilters();
+    });
+
+    // ─── Filter panel ───
+    document.getElementById('filterToggle').addEventListener('click', () => {
+      filterPanel.classList.add('open');
+    });
+    document.getElementById('filterClose').addEventListener('click', () => {
+      filterPanel.classList.remove('open');
+    });
+
+    // ─── Trip nav button (scroll to top as placeholder) ───
+    document.getElementById('tripNavBtn').addEventListener('click', () => {
+      const count = App.getItinerary().length;
+      if (count === 0) {
+        showToast('Your trip is empty. Add some attractions!');
+      } else {
+        showToast(`Your trip has ${count} attraction${count > 1 ? 's' : ''}!`);
+      }
+    });
+
+    // ─── Nav scroll effect ───
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    // ─── Keyboard shortcuts ───
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (modal.classList.contains('open')) { closeModal(); return; }
+        if (searchOverlay.classList.contains('open')) {
+          searchOverlay.classList.remove('open');
+          return;
+        }
+        if (filterPanel.classList.contains('open')) {
+          filterPanel.classList.remove('open');
+          return;
+        }
+      }
+      if (e.key === '/' && !modal.classList.contains('open')) {
+        e.preventDefault();
+        searchOverlay.classList.add('open');
+        searchInput.focus();
+      }
+    });
+
+    // ─── Init ───
+    buildFilterChips();
+    initialRender();
+    updateTripBadge();
+  })();
+  </script>
+</body>
+</html>

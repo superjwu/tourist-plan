@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild America: The Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   WILD AMERICA: THE COLLECTION — Trading Card Experience
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep: #0d0010;
+  --bg-mid: #120018;
+  --bg-card: #1a0025;
+  --purple-glow: #7b2fff;
+  --gold: #ffd700;
+  --gold-light: #ffe866;
+
+  --common-color: #9ba8b4;
+  --uncommon-color: #4caf7d;
+  --rare-color: #4a9eff;
+  --epic-color: #b44fff;
+  --legendary-color: #ffb930;
+  --mythic-color: #ff4ecd;
+
+  --holo-gradient: linear-gradient(135deg, #ff6ec7 0%, #fffb96 25%, #48f0a0 50%, #9b96ff 75%, #ff6ec7 100%);
+  --holo-epic: linear-gradient(135deg, #c040fb 0%, #7c4dff 25%, #40c4ff 50%, #b44fff 75%, #ea80fc 100%);
+  --holo-legendary: linear-gradient(135deg, #ffd700 0%, #ff6b35 25%, #fffb96 50%, #ff9800 75%, #ffd700 100%);
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  background: var(--bg-deep);
+  color: #e0d0f0;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   BACKGROUND SHIMMER
+   ============================================================ */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    conic-gradient(from 0deg at 20% 30%, transparent 0deg, rgba(123,47,255,0.04) 60deg, transparent 120deg),
+    conic-gradient(from 180deg at 80% 70%, transparent 0deg, rgba(255,110,199,0.04) 60deg, transparent 120deg),
+    radial-gradient(ellipse at 50% 50%, rgba(123,47,255,0.06) 0%, transparent 70%);
+  animation: bgShimmer 12s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes bgShimmer {
+  0%   { opacity: 0.5; transform: scale(1); }
+  50%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.5; transform: scale(1); }
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+  display: none;
+}
+.screen.active { display: block; }
+
+/* ============================================================
+   SCREEN 1: PACK OPENING
+   ============================================================ */
+
+#screen-pack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+#screen-pack.active { display: flex; }
+
+.pack-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 0.1em;
+  background: var(--holo-legendary);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: holoShift 4s ease infinite;
+  line-height: 1;
+  margin-bottom: 0.2em;
+}
+
+.pack-subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  letter-spacing: 0.3em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 3rem;
+}
+
+/* The card pack visual */
+.pack-wrapper {
+  position: relative;
+  width: 220px;
+  height: 320px;
+  margin: 0 auto 3rem;
+  perspective: 800px;
+  cursor: pointer;
+}
+
+.pack {
+  width: 220px;
+  height: 320px;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px rgba(123,47,255,0.6),
+    0 0 80px rgba(123,47,255,0.3),
+    0 0 120px rgba(255,110,199,0.2);
+  animation: packFloat 3s ease-in-out infinite;
+  transition: transform 0.2s ease;
+}
+
+.pack:hover {
+  transform: scale(1.04) rotateY(5deg);
+}
+
+@keyframes packFloat {
+  0%, 100% { transform: translateY(0) rotateX(2deg); }
+  50%       { transform: translateY(-12px) rotateX(-2deg); }
+}
+
+.pack-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #1a0035 0%, #0d0020 40%, #1a0035 100%);
+}
+
+.pack-foil {
+  position: absolute;
+  inset: 0;
+  background: var(--holo-gradient);
+  background-size: 400%;
+  animation: holoShift 3s ease infinite;
+  opacity: 0.25;
+  mix-blend-mode: screen;
+}
+
+.pack-border {
+  position: absolute;
+  inset: 3px;
+  border-radius: 13px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: linear-gradient(160deg, #2a0050 0%, #0d0020 60%, #1a0035 100%);
+}
+
+.pack-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pack-label-main {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  letter-spacing: 0.15em;
+  background: var(--holo-legendary);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: holoShift 3s ease infinite;
+  line-height: 1;
+  text-align: center;
+}
+
+.pack-label-series {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.25em;
+  color: rgba(255,255,255,0.6);
+}
+
+.pack-label-count {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.2em;
+  margin-top: 0.25rem;
+}
+
+.pack-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+/* Pack tear animation */
+.pack-wrapper.tearing .pack {
+  animation: none;
+}
+
+.pack-top, .pack-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pack-top {
+  top: 0;
+  height: 50%;
+  transform-origin: top center;
+}
+
+.pack-bottom {
+  bottom: 0;
+  height: 50%;
+  transform-origin: bottom center;
+}
+
+.pack-wrapper.tearing .pack-top {
+  transform: translateY(-120%) rotateX(30deg) scale(0.9);
+}
+
+.pack-wrapper.tearing .pack-bottom {
+  transform: translateY(120%) rotateX(-30deg) scale(0.9);
+}
+
+/* Open pack button */
+.btn-open-pack {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 0.2em;
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, #7b2fff, #ff4ecd);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  cursor: pointer;
+  box-shadow:
+    0 0 30px rgba(123,47,255,0.7),
+    0 0 60px rgba(255,78,205,0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-open-pack::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  border-radius: 50px;
+}
+
+.btn-open-pack:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow:
+    0 0 50px rgba(123,47,255,0.9),
+    0 0 100px rgba(255,78,205,0.5);
+}
+
+.btn-open-pack:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.pack-description {
+  margin-top: 1.5rem;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   CARD DEAL STAGE (overlay for pack reveal)
+   ============================================================ */
+
+#deal-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13,0,16,0.95);
+  backdrop-filter: blur(20px);
+}
+
+#deal-stage.active {
+  display: flex;
+}
+
+.deal-title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  letter-spacing: 0.3em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.5s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.deal-cards-row {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem;
+  max-width: 1400px;
+}
+
+.deal-continue-btn {
+  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  padding: 0.8rem 2.5rem;
+  background: linear-gradient(135deg, #7b2fff, #ff4ecd);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 30px rgba(123,47,255,0.5);
+}
+
+.deal-continue-btn.visible {
+  opacity: 1;
+}
+
+.deal-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(123,47,255,0.8);
+}
+
+/* ============================================================
+   TRADING CARD COMPONENT
+   ============================================================ */
+
+.trading-card {
+  width: 200px;
+  height: 280px;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  perspective: 1000px;
+  flex-shrink: 0;
+  transition: transform 0.1s ease;
+}
+
+.trading-card.large {
+  width: 260px;
+  height: 364px;
+}
+
+.trading-card.small {
+  width: 120px;
+  height: 168px;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.34, 1.2, 0.64, 1);
+  border-radius: 12px;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face, .card-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Card back */
+.card-back {
+  background: linear-gradient(160deg, #1a0035, #0d0020);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.card-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--holo-gradient);
+  background-size: 400%;
+  animation: holoShift 3s ease infinite;
+  opacity: 0.1;
+  border-radius: 12px;
+}
+
+.card-back-logo {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.4);
+  position: relative;
+  z-index: 1;
+}
+
+.card-back-mark {
+  font-size: 2rem;
+  color: rgba(255,255,255,0.15);
+  position: relative;
+  z-index: 1;
+}
+
+/* Card face */
+.card-face {
+  transform: rotateY(0deg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Rarity base layers */
+.card-face.common {
+  background: linear-gradient(160deg, #2a3040, #1a2030);
+  border: 1.5px solid rgba(155,168,180,0.4);
+}
+
+.card-face.uncommon {
+  background: linear-gradient(160deg, #0d2a1a, #1a3020);
+  border: 1.5px solid rgba(76,175,125,0.5);
+}
+
+.card-face.rare {
+  background: linear-gradient(160deg, #0d1a35, #1a2545);
+  border: 1.5px solid rgba(74,158,255,0.6);
+}
+
+.card-face.epic {
+  background: linear-gradient(160deg, #1a0d35, #251545);
+  border: 1.5px solid rgba(180,79,255,0.7);
+}
+
+.card-face.legendary {
+  background: linear-gradient(160deg, #2a1a00, #352000);
+  border: 1.5px solid rgba(255,185,48,0.8);
+}
+
+.card-face.mythic {
+  background: linear-gradient(160deg, #200030, #1a0040);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Mythic animated rainbow border */
+.card-face.mythic::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 13px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    #ff6ec7, #fffb96, #48f0a0, #9b96ff, #ff6ec7
+  );
+  animation: mythicBorder 2s linear infinite;
+  z-index: -1;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes mythicBorder {
+  to { --angle: 360deg; }
+}
+
+/* Holographic foil overlay */
+.card-holo {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: var(--holo-gradient);
+  background-size: 400%;
+  animation: holoShift 3s ease infinite;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.card-face.rare    .card-holo { opacity: 0.12; }
+.card-face.epic    .card-holo { opacity: 0.20; background: var(--holo-epic); }
+.card-face.legendary .card-holo { opacity: 0.28; background: var(--holo-legendary); }
+.card-face.mythic  .card-holo { opacity: 0.35; }
+
+.trading-card:hover .card-face.rare    .card-holo { opacity: 0.28; }
+.trading-card:hover .card-face.epic    .card-holo { opacity: 0.40; }
+.trading-card:hover .card-face.legendary .card-holo { opacity: 0.50; }
+.trading-card:hover .card-face.mythic  .card-holo { opacity: 0.55; }
+
+@keyframes holoShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Shine sweep on hover */
+.card-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.12) 45%,
+    rgba(255,255,255,0.18) 50%,
+    rgba(255,255,255,0.12) 55%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  background-position: 200% 0;
+  transition: background-position 0.6s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.trading-card:hover .card-face::after {
+  background-position: -100% 0;
+}
+
+/* Park image */
+.card-img-wrap {
+  width: 100%;
+  height: 55%;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.6) 100%);
+}
+
+/* Rarity corner gem */
+.card-rarity-gem {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  z-index: 4;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.card-rarity-gem.common    { background: rgba(155,168,180,0.9); color: #fff; box-shadow: none; }
+.card-rarity-gem.uncommon  { background: rgba(76,175,125,0.9); color: #fff; box-shadow: 0 0 6px #4caf7d; }
+.card-rarity-gem.rare      { background: rgba(74,158,255,0.9); color: #fff; box-shadow: 0 0 8px #4a9eff; }
+.card-rarity-gem.epic      { background: rgba(180,79,255,0.9); color: #fff; box-shadow: 0 0 10px #b44fff; }
+.card-rarity-gem.legendary { background: rgba(255,185,48,0.9); color: #1a0a00; box-shadow: 0 0 12px #ffb930; }
+.card-rarity-gem.mythic    {
+  background: linear-gradient(135deg, #ff6ec7, #9b96ff);
+  color: #fff;
+  box-shadow: 0 0 14px #ff4ecd;
+  animation: mythicGemPulse 1.5s ease infinite;
+}
+
+@keyframes mythicGemPulse {
+  0%, 100% { box-shadow: 0 0 10px #ff4ecd; }
+  50%       { box-shadow: 0 0 20px #ff4ecd, 0 0 40px #9b96ff; }
+}
+
+/* Wishlist heart */
+.card-wishlist {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.trading-card:hover .card-wishlist,
+.card-wishlist.active {
+  opacity: 1;
+}
+
+.card-wishlist.active {
+  color: #ff4ecd;
+  background: rgba(255,78,205,0.2);
+  box-shadow: 0 0 10px rgba(255,78,205,0.5);
+}
+
+/* Card info panel */
+.card-info {
+  flex: 1;
+  padding: 0.5rem 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-name {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #e8d8ff;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.card-state {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.4);
+  font-variant: small-caps;
+}
+
+.card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.2rem;
+  margin-top: auto;
+}
+
+.card-stat {
+  display: flex;
+  flex-direction: column;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  padding: 0.2rem 0.3rem;
+}
+
+.card-stat-label {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.35);
+  line-height: 1;
+}
+
+.card-stat-value {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-rarity-label {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  padding-top: 0.2rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.card-rarity-label.common    { color: var(--common-color); }
+.card-rarity-label.uncommon  { color: var(--uncommon-color); }
+.card-rarity-label.rare      { color: var(--rare-color); }
+.card-rarity-label.epic      { color: var(--epic-color); }
+.card-rarity-label.legendary { color: var(--legendary-color); }
+.card-rarity-label.mythic    {
+  background: var(--holo-gradient);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: holoShift 2s ease infinite;
+}
+
+/* Box shadow by rarity */
+.card-face.common    { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+.card-face.uncommon  { box-shadow: 0 4px 20px rgba(76,175,125,0.25); }
+.card-face.rare      { box-shadow: 0 4px 25px rgba(74,158,255,0.3); }
+.card-face.epic      { box-shadow: 0 4px 30px rgba(180,79,255,0.35); }
+.card-face.legendary { box-shadow: 0 4px 35px rgba(255,185,48,0.4); }
+.card-face.mythic    { box-shadow: 0 4px 40px rgba(255,78,205,0.5); }
+
+/* Large card adjustments */
+.trading-card.large .card-name  { font-size: 1.1rem; }
+.trading-card.large .card-state { font-size: 0.75rem; }
+.trading-card.large .card-stat-label { font-size: 0.65rem; }
+.trading-card.large .card-stat-value { font-size: 0.8rem; }
+.trading-card.large .card-rarity-label { font-size: 0.75rem; }
+.trading-card.large .card-info { padding: 0.7rem 0.9rem 0.6rem; gap: 0.35rem; }
+.trading-card.large .card-stats { gap: 0.3rem; }
+.trading-card.large .card-stat { padding: 0.3rem 0.4rem; }
+.trading-card.large .card-rarity-gem { width: 26px; height: 26px; font-size: 13px; }
+
+/* Small card adjustments */
+.trading-card.small .card-name  { font-size: 0.52rem; }
+.trading-card.small .card-state { font-size: 0.4rem; }
+.trading-card.small .card-info  { padding: 0.3rem 0.35rem 0.25rem; gap: 0.15rem; }
+.trading-card.small .card-stats { gap: 0.12rem; }
+.trading-card.small .card-stat  { padding: 0.12rem 0.2rem; }
+.trading-card.small .card-stat-label { font-size: 0.38rem; }
+.trading-card.small .card-stat-value { font-size: 0.45rem; }
+.trading-card.small .card-rarity-label { font-size: 0.42rem; }
+.trading-card.small .card-rarity-gem { width: 14px; height: 14px; font-size: 8px; }
+
+/* ============================================================
+   DEAL ANIMATION
+   ============================================================ */
+
+.card-deal-slot {
+  opacity: 0;
+  transform: translateY(-60px) rotateX(45deg) scale(0.6);
+}
+
+.card-deal-slot.dealt {
+  animation: dealCard 0.6s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+}
+
+@keyframes dealCard {
+  0%   { opacity: 0; transform: translateY(-80px) rotateX(45deg) rotateY(180deg) scale(0.5); }
+  60%  { opacity: 1; transform: translateY(5px) rotateX(-3deg) rotateY(5deg) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) rotateX(0) rotateY(0) scale(1); }
+}
+
+/* ============================================================
+   SCREEN 2: COLLECTION VIEW
+   ============================================================ */
+
+#screen-collection {
+  min-height: 100vh;
+  padding: 0;
+}
+#screen-collection.active { display: block; }
+
+.collection-header {
+  background: linear-gradient(180deg, rgba(26,0,37,0.98) 0%, rgba(13,0,16,0.95) 100%);
+  border-bottom: 1px solid rgba(123,47,255,0.3);
+  padding: 1.5rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.collection-header-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 0.15em;
+  background: var(--holo-legendary);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: holoShift 4s ease infinite;
+}
+
+.collection-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  padding: 0.6rem 1.4rem;
+  border-radius: 30px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-action.primary {
+  background: linear-gradient(135deg, #7b2fff, #ff4ecd);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 0 20px rgba(123,47,255,0.4);
+}
+
+.btn-action.primary:hover {
+  box-shadow: 0 0 35px rgba(123,47,255,0.7);
+  transform: translateY(-1px);
+}
+
+.btn-action.secondary {
+  background: transparent;
+  border-color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+}
+
+.btn-action.secondary:hover {
+  border-color: rgba(255,255,255,0.5);
+  color: white;
+  background: rgba(255,255,255,0.05);
+}
+
+.btn-action.gold {
+  background: linear-gradient(135deg, #b8860b, #ffd700);
+  border-color: transparent;
+  color: #1a0a00;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(255,215,0,0.3);
+}
+
+.btn-action.gold:hover {
+  box-shadow: 0 0 35px rgba(255,215,0,0.6);
+  transform: translateY(-1px);
+}
+
+.collection-stats-bar {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 0.75rem 2rem;
+  display: flex;
+  gap: 2rem;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.45);
+}
+
+.stat-item strong {
+  color: rgba(255,255,255,0.85);
+  font-size: 1rem;
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+}
+
+.collection-cards-container {
+  padding: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+/* ============================================================
+   SCREEN 3: ALL CARDS VIEW
+   ============================================================ */
+
+#screen-allcards {
+  min-height: 100vh;
+}
+#screen-allcards.active { display: block; }
+
+.allcards-header {
+  background: linear-gradient(180deg, rgba(26,0,37,0.98) 0%, rgba(13,0,16,0.95) 100%);
+  border-bottom: 1px solid rgba(123,47,255,0.3);
+  padding: 1.2rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(20px);
+}
+
+.allcards-header-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.allcards-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.7);
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-btn {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  border-color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.9);
+}
+
+.filter-btn.active {
+  background: rgba(123,47,255,0.3);
+  border-color: #7b2fff;
+  color: white;
+}
+
+.filter-btn[data-rarity="common"].active    { background: rgba(155,168,180,0.2); border-color: var(--common-color); color: var(--common-color); }
+.filter-btn[data-rarity="uncommon"].active  { background: rgba(76,175,125,0.2); border-color: var(--uncommon-color); color: var(--uncommon-color); }
+.filter-btn[data-rarity="rare"].active      { background: rgba(74,158,255,0.2); border-color: var(--rare-color); color: var(--rare-color); }
+.filter-btn[data-rarity="epic"].active      { background: rgba(180,79,255,0.2); border-color: var(--epic-color); color: var(--epic-color); }
+.filter-btn[data-rarity="legendary"].active { background: rgba(255,185,48,0.2); border-color: var(--legendary-color); color: var(--legendary-color); }
+.filter-btn[data-rarity="mythic"].active    { background: rgba(255,78,205,0.2); border-color: var(--mythic-color); color: var(--mythic-color); }
+
+.search-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 0.35rem 1rem;
+  color: white;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  outline: none;
+  width: 180px;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: rgba(123,47,255,0.6);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 15px rgba(123,47,255,0.2);
+}
+
+.search-input::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+.region-select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 0.35rem 0.9rem;
+  color: rgba(255,255,255,0.7);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.region-select:focus {
+  border-color: rgba(123,47,255,0.6);
+}
+
+.region-select option {
+  background: #1a0025;
+  color: white;
+}
+
+.allcards-grid {
+  padding: 1.5rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.8rem;
+}
+
+/* Uncollected card back style in all-cards view */
+.card-uncollected .card-face {
+  opacity: 0.4;
+  filter: grayscale(0.8);
+}
+
+/* ============================================================
+   SCREEN 4: DECK BUILDER
+   ============================================================ */
+
+#screen-deck {
+  min-height: 100vh;
+}
+#screen-deck.active { display: block; }
+
+.deck-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  min-height: calc(100vh - 64px);
+  gap: 0;
+}
+
+.deck-header {
+  background: linear-gradient(180deg, rgba(26,0,37,0.98), rgba(13,0,16,0.95));
+  border-bottom: 1px solid rgba(123,47,255,0.3);
+  padding: 1.2rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.deck-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.7);
+}
+
+.deck-cards-area {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.deck-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.8rem;
+}
+
+.deck-sidebar {
+  background: rgba(26,0,37,0.8);
+  border-left: 1px solid rgba(123,47,255,0.2);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 64px;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
+.deck-sidebar-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.6);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 0.75rem;
+}
+
+.deck-slot {
+  background: rgba(255,255,255,0.03);
+  border: 2px dashed rgba(255,255,255,0.1);
+  border-radius: 10px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.deck-slot.filled {
+  border-style: solid;
+  border-color: rgba(123,47,255,0.4);
+  background: rgba(123,47,255,0.08);
+}
+
+.deck-slot-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.deck-slot-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-slot-remove {
+  background: none;
+  border: none;
+  color: rgba(255,100,100,0.6);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.2rem;
+  transition: color 0.2s;
+}
+
+.deck-slot-remove:hover { color: rgba(255,100,100,1); }
+
+.deck-slot-empty-text {
+  color: rgba(255,255,255,0.2);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.deck-summary {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.deck-summary-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.5rem;
+}
+
+.deck-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 0.3rem;
+}
+
+.deck-summary-row strong {
+  color: rgba(255,255,255,0.9);
+}
+
+.btn-plan-trip {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #7b2fff, #ff4ecd);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 20px rgba(123,47,255,0.4);
+  margin-top: auto;
+}
+
+.btn-plan-trip:hover {
+  box-shadow: 0 0 35px rgba(123,47,255,0.7);
+  transform: translateY(-1px);
+}
+
+.btn-plan-trip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Add to deck indicator on small cards in deck builder */
+.trading-card.in-deck .card-face::before {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(123,47,255,0.9);
+  background: rgba(13,0,16,0.5);
+  border-radius: 12px;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
+/* ============================================================
+   CARD DETAIL MODAL
+   ============================================================ */
+
+#card-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(15px);
+  padding: 1rem;
+}
+
+#card-modal.active {
+  display: flex;
+}
+
+.modal-inner {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  max-width: 700px;
+  width: 100%;
+  animation: modalIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.85) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-card-wrap {
+  flex-shrink: 0;
+}
+
+.modal-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: rgba(255,255,255,0.7);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.modal-park-name {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+.modal-park-state {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 1rem;
+}
+
+.modal-desc {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.modal-tag {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(123,47,255,0.2);
+  border: 1px solid rgba(123,47,255,0.3);
+  color: rgba(255,255,255,0.7);
+}
+
+.modal-activities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.modal-activity {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   TOAST NOTIFICATION
+   ============================================================ */
+
+#toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(26,0,37,0.95);
+  border: 1px solid rgba(123,47,255,0.5);
+  border-radius: 30px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.9);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 30px rgba(123,47,255,0.4);
+  transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .deck-layout {
+    grid-template-columns: 1fr;
+  }
+  .deck-sidebar {
+    position: static;
+    max-height: none;
+    border-left: none;
+    border-top: 1px solid rgba(123,47,255,0.2);
+  }
+  .modal-inner {
+    flex-direction: column;
+    align-items: center;
+  }
+  .allcards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    padding: 1rem;
+    gap: 0.6rem;
+  }
+  .collection-cards-container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+::-webkit-scrollbar-thumb { background: rgba(123,47,255,0.4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(123,47,255,0.7); }
+
+/* No results message */
+.no-results {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: rgba(255,255,255,0.3);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.2em;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN 1: PACK OPENING
+     ============================================================ -->
+<div id="screen-pack" class="screen active">
+  <div class="pack-title">WILD AMERICA</div>
+  <div class="pack-subtitle">THE COLLECTION · SERIES I · 100 CARDS</div>
+
+  <div class="pack-wrapper" id="packWrapper">
+    <div class="pack" id="thePack">
+      <div class="pack-bg"></div>
+      <div class="pack-foil"></div>
+      <div class="pack-border"></div>
+      <div class="pack-label">
+        <div class="pack-label-main">WILD<br>AMERICA</div>
+        <div class="pack-label-series">Series I</div>
+        <div class="pack-label-count">100 Cards · Find All Destinations</div>
+      </div>
+      <div class="pack-shine"></div>
+    </div>
+  </div>
+
+  <button class="btn-open-pack" id="btnOpenPack">OPEN PACK</button>
+  <div class="pack-description">100 U.S. Destinations to Discover</div>
+</div>
+
+<!-- ============================================================
+     DEAL STAGE OVERLAY
+     ============================================================ -->
+<div id="deal-stage">
+  <div class="deal-title" id="dealTitle">YOUR CARDS</div>
+  <div class="deal-cards-row" id="dealCardsRow"></div>
+  <button class="deal-continue-btn" id="dealContinueBtn">VIEW COLLECTION →</button>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: COLLECTION VIEW
+     ============================================================ -->
+<div id="screen-collection" class="screen">
+  <div class="collection-header">
+    <div class="collection-header-title">YOUR COLLECTION</div>
+    <div class="collection-header-actions">
+      <button class="btn-action primary" id="btnAnotherPack">+ OPEN ANOTHER PACK</button>
+      <button class="btn-action secondary" id="btnViewAll">VIEW ALL 100 CARDS</button>
+      <button class="btn-action gold" id="btnBuildDeck">BUILD DECK</button>
+    </div>
+  </div>
+  <div class="collection-stats-bar" id="collectionStats"></div>
+  <div class="collection-cards-container" id="collectionCards"></div>
+</div>
+
+<!-- ============================================================
+     SCREEN 3: ALL CARDS VIEW
+     ============================================================ -->
+<div id="screen-allcards" class="screen">
+  <div class="allcards-header">
+    <div class="allcards-header-row1">
+      <div class="allcards-title">ALL 100 CARDS</div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <button class="btn-action secondary" id="btnBackFromAll" style="font-size:0.85rem;padding:0.4rem 1rem">← BACK</button>
+        <button class="btn-action gold" id="btnBuildDeckFromAll" style="font-size:0.85rem;padding:0.4rem 1rem">BUILD DECK</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" data-rarity="all">ALL</button>
+      <button class="filter-btn" data-rarity="common">COMMON</button>
+      <button class="filter-btn" data-rarity="uncommon">UNCOMMON</button>
+      <button class="filter-btn" data-rarity="rare">RARE</button>
+      <button class="filter-btn" data-rarity="epic">EPIC</button>
+      <button class="filter-btn" data-rarity="legendary">LEGENDARY</button>
+      <button class="filter-btn" data-rarity="mythic">MYTHIC</button>
+      <select class="region-select" id="regionFilter">
+        <option value="">All Regions</option>
+      </select>
+      <input class="search-input" type="text" id="cardSearch" placeholder="Search cards...">
+    </div>
+  </div>
+  <div class="allcards-grid" id="allCardsGrid"></div>
+</div>
+
+<!-- ============================================================
+     SCREEN 4: DECK BUILDER
+     ============================================================ -->
+<div id="screen-deck" class="screen">
+  <div class="deck-header">
+    <div class="deck-title">DECK BUILDER</div>
+    <button class="btn-action secondary" id="btnBackFromDeck" style="font-size:0.85rem;padding:0.4rem 1rem">← BACK</button>
+  </div>
+  <div class="deck-layout">
+    <div class="deck-cards-area">
+      <div style="font-family:var(--font-display);font-size:0.8rem;letter-spacing:0.2em;color:rgba(255,255,255,0.3);padding:0 0 1rem;text-align:center">
+        CLICK A COLLECTED CARD TO ADD TO DECK
+      </div>
+      <div class="deck-cards-grid" id="deckCardsGrid"></div>
+    </div>
+    <div class="deck-sidebar">
+      <div class="deck-sidebar-title">YOUR DECK (0/5)</div>
+      <div id="deckSlots">
+        <div class="deck-slot" data-slot="0"><span class="deck-slot-empty-text">EMPTY SLOT 1</span></div>
+        <div class="deck-slot" data-slot="1"><span class="deck-slot-empty-text">EMPTY SLOT 2</span></div>
+        <div class="deck-slot" data-slot="2"><span class="deck-slot-empty-text">EMPTY SLOT 3</span></div>
+        <div class="deck-slot" data-slot="3"><span class="deck-slot-empty-text">EMPTY SLOT 4</span></div>
+        <div class="deck-slot" data-slot="4"><span class="deck-slot-empty-text">EMPTY SLOT 5</span></div>
+      </div>
+      <div class="deck-summary" id="deckSummary">
+        <div class="deck-summary-title">TRIP SUMMARY</div>
+        <div class="deck-summary-row">Regions: <strong id="deckRegions">—</strong></div>
+        <div class="deck-summary-row">Est. Days: <strong id="deckDays">—</strong></div>
+        <div class="deck-summary-row">Cards: <strong id="deckCount">0 / 5</strong></div>
+      </div>
+      <button class="btn-plan-trip" id="btnPlanTrip" disabled>PLAN THIS TRIP →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CARD DETAIL MODAL
+     ============================================================ -->
+<div id="card-modal">
+  <button class="modal-close" id="modalClose">✕</button>
+  <div class="modal-inner" id="modalInner"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+/* ============================================================
+   WILD AMERICA: THE COLLECTION
+   Core Game Logic
+   ============================================================ */
+
+const COLLECTION_KEY = 'tourist_collection';
+const DECK_KEY       = 'tourist_deck';
+const WISHLIST_KEY   = 'tourist_wishlist';
+
+// ---- State ------------------------------------------------
+let collected = [];   // array of attraction IDs
+let deck      = [];   // array of attraction IDs (max 5)
+let wishlist  = [];   // array of attraction IDs
+
+// ---- Storage helpers --------------------------------------
+function loadState() {
+  try { collected = JSON.parse(localStorage.getItem(COLLECTION_KEY)) || []; } catch { collected = []; }
+  try { deck      = JSON.parse(localStorage.getItem(DECK_KEY))       || []; } catch { deck = []; }
+  try { wishlist  = JSON.parse(localStorage.getItem(WISHLIST_KEY))   || []; } catch { wishlist = []; }
+}
+
+function saveCollected() { localStorage.setItem(COLLECTION_KEY, JSON.stringify(collected)); }
+function saveDeck()      { localStorage.setItem(DECK_KEY,       JSON.stringify(deck)); }
+function saveWishlist()  { localStorage.setItem(WISHLIST_KEY,   JSON.stringify(wishlist)); }
+
+// ---- Rarity logic -----------------------------------------
+function getRarity(a) {
+  // Mythic: Yellowstone (#1) and Grand Canyon (#3)
+  if (a.id === 1 || a.id === 3) return 'mythic';
+  // Legendary: rating > 4.85
+  if (a.rating > 4.85) return 'legendary';
+  // Epic: 4.8 < rating <= 4.85
+  if (a.rating > 4.8 && a.rating <= 4.85) return 'epic';
+  // Rare: 4.7 < rating <= 4.8 OR strenuous difficulty
+  if ((a.rating > 4.7 && a.rating <= 4.8) ||
+      (a.difficulty && a.difficulty.toLowerCase().includes('strenuous'))) return 'rare';
+  // Uncommon: 4.6 <= rating <= 4.7
+  if (a.rating >= 4.6 && a.rating <= 4.7) return 'uncommon';
+  // Common: everything else
+  return 'common';
+}
+
+const RARITY_GEMS = {
+  common:    '◆',
+  uncommon:  '◆',
+  rare:      '◆',
+  epic:      '◆',
+  legendary: '★',
+  mythic:    '✦'
+};
+
+const RARITY_LABELS = {
+  common:    'COMMON',
+  uncommon:  'UNCOMMON',
+  rare:      'RARE',
+  epic:      'EPIC',
+  legendary: 'LEGENDARY',
+  mythic:    'MYTHIC'
+};
+
+// ---- Fisher-Yates shuffle --------------------------------
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---- Draw 5 uncollected cards ----------------------------
+function drawPack() {
+  const uncollected = attractions.filter(a => !collected.includes(a.id));
+  if (uncollected.length === 0) return attractions.slice(0, 5); // all collected, give first 5
+  const shuffled = shuffle(uncollected);
+  return shuffled.slice(0, Math.min(5, shuffled.length));
+}
+
+// ---- Build a trading card HTML ---------------------------
+function buildTradingCard(a, opts = {}) {
+  const rarity     = getRarity(a);
+  const size       = opts.size || '';       // 'large', 'small', ''
+  const isCollected = collected.includes(a.id);
+  const isWished   = wishlist.includes(a.id);
+  const isInDeck   = deck.includes(a.id);
+  const showBack   = opts.showBack || false;
+  const noInteract = opts.noInteract || false;
+
+  const imgSrc = `../shared/images/${a.slug}.jpg`;
+  const fallback = `https://picsum.photos/seed/park${a.id}/400/300`;
+
+  const sizeClass = size ? ` ${size}` : '';
+  const inDeckClass = isInDeck && opts.deckMode ? ' in-deck' : '';
+  const uncollectedClass = (!isCollected && opts.showUncollected) ? ' card-uncollected' : '';
+
+  return `
+<div class="trading-card${sizeClass}${inDeckClass}${uncollectedClass}"
+     data-id="${a.id}"
+     data-rarity="${rarity}"
+     ${opts.deckMode ? 'data-deck-mode="1"' : ''}
+     ${opts.allCardsMode ? 'data-allcards-mode="1"' : ''}
+     style="transform-style:preserve-3d">
+  <div class="card-inner${showBack ? ' flipped' : ''}" id="card-inner-${a.id}">
+    <div class="card-back">
+      <div class="card-back-logo">WILD AMERICA</div>
+      <div class="card-back-mark">?</div>
+    </div>
+    <div class="card-face ${rarity}">
+      <div class="card-holo"></div>
+      <div class="card-img-wrap">
+        <img src="${imgSrc}" alt="${a.name}"
+             onerror="this.src='${fallback}'" loading="lazy">
+        <div class="card-img-overlay"></div>
+      </div>
+      <div class="card-rarity-gem ${rarity}">${RARITY_GEMS[rarity]}</div>
+      <button class="card-wishlist ${isWished ? 'active' : ''}"
+              data-wishlist="${a.id}"
+              title="Wishlist">♥</button>
+      <div class="card-info">
+        <div class="card-name">${a.name}</div>
+        <div class="card-state">${a.state}</div>
+        <div class="card-stats">
+          <div class="card-stat">
+            <span class="card-stat-label">⭐ Rating</span>
+            <span class="card-stat-value">${a.rating}</span>
+          </div>
+          <div class="card-stat">
+            <span class="card-stat-label">💰 Fee</span>
+            <span class="card-stat-value">${a.fee}</span>
+          </div>
+          <div class="card-stat">
+            <span class="card-stat-label">⏱ Duration</span>
+            <span class="card-stat-value">${a.duration}</span>
+          </div>
+          <div class="card-stat">
+            <span class="card-stat-label">🥾 Difficulty</span>
+            <span class="card-stat-value">${a.difficulty}</span>
+          </div>
+        </div>
+        <div class="card-rarity-label ${rarity}">${RARITY_LABELS[rarity]}</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+// ---- Mouse tilt 3D effect --------------------------------
+function initCardTilt(container) {
+  container.addEventListener('mousemove', e => {
+    const card = e.target.closest('.trading-card');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const cx   = rect.left + rect.width  / 2;
+    const cy   = rect.top  + rect.height / 2;
+    const dx   = ((e.clientX - cx) / (rect.width  / 2)) * 8;
+    const dy   = ((e.clientY - cy) / (rect.height / 2)) * -6;
+    card.style.transform = `rotateX(${dy}deg) rotateY(${dx}deg) scale(1.04)`;
+    card.style.transition = 'transform 0.05s ease';
+  });
+
+  container.addEventListener('mouseleave', e => {
+    const card = e.target.closest('.trading-card');
+    if (!card) return;
+    card.style.transform = '';
+    card.style.transition = 'transform 0.4s ease';
+  }, true);
+
+  // Detect when mouse leaves a specific card
+  container.addEventListener('mouseout', e => {
+    const card = e.target.closest('.trading-card');
+    if (!card || card.contains(e.relatedTarget)) return;
+    card.style.transform = '';
+    card.style.transition = 'transform 0.4s ease';
+  });
+}
+
+// ---- Toast notification ----------------------------------
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ---- Screen management -----------------------------------
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('active');
+    el.scrollTop = 0;
+  }
+}
+
+// ============================================================
+// PACK OPENING
+// ============================================================
+
+const packWrapper = document.getElementById('packWrapper');
+const btnOpenPack = document.getElementById('btnOpenPack');
+const dealStage   = document.getElementById('deal-stage');
+const dealRow     = document.getElementById('dealCardsRow');
+const dealBtn     = document.getElementById('dealContinueBtn');
+
+function getPackHTML() {
+  return `
+    <div class="pack-top">
+      <div class="pack" style="position:relative;height:100%;border-radius:12px 12px 0 0;overflow:hidden">
+        <div class="pack-bg"></div>
+        <div class="pack-foil" style="opacity:0.25"></div>
+        <div class="pack-border" style="border-radius:11px 11px 0 0"></div>
+        <div class="pack-shine"></div>
+      </div>
+    </div>
+    <div class="pack-bottom">
+      <div class="pack" style="position:relative;height:100%;border-radius:0 0 12px 12px;overflow:hidden">
+        <div class="pack-bg"></div>
+        <div class="pack-foil" style="opacity:0.25"></div>
+        <div class="pack-border" style="border-radius:0 0 11px 11px"></div>
+        <div class="pack-shine"></div>
+      </div>
+    </div>`;
+}
+
+btnOpenPack.addEventListener('click', () => {
+  const drawnCards = drawPack();
+
+  // Split pack
+  packWrapper.innerHTML = getPackHTML();
+  packWrapper.classList.add('tearing');
+  btnOpenPack.disabled = true;
+  btnOpenPack.style.opacity = '0';
+
+  setTimeout(() => {
+    // Show deal stage
+    dealRow.innerHTML = '';
+    dealBtn.classList.remove('visible');
+    dealStage.classList.add('active');
+
+    // Deal cards one by one
+    drawnCards.forEach((card, i) => {
+      const slot = document.createElement('div');
+      slot.className = 'card-deal-slot';
+      slot.innerHTML = buildTradingCard(card, { showBack: true, size: '' });
+      dealRow.appendChild(slot);
+
+      setTimeout(() => {
+        slot.classList.add('dealt');
+
+        // After slot appears, flip card face-up
+        setTimeout(() => {
+          const inner = slot.querySelector('.card-inner');
+          if (inner) inner.classList.remove('flipped');
+
+          // Add to collection
+          if (!collected.includes(card.id)) {
+            collected.push(card.id);
+          }
+
+          // Show continue button after last card
+          if (i === drawnCards.length - 1) {
+            saveCollected();
+            setTimeout(() => dealBtn.classList.add('visible'), 400);
+          }
+        }, 350);
+      }, i * 280);
+    });
+
+    initCardTilt(dealRow);
+
+    // Wishlist buttons in deal stage
+    dealRow.addEventListener('click', e => {
+      const wb = e.target.closest('[data-wishlist]');
+      if (wb) { toggleWishlist(parseInt(wb.dataset.wishlist)); return; }
+    });
+    dealRow.addEventListener('contextmenu', e => {
+      const card = e.target.closest('.trading-card[data-id]');
+      if (card) {
+        e.preventDefault();
+        toggleWishlist(parseInt(card.dataset.id));
+      }
+    });
+
+  }, 650);
+});
+
+// Long-press for wishlist
+setupLongPress(document.body);
+
+dealBtn.addEventListener('click', () => {
+  dealStage.classList.remove('active');
+  renderCollectionScreen();
+  showScreen('screen-collection');
+
+  // Reset pack screen for next open
+  setTimeout(() => {
+    packWrapper.innerHTML = `<div class="pack" id="thePack">
+      <div class="pack-bg"></div>
+      <div class="pack-foil"></div>
+      <div class="pack-border"></div>
+      <div class="pack-label">
+        <div class="pack-label-main">WILD<br>AMERICA</div>
+        <div class="pack-label-series">Series I</div>
+        <div class="pack-label-count">100 Cards · Find All Destinations</div>
+      </div>
+      <div class="pack-shine"></div>
+    </div>`;
+    packWrapper.classList.remove('tearing');
+    btnOpenPack.disabled = false;
+    btnOpenPack.style.opacity = '1';
+  }, 500);
+});
+
+// ============================================================
+// WISHLIST
+// ============================================================
+
+function toggleWishlist(id) {
+  const idx = wishlist.indexOf(id);
+  if (idx === -1) {
+    wishlist.push(id);
+    showToast('♥ Added to Wishlist');
+  } else {
+    wishlist.splice(idx, 1);
+    showToast('Removed from Wishlist');
+  }
+  saveWishlist();
+  // Update all visible wishlist buttons for this card
+  document.querySelectorAll(`[data-wishlist="${id}"]`).forEach(btn => {
+    btn.classList.toggle('active', wishlist.includes(id));
+  });
+}
+
+function setupLongPress(root) {
+  let pressTimer;
+  root.addEventListener('pointerdown', e => {
+    const card = e.target.closest('.trading-card[data-id]');
+    if (!card) return;
+    pressTimer = setTimeout(() => {
+      toggleWishlist(parseInt(card.dataset.id));
+    }, 600);
+  });
+  root.addEventListener('pointerup',    () => clearTimeout(pressTimer));
+  root.addEventListener('pointermove',  () => clearTimeout(pressTimer));
+  root.addEventListener('pointercancel', () => clearTimeout(pressTimer));
+
+  root.addEventListener('contextmenu', e => {
+    const card = e.target.closest('.trading-card[data-id]');
+    if (card) {
+      e.preventDefault();
+      toggleWishlist(parseInt(card.dataset.id));
+    }
+  });
+}
+
+// ============================================================
+// COLLECTION SCREEN
+// ============================================================
+
+function renderCollectionScreen() {
+  const container = document.getElementById('collectionCards');
+  const statsBar  = document.getElementById('collectionStats');
+
+  const collectedAttractions = attractions.filter(a => collected.includes(a.id));
+
+  // Stats
+  const mythicCount     = collectedAttractions.filter(a => getRarity(a) === 'mythic').length;
+  const legendaryCount  = collectedAttractions.filter(a => getRarity(a) === 'legendary').length;
+  const epicCount       = collectedAttractions.filter(a => getRarity(a) === 'epic').length;
+  statsBar.innerHTML = `
+    <span class="stat-item"><strong>${collectedAttractions.length}</strong> / 100 Collected</span>
+    <span class="stat-item"><strong style="color:var(--mythic-color)">${mythicCount}</strong> Mythic</span>
+    <span class="stat-item"><strong style="color:var(--legendary-color)">${legendaryCount}</strong> Legendary</span>
+    <span class="stat-item"><strong style="color:var(--epic-color)">${epicCount}</strong> Epic</span>
+  `;
+
+  // Cards
+  if (collectedAttractions.length === 0) {
+    container.innerHTML = '<div class="no-results">NO CARDS YET — OPEN A PACK!</div>';
+    return;
+  }
+
+  container.innerHTML = collectedAttractions.map(a => buildTradingCard(a, { size: 'large' })).join('');
+  initCardTilt(container);
+}
+
+// ============================================================
+// ALL CARDS SCREEN
+// ============================================================
+
+function renderAllCardsScreen() {
+  populateRegionFilter();
+  filterAndRenderAllCards();
+}
+
+function populateRegionFilter() {
+  const sel = document.getElementById('regionFilter');
+  const regions = [...new Set(attractions.map(a => a.region))].sort();
+  sel.innerHTML = '<option value="">All Regions</option>' +
+    regions.map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+function filterAndRenderAllCards() {
+  const rarityFilter = document.querySelector('.filter-btn.active')?.dataset.rarity || 'all';
+  const regionVal    = document.getElementById('regionFilter').value;
+  const searchVal    = document.getElementById('cardSearch').value.toLowerCase().trim();
+
+  let list = attractions;
+  if (rarityFilter !== 'all') list = list.filter(a => getRarity(a) === rarityFilter);
+  if (regionVal)              list = list.filter(a => a.region === regionVal);
+  if (searchVal)              list = list.filter(a =>
+    a.name.toLowerCase().includes(searchVal) ||
+    a.state.toLowerCase().includes(searchVal) ||
+    a.tags.some(t => t.toLowerCase().includes(searchVal))
+  );
+
+  const grid = document.getElementById('allCardsGrid');
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="no-results">NO CARDS MATCH YOUR FILTERS</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(a => {
+    const isCollected = collected.includes(a.id);
+    return buildTradingCard(a, {
+      size: 'small',
+      showUncollected: !isCollected,
+      allCardsMode: true
+    });
+  }).join('');
+
+  initCardTilt(grid);
+}
+
+// All-cards grid click — single persistent handler
+document.getElementById('allCardsGrid').addEventListener('click', e => {
+  const wb = e.target.closest('[data-wishlist]');
+  if (wb) { toggleWishlist(parseInt(wb.dataset.wishlist)); return; }
+  const card = e.target.closest('.trading-card[data-id]');
+  if (!card) return;
+  const id = parseInt(card.dataset.id);
+  if (collected.includes(id)) {
+    openModal(id);
+  } else {
+    showToast('Card not collected yet — open more packs!');
+  }
+});
+
+// Collection grid click — single persistent handler
+document.getElementById('collectionCards').addEventListener('click', e => {
+  const wb = e.target.closest('[data-wishlist]');
+  if (wb) { toggleWishlist(parseInt(wb.dataset.wishlist)); return; }
+  const card = e.target.closest('.trading-card[data-id]');
+  if (card) openModal(parseInt(card.dataset.id));
+});
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterAndRenderAllCards();
+  });
+});
+
+document.getElementById('regionFilter').addEventListener('change', filterAndRenderAllCards);
+document.getElementById('cardSearch').addEventListener('input', filterAndRenderAllCards);
+
+// ============================================================
+// DECK BUILDER
+// ============================================================
+
+// Stable click handler reference for deck grid
+function _deckGridClickHandler(e) {
+  const wb = e.target.closest('[data-wishlist]');
+  if (wb) { toggleWishlist(parseInt(wb.dataset.wishlist)); return; }
+  const card = e.target.closest('.trading-card[data-id]');
+  if (!card) return;
+  const id = parseInt(card.dataset.id);
+  toggleDeckCard(id);
+}
+
+function renderDeckScreen() {
+  renderDeckSidebar();
+
+  const grid = document.getElementById('deckCardsGrid');
+  const collectedAttractions = attractions.filter(a => collected.includes(a.id));
+
+  if (collectedAttractions.length === 0) {
+    grid.innerHTML = '<div class="no-results" style="grid-column:1/-1">COLLECT CARDS FIRST!</div>';
+    return;
+  }
+
+  grid.innerHTML = collectedAttractions.map(a =>
+    buildTradingCard(a, { size: 'small', deckMode: true })
+  ).join('');
+
+  initCardTilt(grid);
+
+  // Remove old listener before adding new one
+  grid.removeEventListener('click', _deckGridClickHandler);
+  grid.addEventListener('click', _deckGridClickHandler);
+}
+
+function toggleDeckCard(id) {
+  if (deck.includes(id)) {
+    deck = deck.filter(d => d !== id);
+    showToast('Removed from deck');
+  } else {
+    if (deck.length >= 5) {
+      // Replace last slot
+      deck[deck.length - 1] = id;
+      showToast('Replaced last card in deck');
+    } else {
+      deck.push(id);
+      showToast('Added to deck!');
+    }
+  }
+  saveDeck();
+  // Only update visuals without full re-render
+  renderDeckSidebar();
+  // Update in-deck highlights on existing cards
+  document.querySelectorAll('#deckCardsGrid .trading-card[data-id]').forEach(c => {
+    const cid = parseInt(c.dataset.id);
+    c.classList.toggle('in-deck', deck.includes(cid));
+  });
+}
+
+function renderDeckSidebar() {
+  document.querySelector('.deck-sidebar-title').textContent = `YOUR DECK (${deck.length}/5)`;
+
+  // Update slots
+  for (let i = 0; i < 5; i++) {
+    const slot = document.querySelector(`[data-slot="${i}"]`);
+    if (!slot) continue;
+    if (deck[i] !== undefined) {
+      const a = attractions.find(x => x.id === deck[i]);
+      if (a) {
+        slot.className = 'deck-slot filled';
+        slot.innerHTML = `
+          <img class="deck-slot-thumb" src="../shared/images/${a.slug}.jpg"
+               onerror="this.src='https://picsum.photos/seed/park${a.id}/80/80'"
+               alt="${a.name}">
+          <span class="deck-slot-name">${a.name}</span>
+          <button class="deck-slot-remove" data-remove="${a.id}" title="Remove">✕</button>`;
+      }
+    } else {
+      slot.className = 'deck-slot';
+      slot.innerHTML = `<span class="deck-slot-empty-text">EMPTY SLOT ${i + 1}</span>`;
+    }
+  }
+
+  // Summary
+  const deckAttractions = attractions.filter(a => deck.includes(a.id));
+  const regions = [...new Set(deckAttractions.map(a => a.region))];
+  document.getElementById('deckRegions').textContent = regions.length > 0
+    ? regions.map(r => r.split(' ')[0]).join(', ')
+    : '—';
+  document.getElementById('deckCount').textContent = `${deck.length} / 5`;
+  document.getElementById('deckDays').textContent = deck.length > 0 ? `${deck.length * 2}–${deck.length * 4}` : '—';
+
+  document.getElementById('btnPlanTrip').disabled = deck.length === 0;
+}
+
+// Deck slot remove — attached once at startup via delegation
+document.getElementById('deckSlots').addEventListener('click', e => {
+  const rb = e.target.closest('[data-remove]');
+  if (rb) {
+    const id = parseInt(rb.dataset.remove);
+    deck = deck.filter(d => d !== id);
+    saveDeck();
+    renderDeckSidebar();
+    // Update in-deck highlights on existing cards
+    document.querySelectorAll('#deckCardsGrid .trading-card[data-id]').forEach(c => {
+      const cid = parseInt(c.dataset.id);
+      c.classList.toggle('in-deck', deck.includes(cid));
+    });
+  }
+});
+
+document.getElementById('btnPlanTrip').addEventListener('click', () => {
+  if (deck.length === 0) return;
+  deck.forEach(id => App.addToItinerary(id));
+  showToast(`✓ Added ${deck.length} parks to your trip itinerary!`);
+});
+
+// ============================================================
+// CARD DETAIL MODAL
+// ============================================================
+
+function openModal(id) {
+  const a = attractions.find(x => x.id === id);
+  if (!a) return;
+  const rarity = getRarity(a);
+  const isWished = wishlist.includes(a.id);
+
+  document.getElementById('modalInner').innerHTML = `
+    <div class="modal-card-wrap">
+      ${buildTradingCard(a, { size: 'large' })}
+    </div>
+    <div class="modal-info">
+      <div class="modal-park-name">${a.name}</div>
+      <div class="modal-park-state">${a.state} · ${a.region} · <span style="color:var(--${rarity}-color)">${RARITY_LABELS[rarity]}</span></div>
+      <div class="modal-desc">${a.description}</div>
+      <div class="modal-tags">
+        ${a.tags.map(t => `<span class="modal-tag">${t}</span>`).join('')}
+      </div>
+      <div class="modal-activities">
+        ${a.activities.map(act => `<span class="modal-activity">${act}</span>`).join('')}
+      </div>
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:1rem">
+        Best Time: ${a.bestTime} · ${a.reviews.toLocaleString()} reviews
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action primary" data-modal-itin="${a.id}">+ ADD TO TRIP</button>
+        <button class="btn-action secondary" data-modal-wishlist="${a.id}">
+          ${isWished ? '♥ WISHLISTED' : '♡ WISHLIST'}
+        </button>
+      </div>
+    </div>`;
+
+  document.getElementById('card-modal').classList.add('active');
+  initCardTilt(document.getElementById('modalInner'));
+}
+
+// Modal static click handler — registered once
+document.getElementById('card-modal').addEventListener('click', e => {
+  const wb  = e.target.closest('[data-wishlist]');
+  if (wb) { toggleWishlist(parseInt(wb.dataset.wishlist)); return; }
+
+  const itin = e.target.closest('[data-modal-itin]');
+  if (itin) {
+    const mid = parseInt(itin.dataset.modalItin);
+    App.addToItinerary(mid);
+    showToast('✓ Added to your trip!');
+    return;
+  }
+
+  const wlBtn = e.target.closest('[data-modal-wishlist]');
+  if (wlBtn) {
+    const mid = parseInt(wlBtn.dataset.modalWishlist);
+    toggleWishlist(mid);
+    wlBtn.textContent = wishlist.includes(mid) ? '♥ WISHLISTED' : '♡ WISHLIST';
+    return;
+  }
+});
+
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('card-modal').classList.remove('active');
+});
+
+document.getElementById('card-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('card-modal')) {
+    document.getElementById('card-modal').classList.remove('active');
+  }
+});
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+
+document.getElementById('btnAnotherPack').addEventListener('click', () => {
+  showScreen('screen-pack');
+});
+
+document.getElementById('btnViewAll').addEventListener('click', () => {
+  renderAllCardsScreen();
+  showScreen('screen-allcards');
+});
+
+document.getElementById('btnBuildDeck').addEventListener('click', () => {
+  renderDeckScreen();
+  showScreen('screen-deck');
+});
+
+document.getElementById('btnBuildDeckFromAll').addEventListener('click', () => {
+  renderDeckScreen();
+  showScreen('screen-deck');
+});
+
+document.getElementById('btnBackFromAll').addEventListener('click', () => {
+  if (collected.length > 0) {
+    renderCollectionScreen();
+    showScreen('screen-collection');
+  } else {
+    showScreen('screen-pack');
+  }
+});
+
+document.getElementById('btnBackFromDeck').addEventListener('click', () => {
+  if (collected.length > 0) {
+    renderCollectionScreen();
+    showScreen('screen-collection');
+  } else {
+    showScreen('screen-pack');
+  }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+
+loadState();
+
+// If we have collected cards, go straight to collection
+if (collected.length > 0) {
+  renderCollectionScreen();
+  showScreen('screen-collection');
+} else {
+  showScreen('screen-pack');
+}
+
+</script>
+</body>
+</html>

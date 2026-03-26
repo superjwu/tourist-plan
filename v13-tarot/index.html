@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Oracle — Discover America</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;600&display=swap');
+
+    :root {
+      --bg: #0C0A1E;
+      --bg-alt: #16123A;
+      --primary: #9D5CFF;
+      --primary-light: #C084FC;
+      --accent: #FFD700;
+      --accent2: #FF6B9D;
+      --text: #F0E6FF;
+      --text-muted: #8B7AAE;
+      --card-bg: #1A1535;
+      --card-border: rgba(157,92,255,0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Raleway', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* Stars background */
+    #stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+
+    /* Drifting background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 40%, rgba(157,92,255,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 60%, rgba(255,107,157,0.08) 0%, transparent 50%);
+      animation: bgDrift 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes bgDrift {
+      0%,100% { transform: translate(0,0); }
+      33% { transform: translate(2%,3%); }
+      66% { transform: translate(-2%,-2%); }
+    }
+
+    /* Click sparkle */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 1rem;
+      color: var(--accent);
+      z-index: 9999;
+      animation: sparkleFade 0.7s ease-out forwards;
+    }
+    @keyframes sparkleFade {
+      0% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%,-120%) scale(0.3); }
+    }
+
+    /* ---- NAV ---- */
+    .oracle-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: rgba(12,10,30,0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(157,92,255,0.2);
+    }
+    .oracle-nav a.nav-back-btn {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .oracle-nav a.nav-back-btn:hover { color: var(--primary-light); }
+    .oracle-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      flex: 1;
+      text-align: center;
+    }
+    .nav-kept-btn {
+      background: rgba(157,92,255,0.2);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-kept-btn:hover { background: rgba(157,92,255,0.4); }
+
+    /* ---- OPENING RITUAL SCREEN ---- */
+    #ritual-screen {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    .sigil {
+      width: 160px; height: 160px;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .sigil-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(157,92,255,0.5);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      animation: rotateSigil var(--r,8s) linear infinite;
+    }
+    .sigil-ring:nth-child(1) { width: 160px; height: 160px; border-color: rgba(157,92,255,0.3); }
+    .sigil-ring:nth-child(2) { width: 120px; height: 120px; border-color: rgba(157,92,255,0.5); --r: 12s; animation-direction: reverse; }
+    .sigil-ring:nth-child(3) { width: 80px; height: 80px; border-color: rgba(255,215,0,0.4); --r: 6s; }
+    .sigil-star {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 2.5rem;
+      animation: pulseStar 3s ease-in-out infinite;
+    }
+    @keyframes rotateSigil { to { transform: translate(-50%,-50%) rotate(360deg); } }
+    @keyframes pulseStar { 0%,100%{opacity:0.6;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)} }
+
+    .ritual-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      letter-spacing: 0.3em;
+      color: var(--accent);
+      text-shadow: 0 0 40px rgba(255,215,0,0.4);
+      line-height: 1.2;
+    }
+    .ritual-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+      max-width: 400px;
+    }
+    .ritual-begin {
+      margin-top: 1rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, rgba(157,92,255,0.3), rgba(255,107,157,0.2));
+      border: 1px solid var(--primary);
+      border-radius: 999px;
+      color: var(--text);
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(157,92,255,0.3);
+      animation: pulseBtn 2.5s ease-in-out infinite;
+    }
+    .ritual-begin:hover {
+      background: linear-gradient(135deg, rgba(157,92,255,0.5), rgba(255,107,157,0.35));
+      box-shadow: 0 0 40px rgba(157,92,255,0.5);
+    }
+    @keyframes pulseBtn { 0%,100%{box-shadow:0 0 20px rgba(157,92,255,0.3)} 50%{box-shadow:0 0 40px rgba(157,92,255,0.6)} }
+
+    .see-all-link {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      text-decoration: underline dotted;
+      margin-top: -0.5rem;
+    }
+    .see-all-link:hover { color: var(--primary-light); }
+
+    /* ---- CARD DRAW SCREEN ---- */
+    #draw-screen {
+      display: none;
+      position: fixed; inset: 0; z-index: 40;
+      padding-top: 60px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .deck-area {
+      position: relative;
+      width: 200px; height: 300px;
+      margin-bottom: 0.5rem;
+    }
+    .deck-back {
+      position: absolute;
+      width: 200px; height: 300px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1A1535 0%, #0C0A1E 100%);
+      border: 1px solid var(--card-border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      cursor: pointer;
+      transform-origin: center bottom;
+      transition: transform 0.2s;
+    }
+    .deck-back::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(157,92,255,0.3);
+      border-radius: 8px;
+    }
+    .deck-back:nth-child(1) { transform: translateZ(0) rotate(-2deg); z-index: 5; }
+    .deck-back:nth-child(2) { transform: translateZ(-6px) rotate(-0.5deg) translateY(4px); z-index: 4; }
+    .deck-back:nth-child(3) { transform: translateZ(-12px) rotate(1deg) translateY(8px); z-index: 3; }
+    .deck-back:nth-child(1):hover { transform: translateZ(0) rotate(-2deg) translateY(-8px); box-shadow: 0 20px 40px rgba(157,92,255,0.4); }
+
+    /* The revealed card */
+    #card-container {
+      perspective: 1000px;
+      width: 300px; height: 480px;
+      display: none;
+      position: relative;
+    }
+    .card-inner {
+      width: 100%; height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .card-inner.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .card-back-face {
+      background: linear-gradient(135deg, #1A1535, #0C0A1E);
+      border: 1px solid var(--card-border);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-front-face {
+      transform: rotateY(180deg);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 0 40px rgba(157,92,255,0.3), 0 20px 60px rgba(0,0,0,0.5);
+      display: flex; flex-direction: column;
+    }
+
+    .card-arcana {
+      padding: 0.6rem 1rem;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(157,92,255,0.2);
+    }
+    .card-arcana span { color: var(--accent); }
+
+    .card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--accent);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .card-state {
+      text-align: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+    .card-rating {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--primary-light);
+      margin: 0.2rem 0;
+    }
+    .card-tagline {
+      font-style: italic;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.4;
+      padding: 0 0.5rem;
+      flex: 1;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      justify-content: center;
+    }
+    .card-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      padding: 0.15rem 0.5rem;
+      border: 1px solid rgba(157,92,255,0.4);
+      border-radius: 999px;
+      color: var(--primary-light);
+    }
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid rgba(157,92,255,0.2);
+    }
+    .card-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-keep {
+      background: linear-gradient(135deg, rgba(157,92,255,0.4), rgba(255,107,157,0.3));
+      border: 1px solid var(--primary);
+      color: var(--text);
+    }
+    .btn-keep:hover { background: linear-gradient(135deg, rgba(157,92,255,0.6), rgba(255,107,157,0.5)); }
+    .btn-return {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text-muted);
+    }
+    .btn-return:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .draw-btn {
+      padding: 0.8rem 2rem;
+      background: transparent;
+      border: 1px solid var(--primary);
+      border-radius: 999px;
+      color: var(--primary-light);
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .draw-btn:hover {
+      background: rgba(157,92,255,0.2);
+      box-shadow: 0 0 20px rgba(157,92,255,0.3);
+    }
+    .deck-count {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+    }
+
+    /* ---- KEPT STRIP ---- */
+    .kept-strip {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 90px;
+      background: rgba(12,10,30,0.9);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(157,92,255,0.2);
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 60;
+      transform: translateY(100%);
+      transition: transform 0.4s;
+    }
+    .kept-strip.visible { transform: translateY(0); }
+    .kept-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .kept-thumbs {
+      display: flex;
+      gap: 0.5rem;
+      flex: 1;
+      overflow-x: auto;
+    }
+    .kept-thumb {
+      width: 45px; height: 65px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .kept-thumb:hover { transform: translateY(-4px); }
+
+    /* ---- ALL CARDS OVERLAY ---- */
+    #all-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(12,10,30,0.95);
+      backdrop-filter: blur(20px);
+      flex-direction: column;
+    }
+    #all-overlay.open { display: flex; }
+
+    .all-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(157,92,255,0.2);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .all-header h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      flex: 1;
+    }
+    .all-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-pill {
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      cursor: pointer;
+      font-family: 'Raleway', sans-serif;
+      transition: all 0.2s;
+    }
+    .filter-pill.active, .filter-pill:hover {
+      background: rgba(157,92,255,0.3);
+      border-color: var(--primary);
+      color: var(--text);
+    }
+    .close-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .all-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 1rem;
+    }
+    .mini-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mini-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(157,92,255,0.3);
+      transform: translateY(-3px);
+    }
+    .mini-card img { width: 100%; height: 90px; object-fit: cover; display: block; }
+    .mini-card-name {
+      padding: 0.4rem 0.5rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .mini-card-state {
+      padding: 0 0.5rem 0.4rem;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- NAV -->
+<nav class="oracle-nav">
+  <a href="../gallery.html" class="nav-back-btn">← All Versions</a>
+  <div class="oracle-title">THE ORACLE</div>
+  <button class="nav-kept-btn" onclick="toggleAllOverlay()">⬟ See All Cards</button>
+</nav>
+
+<!-- RITUAL / OPENING SCREEN -->
+<div id="ritual-screen">
+  <div class="sigil">
+    <div class="sigil-ring"></div>
+    <div class="sigil-ring"></div>
+    <div class="sigil-ring"></div>
+    <div class="sigil-star">✦</div>
+  </div>
+  <div class="ritual-title">THE ORACLE</div>
+  <div class="ritual-subtitle">Draw a card to reveal your next American journey. Each turn of the card unveils a sacred destination.</div>
+  <button class="ritual-begin" onclick="beginReading()">✦ BEGIN THE READING ✦</button>
+  <div class="see-all-link" onclick="toggleAllOverlay()">or browse all 100 destinations</div>
+</div>
+
+<!-- DRAW SCREEN -->
+<div id="draw-screen">
+  <div id="deck-area" class="deck-area">
+    <div class="deck-back" onclick="drawCard()">✦</div>
+    <div class="deck-back"></div>
+    <div class="deck-back"></div>
+  </div>
+
+  <div id="card-container">
+    <div class="card-inner" id="cardInner">
+      <div class="card-face card-back-face">
+        <span style="font-family:'Cinzel';color:var(--text-muted);letter-spacing:0.2em;font-size:0.7rem">✦</span>
+      </div>
+      <div class="card-face card-front-face" id="cardFront">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <button class="draw-btn" id="drawBtn" onclick="drawCard()">✦ DRAW YOUR FATE ✦</button>
+  <div class="deck-count" id="deckCount"></div>
+</div>
+
+<!-- KEPT STRIP -->
+<div class="kept-strip" id="keptStrip">
+  <div class="kept-label" id="keptLabel">⬟ 0 destinations chosen</div>
+  <div class="kept-thumbs" id="keptThumbs"></div>
+</div>
+
+<!-- ALL CARDS OVERLAY -->
+<div id="all-overlay">
+  <div class="all-header">
+    <h2>ALL DESTINATIONS</h2>
+    <div class="all-filters" id="allFilters"></div>
+    <button class="close-btn" onclick="toggleAllOverlay()">✕</button>
+  </div>
+  <div class="all-grid" id="allGrid"></div>
+</div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+  // ---- Stars ----
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--delay:${(Math.random()*4).toFixed(1)}s`;
+    starsEl.appendChild(s);
+  }
+
+  // ---- Click sparkle ----
+  document.addEventListener('click', e => {
+    const sp = document.createElement('div');
+    sp.className = 'sparkle';
+    sp.textContent = ['✦','✧','⋆','◆'][Math.floor(Math.random()*4)];
+    sp.style.left = e.clientX + 'px';
+    sp.style.top = e.clientY + 'px';
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 700);
+  });
+
+  // ---- State ----
+  let deck = [];
+  let currentCard = null;
+  let keptIds = new Set(App.getItinerary());
+
+  const arcanaTitle = {
+    'National Park': 'THE WILD REALM',
+    'Natural Wonder': 'THE ETERNAL WONDER',
+    'Scenic Byway': 'THE JOURNEY PATH',
+    'National Scenic Trail': 'THE ANCIENT PATH',
+    'National Seashore': 'THE SHORE ETERNAL',
+    'National Lakeshore': 'THE INLAND SEA',
+    'National Monument': 'THE SACRED MONUMENT',
+    'Historic Site': 'THE ANCIENT MEMORY',
+  };
+
+  const romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII','XXIX','XXX','XXXI','XXXII','XXXIII','XXXIV','XXXV','XXXVI','XXXVII','XXXVIII','XXXIX','XL','XLI','XLII','XLIII','XLIV','XLV','XLVI','XLVII','XLVIII','XLIX','L','LI','LII','LIII','LIV','LV','LVI','LVII','LVIII','LIX','LX','LXI','LXII','LXIII','LXIV','LXV','LXVI','LXVII','LXVIII','LXIX','LXX','LXXI','LXXII','LXXIII','LXXIV','LXXV','LXXVI','LXXVII','LXXVIII','LXXIX','LXXX','LXXXI','LXXXII','LXXXIII','LXXXIV','LXXXV','LXXXVI','LXXXVII','LXXXVIII','LXXXIX','XC','XCI','XCII','XCIII','XCIV','XCV','XCVI','XCVII','XCVIII','XCIX','C'];
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function beginReading() {
+    deck = shuffle(attractions);
+    document.getElementById('ritual-screen').style.display = 'none';
+    const ds = document.getElementById('draw-screen');
+    ds.style.display = 'flex';
+    updateDeckCount();
+  }
+
+  function updateDeckCount() {
+    const remaining = deck.length;
+    document.getElementById('deckCount').textContent =
+      remaining > 0 ? `${remaining} card${remaining !== 1 ? 's' : ''} remaining in the deck` : 'The deck is empty — the reading is complete';
+    document.getElementById('drawBtn').disabled = remaining === 0;
+  }
+
+  function drawCard() {
+    if (deck.length === 0) return;
+    const a = deck.shift();
+    currentCard = a;
+
+    // Build card front
+    const arcana = arcanaTitle[a.category] || 'THE SACRED LAND';
+    const cardNum = attractions.indexOf(a) + 1;
+    const roman = romanNumerals[cardNum - 1] || cardNum;
+    const tagline = a.description.split('.')[0].trim().split(' ').slice(0, 9).join(' ') + '…';
+    const tags = a.activities.slice(0,3);
+    const isKept = keptIds.has(a.id);
+
+    document.getElementById('cardFront').innerHTML = `
+      <div class="card-arcana"><span>${roman}</span> &nbsp;·&nbsp; ${arcana}</div>
+      <img class="card-img" src="${a.image}" alt="${a.name}"
+           onerror="this.src='https://picsum.photos/seed/${a.id}/300/200'">
+      <div class="card-body">
+        <div class="card-name">${a.name.toUpperCase()}</div>
+        <div class="card-state">✦ ${a.state} ✦</div>
+        <div class="card-rating">${App.starsHTML(a.rating)} ${a.rating}</div>
+        <div class="card-tagline">"${tagline}"</div>
+        <div class="card-tags">
+          ${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="card-btn btn-keep" onclick="keepCard(${a.id})" id="keepBtn${a.id}">
+          ${isKept ? '♥ Kept' : '♡ Keep'}
+        </button>
+        <button class="card-btn btn-return" onclick="nextCard()">↩ Return</button>
+      </div>
+    `;
+
+    // Show card with flip animation
+    const container = document.getElementById('card-container');
+    const inner = document.getElementById('cardInner');
+    container.style.display = 'block';
+    document.getElementById('deck-area').style.display = deck.length > 0 ? 'block' : 'none';
+    inner.classList.remove('flipped');
+    void inner.offsetWidth;
+    setTimeout(() => inner.classList.add('flipped'), 50);
+    updateDeckCount();
+  }
+
+  function keepCard(id) {
+    if (keptIds.has(id)) {
+      App.removeFromItinerary(id);
+      keptIds.delete(id);
+    } else {
+      App.addToItinerary(id);
+      keptIds.add(id);
+    }
+    const btn = document.getElementById(`keepBtn${id}`);
+    if (btn) btn.textContent = keptIds.has(id) ? '♥ Kept' : '♡ Keep';
+    updateKeptStrip();
+  }
+
+  function nextCard() {
+    drawCard();
+  }
+
+  function updateKeptStrip() {
+    const strip = document.getElementById('keptStrip');
+    const ids = App.getItinerary();
+    keptIds = new Set(ids);
+    document.getElementById('keptLabel').textContent = `⬟ ${ids.length} destination${ids.length !== 1 ? 's' : ''} chosen`;
+    document.getElementById('keptThumbs').innerHTML = ids.map(id => {
+      const a = attractions.find(x => x.id === id);
+      return a ? `<img class="kept-thumb" src="${a.image}" alt="${a.name}"
+                       title="${a.name}"
+                       onerror="this.src='https://picsum.photos/seed/${a.id}/60/90'"
+                       onclick="viewKept(${a.id})">` : '';
+    }).join('');
+    strip.classList.toggle('visible', ids.length > 0);
+  }
+
+  function viewKept(id) {
+    const a = attractions.find(x => x.id === id);
+    if (!a) return;
+    // Just draw that card directly
+    currentCard = a;
+    const arcana = arcanaTitle[a.category] || 'THE SACRED LAND';
+    const cardNum = attractions.indexOf(a) + 1;
+    const roman = romanNumerals[cardNum - 1] || cardNum;
+    const tagline = a.description.split('.')[0].trim().split(' ').slice(0, 9).join(' ') + '…';
+    const tags = a.activities.slice(0,3);
+    document.getElementById('cardFront').innerHTML = `
+      <div class="card-arcana"><span>${roman}</span> &nbsp;·&nbsp; ${arcana}</div>
+      <img class="card-img" src="${a.image}" alt="${a.name}"
+           onerror="this.src='https://picsum.photos/seed/${a.id}/300/200'">
+      <div class="card-body">
+        <div class="card-name">${a.name.toUpperCase()}</div>
+        <div class="card-state">✦ ${a.state} ✦</div>
+        <div class="card-rating">${App.starsHTML(a.rating)} ${a.rating}</div>
+        <div class="card-tagline">"${tagline}"</div>
+        <div class="card-tags">${tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="card-actions">
+        <button class="card-btn btn-keep" onclick="keepCard(${a.id})" id="keepBtn${a.id}">♥ Kept</button>
+        <button class="card-btn btn-return" onclick="nextCard()">↩ Next Card</button>
+      </div>
+    `;
+    const inner = document.getElementById('cardInner');
+    inner.classList.remove('flipped');
+    void inner.offsetWidth;
+    setTimeout(() => inner.classList.add('flipped'), 50);
+    document.getElementById('card-container').style.display = 'block';
+    const ds = document.getElementById('draw-screen');
+    ds.style.display = 'flex';
+    document.getElementById('ritual-screen').style.display = 'none';
+  }
+
+  // ---- All overlay ----
+  function toggleAllOverlay() {
+    const overlay = document.getElementById('all-overlay');
+    overlay.classList.toggle('open');
+    if (overlay.classList.contains('open')) renderAllGrid('');
+  }
+
+  function renderAllGrid(region) {
+    const list = region ? attractions.filter(a => a.region === region) : attractions;
+    document.getElementById('allGrid').innerHTML = list.map(a => `
+      <div class="mini-card" onclick="viewKept(${a.id}); toggleAllOverlay()">
+        <img src="${a.image}" alt="${a.name}" onerror="this.src='https://picsum.photos/seed/${a.id}/130/90'">
+        <div class="mini-card-name">${a.name}</div>
+        <div class="mini-card-state">${a.state}</div>
+      </div>
+    `).join('');
+    // Filter pills
+    const regions = ['', ...new Set(attractions.map(a => a.region))].sort();
+    document.getElementById('allFilters').innerHTML = regions.map(r =>
+      `<button class="filter-pill ${r === region ? 'active' : ''}" onclick="renderAllGrid('${r}')">${r || 'All'}</button>`
+    ).join('');
+  }
+
+  // Keyboard: ESC closes overlay
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('all-overlay').classList.remove('open');
+    }
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      if (document.getElementById('draw-screen').style.display === 'flex') drawCard();
+    }
+  });
+
+  updateKeptStrip();
+</script>
+</body>
+</html>

@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Activity Explorer — U.S. Parks & Attractions</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <style>
+    /* ===== Theme Override: Forest Adventure ===== */
+    :root {
+      --bg:           #F0FDF4;
+      --bg-alt:       #DCFCE7;
+      --primary:      #166534;
+      --primary-dark: #14532D;
+      --primary-light:#16A34A;
+      --accent:       #CA8A04;
+      --accent-light: #D97706;
+      --text:         #14532D;
+      --text-muted:   #4B7C5A;
+      --text-light:   #86BFAA;
+      --card-bg:      #FFFFFF;
+      --card-border:  rgba(22,101,52,0.10);
+      --shadow-sm:    0 1px 4px rgba(22,101,52,0.08);
+      --shadow-md:    0 4px 20px rgba(22,101,52,0.14);
+      --shadow-lg:    0 10px 40px rgba(22,101,52,0.20);
+    }
+
+    /* ===== Layout ===== */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ===== Nav ===== */
+    .site-nav {
+      background: var(--primary);
+      gap: 0.75rem;
+    }
+    .nav-logo { font-size: 1.15rem; }
+    .nav-logo .leaf { color: #86EFAC; margin-right: 0.3rem; }
+    .nav-logo .highlight { color: #BBF7D0; }
+
+    /* ===== Activity Selector Bar ===== */
+    .activity-bar {
+      background: var(--primary-dark);
+      padding: 1.25rem 1.5rem 1rem;
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 90;
+      box-shadow: 0 4px 20px rgba(20,83,45,0.25);
+    }
+
+    .activity-bar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .activity-bar-title {
+      color: #BBF7D0;
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .activity-bar-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* AND/OR toggle */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .mode-toggle:hover { background: rgba(255,255,255,0.18); }
+
+    .mode-toggle-label {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.78rem;
+    }
+    .mode-toggle-value {
+      color: #86EFAC;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .toggle-switch {
+      width: 32px;
+      height: 18px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+      position: relative;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+    .toggle-switch.on { background: #16A34A; }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s;
+    }
+    .toggle-switch.on::after { transform: translateX(14px); }
+
+    .clear-btn {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.78rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.2s;
+    }
+    .clear-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    /* Activity Grid */
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .activity-grid { grid-template-columns: repeat(8, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .activity-grid { grid-template-columns: repeat(15, 1fr); }
+    }
+
+    .activity-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.55rem 0.3rem;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid transparent;
+      color: rgba(255,255,255,0.80);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      min-width: 0;
+    }
+
+    .activity-btn:hover {
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .activity-btn.selected {
+      background: #16A34A;
+      border-color: #86EFAC;
+      color: #fff;
+      transform: scale(1.04);
+      box-shadow: 0 3px 12px rgba(22,163,74,0.4);
+    }
+
+    .activity-emoji {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .activity-label {
+      font-size: 0.58rem;
+      text-align: center;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+
+    .activity-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      border: 1.5px solid var(--primary-dark);
+    }
+    .activity-count.zero {
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* ===== Featured Combos ===== */
+    .combos-bar {
+      background: #052e16;
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .combos-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .combo-btn {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .combo-btn:hover {
+      background: rgba(22,163,74,0.35);
+      border-color: #86EFAC;
+      color: #fff;
+    }
+    .combo-btn.active {
+      background: #16A34A;
+      border-color: #86EFAC;
+      color: #fff;
+    }
+
+    /* ===== Selected Chips ===== */
+    .selected-chips-bar {
+      min-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s, padding 0.3s;
+      max-height: 0;
+      padding: 0 1.5rem;
+      background: var(--bg-alt);
+    }
+    .selected-chips-bar.has-chips {
+      max-height: 80px;
+      padding: 0.6rem 1.5rem;
+    }
+
+    .chips-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .sel-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 0.25rem 0.45rem 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      animation: chipIn 0.2s ease;
+    }
+    @keyframes chipIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .sel-chip-remove {
+      background: rgba(255,255,255,0.25);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .sel-chip-remove:hover { background: rgba(255,255,255,0.45); }
+
+    /* ===== Main Content ===== */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    /* ===== Results Header ===== */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1.5px solid var(--card-border);
+    }
+
+    .results-count {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .results-count strong {
+      color: var(--primary);
+      font-size: 1.25rem;
+      font-family: var(--font-serif);
+    }
+
+    .sort-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sort-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .sort-select {
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.82rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .sort-select:focus { border-color: var(--primary-light); }
+
+    /* ===== Empty State ===== */
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      grid-column: 1 / -1;
+    }
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+      opacity: 0.7;
+    }
+    .empty-state h3 {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      font-size: 1.3rem;
+    }
+    .empty-state p {
+      color: var(--text-muted);
+      max-width: 360px;
+      margin: 0 auto;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Start prompt when nothing selected */
+    .start-prompt {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .start-prompt-icon { font-size: 3.5rem; margin-bottom: 0.75rem; }
+    .start-prompt h2 {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .start-prompt p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* ===== Card Grid ===== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ===== Activity Explorer Card overrides ===== */
+    .attraction-card {
+      border-radius: var(--radius-md);
+      position: relative;
+    }
+
+    /* Match score badge */
+    .match-score {
+      position: absolute;
+      bottom: 0.6rem;
+      right: 0.6rem;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      z-index: 1;
+      box-shadow: 0 2px 8px rgba(20,83,45,0.3);
+    }
+    .match-score.perfect {
+      background: var(--accent);
+    }
+    .match-score-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #86EFAC;
+    }
+    .match-score.perfect .match-score-dot {
+      background: #FEF3C7;
+    }
+
+    /* Activity chips on card */
+    .card-activities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+
+    .act-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--bg-alt);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+    .act-chip.matched {
+      background: #DCFCE7;
+      color: var(--primary);
+      border-color: #86EFAC;
+    }
+
+    /* ===== Detail Modal ===== */
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20,83,45,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .detail-modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .detail-hero-img {
+      width: 100%;
+      aspect-ratio: 16/7;
+      object-fit: cover;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .detail-content {
+      padding: 1.5rem;
+    }
+
+    .detail-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-title {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .detail-close-btn {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .detail-close-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .detail-meta-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .detail-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .detail-stat {
+      background: var(--bg-alt);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem;
+      text-align: center;
+    }
+    .detail-stat strong {
+      display: block;
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .detail-stat span {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+
+    .detail-section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .detail-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-tag {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* ===== Floating action hint ===== */
+    .hint-bar {
+      background: linear-gradient(135deg, #052e16, #14532D);
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      font-size: 0.8rem;
+      padding: 0.5rem 1.5rem;
+      letter-spacing: 0.02em;
+    }
+    .hint-bar span { color: #86EFAC; font-weight: 700; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 600px) {
+      .activity-bar {
+        padding: 0.9rem 1rem 0.8rem;
+      }
+      .main-content { padding: 1rem 1rem 3rem; }
+      .combos-bar { padding: 0.5rem 1rem; }
+      .results-header { flex-direction: column; align-items: flex-start; }
+      .detail-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ===== Scroll-to-top ===== */
+    .scroll-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 44px;
+      height: 44px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 200;
+    }
+    .scroll-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .scroll-top:hover {
+      background: var(--primary-light);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== STICKY NAV ===== -->
+<nav class="site-nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-logo">
+    <span class="leaf">🌲</span>Activity<span class="highlight"> Explorer</span>
+  </div>
+  <div class="search-wrap">
+    <input type="search" id="searchInput" class="search-input"
+           placeholder="Search parks, states, tags…" aria-label="Search attractions" />
+  </div>
+  <div class="nav-links">
+    <a href="../gallery.html" class="nav-back-btn" aria-label="Back to gallery">← Gallery</a>
+  </div>
+</nav>
+
+<!-- ===== HINT BAR ===== -->
+<div class="hint-bar" id="hintBar">
+  <span>Pick activities below</span> to find parks that match what you want to do
+</div>
+
+<!-- ===== ACTIVITY SELECTOR ===== -->
+<div class="activity-bar" role="region" aria-label="Activity selector">
+  <div class="activity-bar-header">
+    <div class="activity-bar-title">🎯 What do you want to do?</div>
+    <div class="activity-bar-controls">
+      <div class="mode-toggle" id="modeToggle" role="button" tabindex="0"
+           aria-label="Toggle AND/OR mode" title="Toggle match mode">
+        <div class="toggle-switch" id="toggleSwitch"></div>
+        <span class="mode-toggle-label">Mode:</span>
+        <span class="mode-toggle-value" id="modeLabel">OR</span>
+      </div>
+      <button class="clear-btn" id="clearAllBtn" aria-label="Clear all selected activities">
+        ✕ Clear all
+      </button>
+    </div>
+  </div>
+  <div class="activity-grid" id="activityGrid" role="group" aria-label="Activity buttons">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ===== FEATURED COMBOS ===== -->
+<div class="combos-bar" role="region" aria-label="Featured activity combinations">
+  <span class="combos-label">Quick Combos:</span>
+  <button class="combo-btn" data-combo="ultimate-hiker" aria-label="Ultimate Hiker combo">
+    🥾📸 Ultimate Hiker
+  </button>
+  <button class="combo-btn" data-combo="wildlife-safari" aria-label="Wildlife Safari combo">
+    🦌📸 Wildlife Safari
+  </button>
+  <button class="combo-btn" data-combo="adventure-seeker" aria-label="Adventure Seeker combo">
+    🧗🚣🎿 Adventure Seeker
+  </button>
+  <button class="combo-btn" data-combo="road-tripper" aria-label="Road Tripper combo">
+    🚗📸 Road Tripper
+  </button>
+</div>
+
+<!-- ===== SELECTED CHIPS BAR ===== -->
+<div class="selected-chips-bar" id="chipsBar" aria-live="polite" aria-label="Selected activities">
+  <div class="chips-inner" id="chipsInner"></div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content" role="main">
+  <div class="results-header" id="resultsHeader">
+    <div class="results-count" id="resultsCount">
+      <strong id="resultsNum">25</strong> parks in the database
+    </div>
+    <div class="sort-wrap">
+      <span class="sort-label">Sort by:</span>
+      <select class="sort-select" id="sortSelect" aria-label="Sort results">
+        <option value="match">Best Match</option>
+        <option value="rating">Rating</option>
+        <option value="name">Name A–Z</option>
+        <option value="reviews">Most Reviewed</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Start prompt (shown when no activities selected) -->
+  <div class="start-prompt" id="startPrompt">
+    <div class="start-prompt-icon">🗺️</div>
+    <h2>Explore by Activity</h2>
+    <p>Select one or more activities above to discover parks perfectly suited to your adventure style.</p>
+  </div>
+
+  <!-- Cards grid -->
+  <div class="cards-grid" id="cardsGrid" aria-label="Matching attractions"></div>
+</main>
+
+<!-- ===== DETAIL MODAL ===== -->
+<div class="detail-overlay hidden" id="detailOverlay" role="dialog" aria-modal="true" aria-label="Park details">
+  <div class="detail-modal" id="detailModal">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ===== SCROLL TO TOP ===== -->
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top">↑</button>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+/* ============================================================
+   Activity Explorer — v11
+   Forest Adventure Theme
+   ============================================================ */
+
+// ---- Activity definitions ----
+const ACTIVITIES = [
+  { key: 'hiking',          emoji: '🥾', label: 'Hiking',         keywords: ['hiking', 'hike', 'trail', 'trekking'] },
+  { key: 'photography',     emoji: '📸', label: 'Photography',    keywords: ['photography', 'photo'] },
+  { key: 'wildlife',        emoji: '🦌', label: 'Wildlife',       keywords: ['wildlife', 'birdwatching', 'bird watching', 'animal', 'fauna'] },
+  { key: 'camping',         emoji: '⛺', label: 'Camping',        keywords: ['camping', 'camp', 'backpacking'] },
+  { key: 'rock-climbing',   emoji: '🧗', label: 'Rock Climbing',  keywords: ['rock climbing', 'climbing', 'mountaineering', 'canyoneering'] },
+  { key: 'water-sports',    emoji: '🚣', label: 'Water Sports',   keywords: ['kayaking', 'rafting', 'boat', 'water', 'tide', 'airboat', 'paddle', 'swim'] },
+  { key: 'stargazing',      emoji: '🌟', label: 'Stargazing',     keywords: ['stargazing', 'star', 'astronomy', 'dark sky'] },
+  { key: 'snow-sports',     emoji: '🎿', label: 'Snow Sports',    keywords: ['snow', 'ski', 'skiing', 'snowshoe', 'snowshoeing', 'cross-country skiing'] },
+  { key: 'scenic-driving',  emoji: '🚗', label: 'Scenic Driving', keywords: ['scenic driving', 'scenic drive', 'drive', 'road', 'rim drive'] },
+  { key: 'history',         emoji: '🏛', label: 'History',        keywords: ['history', 'museum', 'historic', 'monument', 'cultural'] },
+  { key: 'coastal',         emoji: '🌊', label: 'Coastal',        keywords: ['coastal', 'coast', 'ocean', 'sea', 'beach', 'tide', 'harbor', 'ferry', 'atlantic', 'pacific'] },
+  { key: 'astronomy',       emoji: '🔭', label: 'Astronomy',      keywords: ['astronomy', 'telescope', 'stargazing', 'dark sky', 'star'] },
+  { key: 'wildflowers',     emoji: '🌺', label: 'Wildflowers',    keywords: ['wildflower', 'wildflower viewing', 'flower', 'meadow', 'bloom', 'alpine'] },
+  { key: 'fishing',         emoji: '🐟', label: 'Fishing',        keywords: ['fishing', 'fish', 'angling'] },
+  { key: 'backpacking',     emoji: '🏕', label: 'Backpacking',    keywords: ['backpacking', 'backpack', 'camping', 'camp', 'overnight'] },
+];
+
+// ---- Featured Combos ----
+const COMBOS = {
+  'ultimate-hiker':   ['hiking', 'photography'],
+  'wildlife-safari':  ['wildlife', 'photography'],
+  'adventure-seeker': ['rock-climbing', 'water-sports', 'snow-sports'],
+  'road-tripper':     ['scenic-driving', 'photography'],
+};
+
+// ---- State ----
+let selectedActivities = new Set();
+let andMode            = false;
+let sortMode           = 'match';
+let searchQuery        = '';
+let activeCombo        = null;
+
+// ---- Activity Matching ----
+function matchesActivity(attraction, activityKey) {
+  const act  = ACTIVITIES.find(a => a.key === activityKey);
+  if (!act) return false;
+  const haystack = attraction.activities.join(' ').toLowerCase()
+                 + ' ' + attraction.tags.join(' ').toLowerCase()
+                 + ' ' + attraction.description.toLowerCase();
+  return act.keywords.some(kw => haystack.includes(kw));
+}
+
+function matchesActivities(attraction, selectedArr, isAndMode) {
+  if (!selectedArr.length) return true;
+  if (isAndMode) {
+    return selectedArr.every(key => matchesActivity(attraction, key));
+  } else {
+    return selectedArr.some(key => matchesActivity(attraction, key));
+  }
+}
+
+function getMatchScore(attraction, selectedArr) {
+  return selectedArr.filter(key => matchesActivity(attraction, key)).length;
+}
+
+// ---- Count badge per activity ----
+function countMatchingParks(activityKey) {
+  return attractions.filter(a => matchesActivity(a, activityKey)).length;
+}
+
+// ---- Render Activity Grid ----
+function renderActivityGrid() {
+  const grid = document.getElementById('activityGrid');
+  grid.innerHTML = ACTIVITIES.map(act => {
+    const count    = countMatchingParks(act.key);
+    const selected = selectedActivities.has(act.key);
+    const zeroClass = count === 0 ? ' zero' : '';
+    return `
+      <button class="activity-btn${selected ? ' selected' : ''}"
+              data-activity="${act.key}"
+              aria-pressed="${selected}"
+              title="${act.label} — ${count} park${count !== 1 ? 's' : ''}">
+        <span class="activity-emoji">${act.emoji}</span>
+        <span class="activity-label">${act.label}</span>
+        <span class="activity-count${zeroClass}">${count}</span>
+      </button>`;
+  }).join('');
+}
+
+// ---- Render Selected Chips ----
+function renderChips() {
+  const bar   = document.getElementById('chipsBar');
+  const inner = document.getElementById('chipsInner');
+  if (selectedActivities.size === 0) {
+    bar.classList.remove('has-chips');
+    inner.innerHTML = '';
+    return;
+  }
+  bar.classList.add('has-chips');
+  inner.innerHTML = [...selectedActivities].map(key => {
+    const act = ACTIVITIES.find(a => a.key === key);
+    if (!act) return '';
+    return `
+      <span class="sel-chip">
+        ${act.emoji} ${act.label}
+        <button class="sel-chip-remove" data-remove="${key}" aria-label="Remove ${act.label}">×</button>
+      </span>`;
+  }).join('');
+}
+
+// ---- Render Results ----
+function renderResults() {
+  const grid      = document.getElementById('cardsGrid');
+  const prompt    = document.getElementById('startPrompt');
+  const countEl   = document.getElementById('resultsNum');
+  const countWrap = document.getElementById('resultsCount');
+  const hint      = document.getElementById('hintBar');
+
+  const selectedArr = [...selectedActivities];
+
+  // Apply search filter
+  let filtered = attractions.filter(a => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return a.name.toLowerCase().includes(q) ||
+           a.state.toLowerCase().includes(q) ||
+           a.tags.join(' ').toLowerCase().includes(q) ||
+           a.region.toLowerCase().includes(q);
+  });
+
+  // Filter by activities
+  if (selectedArr.length > 0) {
+    filtered = filtered.filter(a => matchesActivities(a, selectedArr, andMode));
+  }
+
+  // Sort
+  if (selectedArr.length > 0 && sortMode === 'match') {
+    filtered = filtered.slice().sort((a, b) => {
+      const scoreB = getMatchScore(b, selectedArr);
+      const scoreA = getMatchScore(a, selectedArr);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return b.rating - a.rating;
+    });
+  } else if (sortMode === 'rating') {
+    filtered = filtered.slice().sort((a, b) => b.rating - a.rating);
+  } else if (sortMode === 'name') {
+    filtered = filtered.slice().sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortMode === 'reviews') {
+    filtered = filtered.slice().sort((a, b) => b.reviews - a.reviews);
+  }
+
+  // Show/hide start prompt
+  if (selectedArr.length === 0 && !searchQuery) {
+    prompt.style.display = '';
+    grid.innerHTML       = '';
+    hint.innerHTML       = '<span>Pick activities below</span> to find parks that match what you want to do';
+    countWrap.innerHTML  = `<strong id="resultsNum">${attractions.length}</strong> parks in the database`;
+    return;
+  }
+
+  prompt.style.display = 'none';
+
+  // Update hint
+  if (selectedArr.length > 0) {
+    const modeText = andMode ? 'ALL selected activities' : 'ANY selected activity';
+    hint.innerHTML = `Showing parks with <span>${modeText}</span> — <span>${filtered.length}</span> match${filtered.length !== 1 ? 'es' : ''}`;
+  } else {
+    hint.innerHTML = `Showing <span>${filtered.length}</span> result${filtered.length !== 1 ? 's' : ''} for "<span>${searchQuery}</span>"`;
+  }
+
+  countEl && (document.getElementById('resultsNum').textContent = filtered.length);
+  if (selectedArr.length > 0) {
+    countWrap.innerHTML = `<strong>${filtered.length}</strong> park${filtered.length !== 1 ? 's' : ''} match your ${selectedArr.length > 1 ? selectedArr.length + ' selected activities' : 'selected activity'}`;
+  } else {
+    countWrap.innerHTML = `<strong>${filtered.length}</strong> park${filtered.length !== 1 ? 's' : ''} found`;
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-state-icon">🌿</span>
+        <h3>No parks match your filters</h3>
+        <p>Try switching from AND to OR mode, removing some activities, or broadening your search.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(a => buildActivityCard(a, selectedArr)).join('');
+}
+
+// ---- Build Activity Card ----
+function buildActivityCard(attraction, selectedArr) {
+  const fav    = App.isFavorite(attraction.id);
+  const itin   = App.isInItinerary(attraction.id);
+  const score  = selectedArr.length > 0 ? getMatchScore(attraction, selectedArr) : null;
+  const total  = selectedArr.length;
+  const perfect = score !== null && score === total && total > 0;
+
+  // Activity chips: show all attraction activities, highlight matched
+  const actChips = attraction.activities.slice(0, 5).map(actName => {
+    const matched = selectedArr.some(key => {
+      const def = ACTIVITIES.find(a => a.key === key);
+      if (!def) return false;
+      return def.keywords.some(kw => actName.toLowerCase().includes(kw));
+    });
+    return `<span class="act-chip${matched ? ' matched' : ''}">${actName}</span>`;
+  }).join('');
+
+  const matchBadge = score !== null && selectedArr.length > 0 ? `
+    <div class="match-score${perfect ? ' perfect' : ''}">
+      <div class="match-score-dot"></div>
+      ${score}/${total} ${total === 1 ? 'activity' : 'activities'}
+    </div>` : '';
+
+  return `
+    <article class="attraction-card" data-id="${attraction.id}">
+      <div class="card-image-wrap">
+        <img src="${attraction.image}" alt="${attraction.name}" loading="lazy"
+             onerror="this.src='https://picsum.photos/seed/fallback${attraction.id}/800/450'">
+        <span class="card-category-badge">${attraction.category}</span>
+        <button class="card-fav-btn${fav ? ' active' : ''}" data-fav="${attraction.id}"
+                aria-label="${fav ? 'Remove from favorites' : 'Add to favorites'}">
+          ${fav ? '♥' : '♡'}
+        </button>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">${attraction.name}</h3>
+        <div class="card-location">📍 ${attraction.state}</div>
+        <div class="card-rating">
+          <span class="stars">${App.starsHTML(attraction.rating)}</span>
+          <span>${attraction.rating}</span>
+          <span style="color:var(--text-light)">(${App.formatReviews(attraction.reviews)})</span>
+        </div>
+        <div class="card-meta">
+          <span class="meta-chip">💰 ${attraction.fee}</span>
+          <span class="meta-chip">⏱ ${attraction.duration}</span>
+        </div>
+        <div class="card-activities">${actChips}</div>
+        <p class="card-desc">${attraction.description}</p>
+        <div class="card-actions">
+          <button class="btn-secondary" data-itin="${attraction.id}">
+            ${itin ? '✓ In Trip' : '+ Add to Trip'}
+          </button>
+          <button class="btn-primary" data-detail="${attraction.id}">Details</button>
+        </div>
+      </div>
+      ${matchBadge}
+    </article>`;
+}
+
+// ---- Detail Modal ----
+function openDetail(id) {
+  const a = attractions.find(x => x.id === id);
+  if (!a) return;
+  const selectedArr = [...selectedActivities];
+  const score       = getMatchScore(a, selectedArr);
+  const total       = selectedArr.length;
+  const itin        = App.isInItinerary(a.id);
+  const fav         = App.isFavorite(a.id);
+
+  const actChips = a.activities.map(actName => {
+    const matched = selectedArr.some(key => {
+      const def = ACTIVITIES.find(ac => ac.key === key);
+      if (!def) return false;
+      return def.keywords.some(kw => actName.toLowerCase().includes(kw));
+    });
+    return `<span class="act-chip${matched ? ' matched' : ''}">${actName}</span>`;
+  }).join('');
+
+  document.getElementById('detailModal').innerHTML = `
+    <img class="detail-hero-img"
+         src="${a.image.replace('800/450','800/350')}"
+         alt="${a.name}"
+         onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/350'">
+    <div class="detail-content">
+      <div class="detail-top">
+        <div>
+          <h2 class="detail-title">${a.name}</h2>
+          <div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem">📍 ${a.state} · ${a.region}</div>
+        </div>
+        <button class="detail-close-btn" id="detailCloseBtn" aria-label="Close details">✕</button>
+      </div>
+
+      ${total > 0 ? `
+      <div class="detail-meta-row">
+        <span class="meta-chip" style="background:${score===total?'var(--accent)':'var(--primary)'};color:#fff;font-weight:700">
+          🎯 ${score}/${total} ${total===1?'activity':'activities'} match
+        </span>
+      </div>` : ''}
+
+      <div class="detail-stats-grid">
+        <div class="detail-stat"><strong>${a.rating} ★</strong><span>Rating</span></div>
+        <div class="detail-stat"><strong>${App.formatReviews(a.reviews)}</strong><span>Reviews</span></div>
+        <div class="detail-stat"><strong>${a.fee}</strong><span>Entry Fee</span></div>
+        <div class="detail-stat"><strong>${a.bestTime}</strong><span>Best Time</span></div>
+        <div class="detail-stat"><strong>${a.duration}</strong><span>Duration</span></div>
+        <div class="detail-stat"><strong>${a.difficulty}</strong><span>Difficulty</span></div>
+      </div>
+
+      <p class="detail-desc">${a.description}</p>
+
+      <div class="detail-section-label">Activities</div>
+      <div class="detail-tags" style="margin-bottom:1rem">${actChips}</div>
+
+      <div class="detail-section-label">Tags</div>
+      <div class="detail-tags">
+        ${a.tags.map(t => `<span class="detail-tag">${t}</span>`).join('')}
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn-secondary" style="flex:1" data-fav="${a.id}">
+          ${fav ? '♥ Unfavorite' : '♡ Favorite'}
+        </button>
+        <button class="btn-primary" style="flex:2" data-itin="${a.id}">
+          ${itin ? '✓ In Trip' : '+ Add to Trip'}
+        </button>
+      </div>
+    </div>`;
+
+  document.getElementById('detailOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  // Close button
+  document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// ---- Update Mode Toggle UI ----
+function updateModeUI() {
+  const sw    = document.getElementById('toggleSwitch');
+  const label = document.getElementById('modeLabel');
+  sw.classList.toggle('on', andMode);
+  label.textContent = andMode ? 'AND' : 'OR';
+}
+
+// ---- Toggle activity selection ----
+function toggleActivity(key) {
+  if (selectedActivities.has(key)) {
+    selectedActivities.delete(key);
+  } else {
+    selectedActivities.add(key);
+  }
+  activeCombo = null;
+  syncComboHighlights();
+  refresh();
+}
+
+// ---- Apply a combo ----
+function applyCombo(comboKey) {
+  const keys = COMBOS[comboKey];
+  if (!keys) return;
+  if (activeCombo === comboKey) {
+    // Deselect combo
+    keys.forEach(k => selectedActivities.delete(k));
+    activeCombo = null;
+  } else {
+    selectedActivities.clear();
+    keys.forEach(k => selectedActivities.add(k));
+    activeCombo = comboKey;
+  }
+  syncComboHighlights();
+  refresh();
+}
+
+function syncComboHighlights() {
+  document.querySelectorAll('.combo-btn').forEach(btn => {
+    const key  = btn.dataset.combo;
+    const keys = COMBOS[key] || [];
+    const allSelected = keys.length > 0 && keys.every(k => selectedActivities.has(k));
+    btn.classList.toggle('active', allSelected);
+  });
+}
+
+// ---- Master refresh ----
+function refresh() {
+  renderActivityGrid();
+  renderChips();
+  renderResults();
+}
+
+// ---- Event Listeners ----
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Initial render
+  refresh();
+
+  // Activity button clicks (delegated)
+  document.getElementById('activityGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.activity-btn');
+    if (!btn) return;
+    toggleActivity(btn.dataset.activity);
+  });
+
+  // Keyboard on activity buttons
+  document.getElementById('activityGrid').addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const btn = e.target.closest('.activity-btn');
+      if (btn) { e.preventDefault(); toggleActivity(btn.dataset.activity); }
+    }
+  });
+
+  // Chip removal
+  document.getElementById('chipsBar').addEventListener('click', e => {
+    const btn = e.target.closest('[data-remove]');
+    if (!btn) return;
+    selectedActivities.delete(btn.dataset.remove);
+    activeCombo = null;
+    syncComboHighlights();
+    refresh();
+  });
+
+  // Mode toggle
+  const modeToggle = document.getElementById('modeToggle');
+  function handleModeToggle() {
+    andMode = !andMode;
+    updateModeUI();
+    refresh();
+  }
+  modeToggle.addEventListener('click', handleModeToggle);
+  modeToggle.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleModeToggle(); }
+  });
+
+  // Clear all
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    selectedActivities.clear();
+    activeCombo = null;
+    syncComboHighlights();
+    refresh();
+  });
+
+  // Combo buttons
+  document.querySelectorAll('.combo-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyCombo(btn.dataset.combo));
+  });
+
+  // Sort
+  document.getElementById('sortSelect').addEventListener('change', e => {
+    sortMode = e.target.value;
+    renderResults();
+  });
+
+  // Search
+  let searchTimer;
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = e.target.value.trim();
+      renderResults();
+    }, 200);
+  });
+
+  // Fav & Itin buttons in card grid (delegated)
+  const cardsGrid = document.getElementById('cardsGrid');
+
+  cardsGrid.addEventListener('click', e => {
+    // Detail
+    const detailBtn = e.target.closest('[data-detail]');
+    if (detailBtn) {
+      openDetail(parseInt(detailBtn.dataset.detail));
+      return;
+    }
+    // Fav
+    const favBtn = e.target.closest('[data-fav]');
+    if (favBtn) {
+      const id    = parseInt(favBtn.dataset.fav);
+      const isNow = App.toggleFavorite(id);
+      favBtn.classList.toggle('active', isNow);
+      favBtn.textContent = isNow ? '♥' : '♡';
+      return;
+    }
+    // Itin
+    const itinBtn = e.target.closest('[data-itin]');
+    if (itinBtn) {
+      const id = parseInt(itinBtn.dataset.itin);
+      if (App.isInItinerary(id)) {
+        App.removeFromItinerary(id);
+        itinBtn.textContent = '+ Add to Trip';
+        itinBtn.classList.remove('in-trip');
+      } else {
+        App.addToItinerary(id);
+        itinBtn.textContent = '✓ In Trip';
+        itinBtn.classList.add('in-trip');
+      }
+    }
+  });
+
+  // Detail overlay clicks (fav/itin inside modal, close on backdrop)
+  const overlay = document.getElementById('detailOverlay');
+  overlay.addEventListener('click', e => {
+    // Close on backdrop
+    if (e.target === overlay) { closeDetail(); return; }
+    // Fav
+    const favBtn = e.target.closest('[data-fav]');
+    if (favBtn) {
+      const id    = parseInt(favBtn.dataset.fav);
+      const isNow = App.toggleFavorite(id);
+      favBtn.textContent = isNow ? '♥ Unfavorite' : '♡ Favorite';
+      return;
+    }
+    // Itin
+    const itinBtn = e.target.closest('[data-itin]');
+    if (itinBtn && !itinBtn.id) {
+      const id = parseInt(itinBtn.dataset.itin);
+      if (App.isInItinerary(id)) {
+        App.removeFromItinerary(id);
+        itinBtn.textContent = '+ Add to Trip';
+        itinBtn.classList.remove('in-trip');
+      } else {
+        App.addToItinerary(id);
+        itinBtn.textContent = '✓ In Trip';
+        itinBtn.classList.add('in-trip');
+      }
+    }
+  });
+
+  // Close modal on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closeDetail();
+  });
+
+  // Scroll to top button
+  const scrollTopBtn = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+});
+</script>
+</body>
+</html>

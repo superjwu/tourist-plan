@@ -1,0 +1,2368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>American Traveler — The Ultimate Guide to U.S. Attractions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/styles.css">
+
+  <style>
+    /* ===================================================
+       TRAVEL MAGAZINE — Cream/Ink Theme
+       =================================================== */
+    :root {
+      --bg:         #FAFAF5;
+      --bg-alt:     #F5F0E0;
+      --primary:    #1C1C1C;
+      --accent:     #C0392B;
+      --accent-dark:#9B2D23;
+      --text:       #1C1C1C;
+      --text-muted: #6B6B6B;
+      --card-bg:    #FFFFFF;
+      --border:     #E0DAD0;
+      --gold:       #B8963C;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans:  'Source Sans Pro', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* ---- TYPOGRAPHY ---- */
+    h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.2; }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ===================================================
+       STICKY NAVIGATION
+       =================================================== */
+    .mag-nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      background: rgba(250,250,245,0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 58px;
+    }
+
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a,
+    .nav-links button {
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.4rem 0.75rem;
+      border-radius: 3px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links button:hover {
+      color: var(--accent);
+      background: rgba(192,57,43,0.06);
+    }
+
+    .nav-search-btn {
+      font-size: 1rem !important;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important;
+      padding: 0 !important;
+    }
+
+    .nav-back-link {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+      border-left: 1px solid var(--border);
+      padding-left: 0.75rem;
+      margin-left: 0.25rem;
+    }
+
+    .nav-back-link:hover { opacity: 1; color: var(--accent); }
+
+    /* ===================================================
+       HERO — FULL BLEED
+       =================================================== */
+    .mag-hero {
+      position: relative;
+      height: 92vh;
+      min-height: 560px;
+      max-height: 900px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .mag-hero__bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.04);
+      transition: transform 8s ease-out;
+    }
+
+    .mag-hero.loaded .mag-hero__bg {
+      transform: scale(1);
+    }
+
+    .mag-hero__gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(0,0,0,0.82) 0%,
+        rgba(0,0,0,0.55) 50%,
+        rgba(0,0,0,0.25) 100%
+      );
+    }
+
+    .mag-hero__content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 3.5rem 4rem;
+      max-width: 780px;
+    }
+
+    .hero__eyebrow {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .hero__eyebrow::before {
+      content: '';
+      display: block;
+      width: 2rem;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    .hero__title {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.0;
+      margin-bottom: 1.25rem;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+
+    .hero__meta {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero__location {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .hero__rating-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.25rem 0.7rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    .hero__tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1rem, 1.6vw, 1.25rem);
+      color: rgba(255,255,255,0.78);
+      max-width: 520px;
+      line-height: 1.55;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #fff;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 1.75rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .hero__cta:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .hero__scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      right: 3rem;
+      z-index: 2;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      writing-mode: vertical-rl;
+    }
+
+    .hero__scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 3rem;
+      background: rgba(255,255,255,0.35);
+    }
+
+    /* ===================================================
+       SECTION HEADINGS — EDITORIAL
+       =================================================== */
+    .editorial-heading {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 3.5rem 0 2rem;
+      padding: 0 4rem;
+    }
+
+    .editorial-heading__text {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .editorial-heading__line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .editorial-heading__accent {
+      width: 2.5rem;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    /* ===================================================
+       MAIN LAYOUT — SIDEBAR + CONTENT
+       =================================================== */
+    .mag-layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 0;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .mag-main { min-width: 0; border-right: 1px solid var(--border); }
+    .mag-sidebar { background: var(--bg-alt); }
+
+    /* ===================================================
+       MAGAZINE GRID — NAMED AREAS
+       =================================================== */
+    .mag-grid {
+      padding: 0 4rem 3rem;
+    }
+
+    /* Cover Story — full width, image left */
+    .cover-story {
+      display: grid;
+      grid-template-columns: 60% 40%;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--card-bg);
+      transition: box-shadow 0.3s;
+    }
+
+    .cover-story:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+
+    .cover-story__image-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-story__image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .cover-story:hover .cover-story__image-wrap img {
+      transform: scale(1.04);
+    }
+
+    .cover-story__badge {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.25rem;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+    }
+
+    .cover-story__fav {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 38px;
+      height: 38px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+      color: var(--text-muted);
+    }
+
+    .cover-story__fav:hover,
+    .cover-story__fav.active {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    .cover-story__content {
+      padding: 2.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .article-category {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .cover-story__title {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    .article-byline {
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .byline-sep { opacity: 0.35; }
+
+    .stars-inline { color: var(--gold); font-size: 0.85rem; }
+
+    .article-excerpt {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+
+    .article-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    .btn-read-more {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0;
+      transition: gap 0.2s;
+    }
+
+    .btn-read-more:hover { gap: 0.7rem; }
+
+    .btn-add-trip {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      padding: 0.4rem 0.85rem;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .btn-add-trip:hover,
+    .btn-add-trip.in-trip {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* ---- Three equal articles row ---- */
+    .articles-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .article-card {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.3s, transform 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .article-card:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+    }
+
+    .article-card__image-wrap {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 16/10;
+    }
+
+    .article-card__image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .article-card:hover .article-card__image-wrap img {
+      transform: scale(1.06);
+    }
+
+    .article-card__fav {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.88);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      color: var(--text-muted);
+    }
+
+    .article-card__fav:hover,
+    .article-card__fav.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .article-card__body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .article-card__title {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .article-card__excerpt {
+      font-size: 0.87rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    /* ---- Spotlight row — 1 large + 2 small stacked ---- */
+    .spotlight-row {
+      display: grid;
+      grid-template-columns: 55% 45%;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      align-items: start;
+    }
+
+    .spotlight-main {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+    }
+
+    .spotlight-main:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
+
+    .spotlight-main__image {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+    }
+
+    .spotlight-main__image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s;
+    }
+
+    .spotlight-main:hover .spotlight-main__image img { transform: scale(1.04); }
+
+    .spotlight-main__fav {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 34px;
+      height: 34px;
+      background: rgba(255,255,255,0.88);
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: background 0.2s;
+    }
+
+    .spotlight-main__fav:hover,
+    .spotlight-main__fav.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .spotlight-main__body { padding: 1.5rem; }
+
+    .spotlight-main__title {
+      font-family: var(--serif);
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .spotlight-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ---- Small horizontal article card ---- */
+    .article-compact {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      overflow: hidden;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      transition: box-shadow 0.3s;
+    }
+
+    .article-compact:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+
+    .article-compact__image {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .article-compact__image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s;
+    }
+
+    .article-compact:hover .article-compact__image img { transform: scale(1.08); }
+
+    .article-compact__fav {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 26px;
+      height: 26px;
+      background: rgba(255,255,255,0.88);
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: background 0.2s;
+    }
+
+    .article-compact__fav:hover,
+    .article-compact__fav.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .article-compact__body {
+      padding: 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .article-compact__title {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    /* ===================================================
+       PULL QUOTE
+       =================================================== */
+    .pull-quote {
+      padding: 2.75rem 4rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 0 0 2rem;
+      background: var(--bg-alt);
+      position: relative;
+    }
+
+    .pull-quote::before {
+      content: '\201C';
+      font-family: var(--serif);
+      font-size: 7rem;
+      line-height: 0.7;
+      color: var(--accent);
+      opacity: 0.18;
+      position: absolute;
+      top: 1.5rem;
+      left: 3rem;
+    }
+
+    .pull-quote__text {
+      font-family: var(--serif);
+      font-size: clamp(1.25rem, 2vw, 1.7rem);
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+    }
+
+    .pull-quote__attribution {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pull-quote__attribution::before {
+      content: '';
+      width: 1.5rem;
+      height: 1px;
+      background: var(--text-muted);
+    }
+
+    /* ===================================================
+       BY REGION — HORIZONTAL SCROLL
+       =================================================== */
+    .regions-section {
+      padding: 0 0 3rem;
+    }
+
+    .regions-scroll {
+      overflow-x: auto;
+      display: flex;
+      gap: 1rem;
+      padding: 0 4rem 1rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .regions-scroll::-webkit-scrollbar { height: 4px; }
+    .regions-scroll::-webkit-scrollbar-track { background: transparent; }
+    .regions-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .region-card {
+      flex: 0 0 220px;
+      height: 290px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .region-card__bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.5s ease;
+    }
+
+    .region-card:hover .region-card__bg { transform: scale(1.08); }
+
+    .region-card__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 60%);
+    }
+
+    .region-card__content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1.25rem 1rem;
+    }
+
+    .region-card__count {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 0.3rem;
+    }
+
+    .region-card__name {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .region-card.active-filter .region-card__overlay {
+      background: linear-gradient(to top, rgba(192,57,43,0.75) 0%, rgba(192,57,43,0.2) 60%);
+    }
+
+    /* ===================================================
+       SIDEBAR
+       =================================================== */
+    .mag-sidebar {
+      position: sticky;
+      top: 58px;
+      height: calc(100vh - 58px);
+      overflow-y: auto;
+      padding: 2rem 1.5rem;
+      scrollbar-width: thin;
+    }
+
+    .sidebar-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .sidebar-heading {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .quick-pick {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .quick-pick:last-child { border-bottom: none; }
+    .quick-pick:hover .quick-pick__name { color: var(--accent); }
+
+    .quick-pick__rank {
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--border);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 2rem;
+      text-align: right;
+    }
+
+    .quick-pick__info { flex: 1; min-width: 0; }
+
+    .quick-pick__name {
+      font-family: var(--serif);
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.3;
+      transition: color 0.2s;
+    }
+
+    .quick-pick__sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .quick-pick__add {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.25rem 0.5rem;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .quick-pick__add:hover,
+    .quick-pick__add.in-trip {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Weather / trip planner widget */
+    .sidebar-tip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 1.1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+    }
+
+    .sidebar-tip strong {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      color: var(--text);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    /* ===================================================
+       FLOATING ACTION BUTTON (FAB)
+       =================================================== */
+    .mag-fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 400;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      box-shadow: 0 4px 20px rgba(192,57,43,0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-family: var(--sans);
+    }
+
+    .mag-fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(192,57,43,0.55);
+    }
+
+    .fab-icon { font-size: 1.3rem; line-height: 1; }
+    .fab-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--primary);
+      color: #fff;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--bg);
+    }
+
+    /* ===================================================
+       SEARCH OVERLAY
+       =================================================== */
+    .search-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(28,28,28,0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10vh;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .search-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .search-overlay__close {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .search-overlay__close:hover { color: #fff; }
+
+    .search-overlay__label {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 1.5rem;
+    }
+
+    .search-overlay__input-wrap {
+      position: relative;
+      width: min(640px, 90vw);
+      margin-bottom: 2.5rem;
+    }
+
+    .search-overlay__input {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 2px solid rgba(255,255,255,0.25);
+      color: #fff;
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 4vw, 2.5rem);
+      padding: 0.5rem 0;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .search-overlay__input::placeholder { color: rgba(255,255,255,0.2); }
+    .search-overlay__input:focus { border-bottom-color: var(--accent); }
+
+    .search-results {
+      width: min(640px, 90vw);
+      overflow-y: auto;
+      max-height: 55vh;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 4px;
+    }
+
+    .search-result-item:hover { padding-left: 0.5rem; }
+
+    .search-result-item img {
+      width: 64px;
+      height: 42px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .search-result-info { flex: 1; }
+
+    .search-result-name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .search-result-sub {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 0.15rem;
+    }
+
+    .search-result-arrow {
+      color: rgba(255,255,255,0.25);
+      font-size: 1.1rem;
+      transition: color 0.2s;
+    }
+
+    .search-result-item:hover .search-result-arrow { color: var(--accent); }
+
+    .search-no-results {
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.1rem;
+      padding: 2rem 0;
+    }
+
+    /* ===================================================
+       DETAIL VIEW
+       =================================================== */
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: var(--bg);
+      overflow-y: auto;
+      transform: translateY(100vh);
+      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .detail-overlay.open {
+      transform: translateY(0);
+    }
+
+    .detail-hero {
+      position: relative;
+      height: 60vh;
+      min-height: 320px;
+      overflow: hidden;
+    }
+
+    .detail-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .detail-hero__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 3rem 4rem;
+    }
+
+    .detail-back {
+      position: absolute;
+      top: 1.5rem;
+      left: 2rem;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.55rem 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .detail-back:hover { background: rgba(255,255,255,0.22); }
+
+    .detail-category-badge {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .detail-category-badge::before {
+      content: '';
+      width: 1.5rem;
+      height: 2px;
+      background: var(--gold);
+    }
+
+    .detail-title {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.05;
+      text-shadow: 0 2px 15px rgba(0,0,0,0.3);
+    }
+
+    .detail-subtitle {
+      color: rgba(255,255,255,0.75);
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .detail-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    .detail-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+
+    .detail-stat {
+      background: var(--card-bg);
+      padding: 1.1rem 1.25rem;
+      text-align: center;
+    }
+
+    .detail-stat strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .detail-stat span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .detail-desc {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .detail-activities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-chip {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: var(--card-bg);
+      border-radius: 2px;
+    }
+
+    .detail-chip.tag-chip {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-detail-trip {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.9rem 2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-detail-trip:hover { background: var(--accent-dark); }
+
+    .btn-detail-fav {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: none;
+      color: var(--text);
+      border: 2px solid var(--primary);
+      padding: 0.9rem 2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-detail-fav:hover,
+    .btn-detail-fav.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* ===================================================
+       ITINERARY PANEL
+       =================================================== */
+    .itin-panel {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: min(400px, 100vw);
+      z-index: 800;
+      background: var(--card-bg);
+      border-top: 3px solid var(--accent);
+      box-shadow: -4px 0 30px rgba(0,0,0,0.15);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .itin-panel.open { transform: translateY(0); }
+
+    .itin-panel__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .itin-panel__title {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .itin-panel__close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .itin-panel__close:hover { color: var(--accent); }
+
+    .itin-list {
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+
+    .itin-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .itin-item img {
+      width: 52px;
+      height: 36px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .itin-item__name {
+      flex: 1;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .itin-item__state {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .itin-item__remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .itin-item__remove:hover { color: var(--accent); }
+
+    .itin-panel__footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .itin-empty {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-family: var(--serif);
+      font-style: italic;
+    }
+
+    .btn-clear-itin {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      padding: 0.45rem 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .btn-clear-itin:hover { border-color: var(--accent); color: var(--accent); }
+
+    .itin-count-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ===================================================
+       TOAST NOTIFICATION
+       =================================================== */
+    .mag-toast {
+      position: fixed;
+      bottom: 6rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(1rem);
+      z-index: 1100;
+      background: var(--primary);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.7rem 1.5rem;
+      border-radius: 3px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+    }
+
+    .mag-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===================================================
+       FOOTER
+       =================================================== */
+    .mag-footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.5);
+      padding: 2.5rem 4rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.85);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .footer-logo span { color: var(--accent); font-style: italic; }
+
+    /* ===================================================
+       RESPONSIVE
+       =================================================== */
+    @media (max-width: 1100px) {
+      .mag-layout { grid-template-columns: 1fr; }
+      .mag-sidebar { position: static; height: auto; border-top: 1px solid var(--border); }
+    }
+
+    @media (max-width: 900px) {
+      .mag-grid { padding: 0 2rem 2rem; }
+      .editorial-heading { padding: 0 2rem; }
+      .pull-quote { padding: 2rem; }
+      .cover-story { grid-template-columns: 1fr; }
+      .cover-story__image-wrap { height: 240px; }
+      .articles-row { grid-template-columns: 1fr 1fr; }
+      .spotlight-row { grid-template-columns: 1fr; }
+      .regions-scroll { padding: 0 2rem 1rem; }
+      .detail-hero__overlay { padding: 2rem; }
+    }
+
+    @media (max-width: 640px) {
+      .mag-nav { padding: 0 1rem; }
+      .nav-links li:nth-child(-n+2) { display: none; }
+      .mag-hero__content { padding: 2rem 1.5rem; }
+      .mag-grid { padding: 0 1rem 2rem; }
+      .editorial-heading { padding: 0 1rem; }
+      .pull-quote { padding: 1.5rem 1.25rem; }
+      .articles-row { grid-template-columns: 1fr; }
+      .regions-scroll { padding: 0 1rem 1rem; }
+      .mag-footer { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========= NAV ========= -->
+  <nav class="mag-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      American<span>Traveler</span>
+    </div>
+    <ul class="nav-links">
+      <li><button onclick="scrollToSection('regions-section')" type="button">By Region</button></li>
+      <li><button onclick="openCategoryFilter()" type="button">By Category</button></li>
+      <li><button onclick="scrollToSection('featured-section')" type="button">Featured</button></li>
+      <li>
+        <button class="nav-search-btn" onclick="openSearch()" type="button" aria-label="Open search">
+          &#x2315;
+        </button>
+      </li>
+      <li>
+        <a href="../gallery.html" class="nav-back-btn nav-back-link" style="color:var(--text-muted)">← All Versions</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ========= HERO ========= -->
+  <section class="mag-hero" id="mag-hero" aria-label="Featured attraction">
+    <div class="mag-hero__bg" id="hero-bg"></div>
+    <div class="mag-hero__gradient"></div>
+    <div class="mag-hero__content">
+      <div class="hero__eyebrow" id="hero-eyebrow">Cover Story</div>
+      <h1 class="hero__title" id="hero-title">Loading...</h1>
+      <div class="hero__meta">
+        <div class="hero__location" id="hero-location"></div>
+        <div class="hero__rating-badge" id="hero-rating"></div>
+      </div>
+      <p class="hero__tagline" id="hero-tagline"></p>
+      <button class="hero__cta" id="hero-cta" type="button">
+        Read the Story &#x2192;
+      </button>
+    </div>
+    <div class="hero__scroll-hint">Scroll</div>
+  </section>
+
+  <!-- ========= MAIN LAYOUT ========= -->
+  <div class="mag-layout">
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="mag-main">
+
+      <!-- FEATURED heading -->
+      <div class="editorial-heading" id="featured-section">
+        <div class="editorial-heading__accent"></div>
+        <div class="editorial-heading__text">Featured Parks &amp; Wonders</div>
+        <div class="editorial-heading__line"></div>
+      </div>
+
+      <!-- MAGAZINE GRID -->
+      <div class="mag-grid">
+
+        <!-- Cover Story (full-width: image left 60%, text right 40%) -->
+        <div id="cover-story-slot"></div>
+
+        <!-- Pull Quote 1 -->
+        <div id="pull-quote-1"></div>
+
+        <!-- Row of 3 equal articles -->
+        <div class="articles-row" id="articles-row-3"></div>
+
+        <!-- Pull Quote 2 -->
+        <div id="pull-quote-2"></div>
+
+        <!-- Spotlight row: 1 large + 2 small stacked -->
+        <div class="spotlight-row" id="spotlight-row"></div>
+
+      </div><!-- /mag-grid -->
+
+      <!-- REGIONS SECTION -->
+      <div class="regions-section" id="regions-section">
+        <div class="editorial-heading">
+          <div class="editorial-heading__accent"></div>
+          <div class="editorial-heading__text">Explore by Region</div>
+          <div class="editorial-heading__line"></div>
+        </div>
+        <div class="regions-scroll" id="regions-scroll"></div>
+      </div>
+
+      <!-- FILTERED RESULTS GRID (hidden by default) -->
+      <div id="filtered-section" style="display:none;">
+        <div class="editorial-heading">
+          <div class="editorial-heading__accent"></div>
+          <div class="editorial-heading__text" id="filtered-heading-text">Results</div>
+          <div class="editorial-heading__line"></div>
+        </div>
+        <div class="mag-grid">
+          <div class="articles-row" id="filtered-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px,1fr))"></div>
+        </div>
+      </div>
+
+    </main><!-- /mag-main -->
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="mag-sidebar" aria-label="Quick picks sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Quick Picks</div>
+        <div id="quick-picks-list"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Editor's Tip</div>
+        <div class="sidebar-tip">
+          <strong>Plan Ahead</strong>
+          Many parks require timed-entry reservations — especially Yosemite and Rocky Mountain. Book 1–3 months in advance for peak summer visits.
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Best Seasons</div>
+        <div class="sidebar-tip">
+          <strong>Spring (Mar–May)</strong>
+          Wildflowers bloom in desert parks. Waterfalls peak in Yosemite. Crowds haven't arrived yet.
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /mag-layout -->
+
+  <!-- ========= FOOTER ========= -->
+  <footer class="mag-footer" role="contentinfo">
+    <div class="footer-logo">American<span>Traveler</span></div>
+    <div>Discover the beauty of the United States — one landmark at a time.</div>
+    <div>&#169; 2026 American Traveler Magazine</div>
+  </footer>
+
+  <!-- ========= FAB ========= -->
+  <button class="mag-fab" id="mag-fab" type="button" aria-label="Open itinerary">
+    <span class="fab-icon">&#9992;</span>
+    <span class="fab-count" id="fab-count">0</span>
+  </button>
+
+  <!-- ========= SEARCH OVERLAY ========= -->
+  <div class="search-overlay" id="search-overlay" role="dialog" aria-modal="true" aria-label="Search attractions">
+    <button class="search-overlay__close" onclick="closeSearch()" type="button" aria-label="Close search">&#x2715;</button>
+    <div class="search-overlay__label">Search Destinations</div>
+    <div class="search-overlay__input-wrap">
+      <input
+        class="search-overlay__input"
+        id="search-input"
+        type="search"
+        placeholder="Yellowstone, California, Hiking..."
+        autocomplete="off"
+        aria-label="Search for attractions"
+      >
+    </div>
+    <div class="search-results" id="search-results" role="listbox"></div>
+  </div>
+
+  <!-- ========= DETAIL OVERLAY ========= -->
+  <div class="detail-overlay" id="detail-overlay" role="dialog" aria-modal="true">
+    <div id="detail-content"></div>
+  </div>
+
+  <!-- ========= ITINERARY PANEL ========= -->
+  <div class="itin-panel" id="itin-panel" role="complementary" aria-label="Your itinerary">
+    <div class="itin-panel__header">
+      <div class="itin-panel__title">Your Itinerary</div>
+      <button class="itin-panel__close" onclick="closeItin()" type="button" aria-label="Close itinerary">&#x2715;</button>
+    </div>
+    <div class="itin-list" id="itin-list"></div>
+    <div class="itin-panel__footer">
+      <span class="itin-count-label" id="itin-count-label">0 destinations</span>
+      <button class="btn-clear-itin" onclick="clearItinerary()" type="button">Clear All</button>
+    </div>
+  </div>
+
+  <!-- ========= TOAST ========= -->
+  <div class="mag-toast" id="mag-toast" role="status" aria-live="polite"></div>
+
+  <!-- ========= DATA & APP ========= -->
+  <script src="../shared/data.js"></script>
+  <script src="../shared/app.js"></script>
+
+  <script>
+    /* ======================================================
+       AMERICAN TRAVELER — Travel Magazine v6
+       ====================================================== */
+
+    // ---- State ----
+    let currentFilter = { region: '', category: '' };
+    let activeDetailId = null;
+
+    // ---- Utilities ----
+    function starsHTML(rating) {
+      return App.starsHTML(rating);
+    }
+
+    function excerpt(text, sentences = 2) {
+      const s = text.split('. ');
+      return s.slice(0, sentences).join('. ') + (s.length > sentences ? '.' : '');
+    }
+
+    function pullQuoteText(a) {
+      // Extract a vivid sentence from description
+      const sentences = a.description.split('. ');
+      // Prefer longer sentences for drama
+      const best = sentences.reduce((a, b) => b.length > a.length ? b : a, '');
+      return best.trim() + (best.endsWith('.') ? '' : '.');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('mag-toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    // ---- FAB & Count ----
+    function updateFabCount() {
+      const count = App.getItinerary().length;
+      document.getElementById('fab-count').textContent = count;
+    }
+
+    // ---- Search ----
+    function openSearch() {
+      const o = document.getElementById('search-overlay');
+      o.classList.add('open');
+      setTimeout(() => document.getElementById('search-input').focus(), 80);
+      renderSearchResults('');
+    }
+
+    function closeSearch() {
+      document.getElementById('search-overlay').classList.remove('open');
+    }
+
+    function renderSearchResults(query) {
+      const container = document.getElementById('search-results');
+      const results = App.filterAttractions(attractions, { search: query });
+      const list = query ? results : results.slice(0, 8);
+
+      if (!list.length) {
+        container.innerHTML = `<div class="search-no-results">No destinations found for "${query}"</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(a => `
+        <div class="search-result-item" onclick="openDetail(${a.id}); closeSearch();" role="option" tabindex="0">
+          <img src="${a.image.replace('800/450','200/120')}" alt="${a.name}"
+               onerror="this.src='https://picsum.photos/seed/fallback${a.id}/200/120'">
+          <div class="search-result-info">
+            <div class="search-result-name">${a.name}</div>
+            <div class="search-result-sub">${a.state} &nbsp;·&nbsp; ${a.category} &nbsp;·&nbsp; ★ ${a.rating}</div>
+          </div>
+          <span class="search-result-arrow">&#8594;</span>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('search-input').addEventListener('input', e => {
+      renderSearchResults(e.target.value.trim());
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeSearch();
+        closeDetail();
+      }
+    });
+
+    document.getElementById('search-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeSearch();
+    });
+
+    // ---- Detail View ----
+    function openDetail(id) {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return;
+      activeDetailId = id;
+
+      const isFav = App.isFavorite(id);
+      const isItin = App.isInItinerary(id);
+
+      document.getElementById('detail-content').innerHTML = `
+        <div class="detail-hero">
+          <img src="${a.image.replace('800/450','1400/700')}" alt="${a.name}"
+               onerror="this.src='https://picsum.photos/seed/fallback${a.id}/1400/700'">
+          <div class="detail-hero__overlay">
+            <button class="detail-back" onclick="closeDetail()" type="button">
+              &#8592; Back to Magazine
+            </button>
+            <div class="detail-category-badge">${a.category}</div>
+            <h1 class="detail-title">${a.name}</h1>
+            <div class="detail-subtitle">&#128205; ${a.state} &nbsp;&middot;&nbsp; ${a.region}</div>
+          </div>
+        </div>
+        <div class="detail-body">
+          <div class="detail-stats">
+            <div class="detail-stat"><strong>★ ${a.rating}</strong><span>Rating</span></div>
+            <div class="detail-stat"><strong>${App.formatReviews(a.reviews)}</strong><span>Reviews</span></div>
+            <div class="detail-stat"><strong>${a.fee}</strong><span>Entry Fee</span></div>
+            <div class="detail-stat"><strong>${a.duration}</strong><span>Duration</span></div>
+            <div class="detail-stat"><strong>${a.bestTime}</strong><span>Best Time</span></div>
+            <div class="detail-stat"><strong>${a.difficulty}</strong><span>Difficulty</span></div>
+          </div>
+          <p class="detail-desc">${a.description}</p>
+          <div>
+            <div class="sidebar-heading" style="margin-bottom:0.75rem">Activities</div>
+            <div class="detail-activities">
+              ${a.activities.map(act => `<span class="detail-chip">${act}</span>`).join('')}
+            </div>
+          </div>
+          <div style="margin-top:1.25rem">
+            <div class="sidebar-heading" style="margin-bottom:0.75rem">Tags</div>
+            <div class="detail-activities">
+              ${a.tags.map(t => `<span class="detail-chip tag-chip">${t}</span>`).join('')}
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-detail-trip ${isItin ? 'in-trip' : ''}" id="detail-itin-btn"
+                    onclick="toggleDetailItin(${a.id})" type="button">
+              ${isItin ? '✓ In Your Itinerary' : '+ Add to Itinerary'}
+            </button>
+            <button class="btn-detail-fav ${isFav ? 'active' : ''}" id="detail-fav-btn"
+                    onclick="toggleDetailFav(${a.id})" type="button">
+              ${isFav ? '♥ Saved' : '♡ Save to Favorites'}
+            </button>
+          </div>
+        </div>
+      `;
+
+      const overlay = document.getElementById('detail-overlay');
+      overlay.classList.add('open');
+      overlay.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+      activeDetailId = null;
+    }
+
+    function toggleDetailItin(id) {
+      const btn = document.getElementById('detail-itin-btn');
+      if (App.isInItinerary(id)) {
+        App.removeFromItinerary(id);
+        btn.textContent = '+ Add to Itinerary';
+        btn.classList.remove('in-trip');
+        showToast('Removed from itinerary');
+      } else {
+        App.addToItinerary(id);
+        btn.textContent = '✓ In Your Itinerary';
+        btn.classList.add('in-trip');
+        showToast('Added to itinerary!');
+      }
+      updateFabCount();
+      renderItinerary();
+      syncItinButtons(id);
+    }
+
+    function toggleDetailFav(id) {
+      const isNow = App.toggleFavorite(id);
+      const btn = document.getElementById('detail-fav-btn');
+      btn.textContent = isNow ? '♥ Saved' : '♡ Save to Favorites';
+      btn.classList.toggle('active', isNow);
+      showToast(isNow ? 'Saved to favorites!' : 'Removed from favorites');
+      syncFavButtons(id, isNow);
+    }
+
+    // ---- Sync all fav/itin buttons ----
+    function syncFavButtons(id, isNow) {
+      document.querySelectorAll(`[data-mag-fav="${id}"]`).forEach(btn => {
+        btn.classList.toggle('active', isNow);
+        btn.textContent = isNow ? '♥' : '♡';
+      });
+    }
+
+    function syncItinButtons(id) {
+      const isItin = App.isInItinerary(id);
+      document.querySelectorAll(`[data-mag-itin="${id}"]`).forEach(btn => {
+        btn.textContent = isItin ? '✓' : '+';
+        btn.classList.toggle('in-trip', isItin);
+      });
+    }
+
+    // ---- Itinerary ----
+    function openItin() {
+      renderItinerary();
+      document.getElementById('itin-panel').classList.add('open');
+    }
+
+    function closeItin() {
+      document.getElementById('itin-panel').classList.remove('open');
+    }
+
+    function clearItinerary() {
+      App.clearItinerary();
+      renderItinerary();
+      updateFabCount();
+      showToast('Itinerary cleared');
+      // sync all buttons
+      attractions.forEach(a => syncItinButtons(a.id));
+    }
+
+    function renderItinerary() {
+      const ids = App.getItinerary();
+      const list = document.getElementById('itin-list');
+      const label = document.getElementById('itin-count-label');
+      label.textContent = `${ids.length} destination${ids.length !== 1 ? 's' : ''}`;
+
+      if (!ids.length) {
+        list.innerHTML = `<div class="itin-empty">Your itinerary is empty.<br>Add destinations to plan your trip.</div>`;
+        return;
+      }
+
+      list.innerHTML = ids.map(id => {
+        const a = attractions.find(x => x.id === id);
+        if (!a) return '';
+        return `
+          <div class="itin-item">
+            <img src="${a.image.replace('800/450','150/100')}" alt="${a.name}"
+                 onerror="this.src='https://picsum.photos/seed/fallback${a.id}/150/100'">
+            <div style="flex:1;min-width:0">
+              <div class="itin-item__name">${a.name}</div>
+              <div class="itin-item__state">${a.state} · ${a.category}</div>
+            </div>
+            <button class="itin-item__remove" onclick="removeFromItin(${a.id})" type="button" aria-label="Remove">&#x2715;</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function removeFromItin(id) {
+      App.removeFromItinerary(id);
+      renderItinerary();
+      updateFabCount();
+      syncItinButtons(id);
+      showToast('Removed from itinerary');
+    }
+
+    document.getElementById('mag-fab').addEventListener('click', () => {
+      const panel = document.getElementById('itin-panel');
+      if (panel.classList.contains('open')) {
+        closeItin();
+      } else {
+        openItin();
+      }
+    });
+
+    // ---- Generic fav/itin event toggle ----
+    function handleFavToggle(btn) {
+      const id = parseInt(btn.dataset.magFav);
+      const isNow = App.toggleFavorite(id);
+      syncFavButtons(id, isNow);
+      showToast(isNow ? 'Saved to favorites!' : 'Removed from favorites');
+    }
+
+    function handleItinToggle(btn) {
+      const id = parseInt(btn.dataset.magItin);
+      if (App.isInItinerary(id)) {
+        App.removeFromItinerary(id);
+        showToast('Removed from itinerary');
+      } else {
+        App.addToItinerary(id);
+        showToast('Added to itinerary!');
+      }
+      syncItinButtons(id);
+      updateFabCount();
+      renderItinerary();
+    }
+
+    document.addEventListener('click', e => {
+      const favBtn = e.target.closest('[data-mag-fav]');
+      if (favBtn) { e.stopPropagation(); handleFavToggle(favBtn); return; }
+
+      const itinBtn = e.target.closest('[data-mag-itin]');
+      if (itinBtn) { e.stopPropagation(); handleItinToggle(itinBtn); return; }
+
+      const openBtn = e.target.closest('[data-open-detail]');
+      if (openBtn) { openDetail(parseInt(openBtn.dataset.openDetail)); return; }
+    });
+
+    // ---- Render Helpers ----
+    function favBtn(id, extraClass = '') {
+      const isFav = App.isFavorite(id);
+      return `<button type="button"
+        class="${extraClass} ${isFav ? 'active' : ''}"
+        data-mag-fav="${id}"
+        aria-label="Favorite"
+        title="Save to Favorites">${isFav ? '♥' : '♡'}</button>`;
+    }
+
+    function itinBtn(id, label = '+', className = 'btn-add-trip') {
+      const isItin = App.isInItinerary(id);
+      return `<button type="button"
+        class="${className} ${isItin ? 'in-trip' : ''}"
+        data-mag-itin="${id}">${isItin ? '✓' : label}</button>`;
+    }
+
+    function openDetailBtn(id, label = 'Read Story &rarr;') {
+      return `<button type="button" class="btn-read-more" data-open-detail="${id}">${label}</button>`;
+    }
+
+    // ---- Build Cover Story ----
+    function buildCoverStory(a) {
+      const desc = excerpt(a.description, 3);
+      return `
+        <div class="cover-story" data-open-detail="${a.id}" tabindex="0"
+             role="article" aria-label="${a.name}">
+          <div class="cover-story__image-wrap">
+            <img src="${a.image.replace('800/450','900/600')}" alt="${a.name}"
+                 onerror="this.src='https://picsum.photos/seed/fallback${a.id}/900/600'" loading="eager">
+            <span class="cover-story__badge">Cover Story</span>
+            ${favBtn(a.id, 'cover-story__fav')}
+          </div>
+          <div class="cover-story__content">
+            <div class="article-category">${a.category}</div>
+            <h2 class="cover-story__title">${a.name}</h2>
+            <div class="article-byline">
+              &#128205; ${a.state}
+              <span class="byline-sep">&middot;</span>
+              <span class="stars-inline">${starsHTML(a.rating)}</span>
+              ${a.rating}
+              <span class="byline-sep">&middot;</span>
+              ${App.formatReviews(a.reviews)} reviews
+            </div>
+            <p class="article-excerpt">${desc}</p>
+            <div class="article-actions">
+              ${openDetailBtn(a.id, 'Read Story &rarr;')}
+              ${itinBtn(a.id, 'Add to Trip', 'btn-add-trip')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Build Standard Article Card ----
+    function buildArticleCard(a) {
+      return `
+        <article class="article-card" data-open-detail="${a.id}" tabindex="0"
+                 role="article" aria-label="${a.name}">
+          <div class="article-card__image-wrap">
+            <img src="${a.image}" alt="${a.name}"
+                 onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'" loading="lazy">
+            ${favBtn(a.id, 'article-card__fav')}
+          </div>
+          <div class="article-card__body">
+            <div class="article-category">${a.category}</div>
+            <h3 class="article-card__title">${a.name}</h3>
+            <div class="article-byline">
+              &#128205; ${a.state}
+              <span class="byline-sep">&middot;</span>
+              <span class="stars-inline">&#9733;</span> ${a.rating}
+            </div>
+            <p class="article-card__excerpt">${excerpt(a.description, 2)}</p>
+            <div class="article-actions">
+              ${openDetailBtn(a.id)}
+              ${itinBtn(a.id, '+', 'btn-add-trip')}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    // ---- Build Spotlight Main ----
+    function buildSpotlightMain(a) {
+      return `
+        <div class="spotlight-main" data-open-detail="${a.id}" tabindex="0" aria-label="${a.name}">
+          <div class="spotlight-main__image">
+            <img src="${a.image.replace('800/450','900/700')}" alt="${a.name}"
+                 onerror="this.src='https://picsum.photos/seed/fallback${a.id}/900/700'" loading="lazy">
+            ${favBtn(a.id, 'spotlight-main__fav')}
+          </div>
+          <div class="spotlight-main__body">
+            <div class="article-category">${a.category}</div>
+            <h3 class="spotlight-main__title">${a.name}</h3>
+            <div class="article-byline">
+              &#128205; ${a.state}
+              <span class="byline-sep">&middot;</span>
+              <span class="stars-inline">&#9733;</span> ${a.rating}
+            </div>
+            <p class="article-excerpt">${excerpt(a.description, 2)}</p>
+            <div class="article-actions">
+              ${openDetailBtn(a.id)}
+              ${itinBtn(a.id, 'Add to Trip', 'btn-add-trip')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Build Compact Horizontal Card ----
+    function buildCompactCard(a) {
+      return `
+        <div class="article-compact" data-open-detail="${a.id}" tabindex="0" aria-label="${a.name}">
+          <div class="article-compact__image">
+            <img src="${a.image.replace('800/450','300/200')}" alt="${a.name}"
+                 onerror="this.src='https://picsum.photos/seed/fallback${a.id}/300/200'" loading="lazy">
+            ${favBtn(a.id, 'article-compact__fav')}
+          </div>
+          <div class="article-compact__body">
+            <div class="article-category" style="font-size:0.62rem">${a.category}</div>
+            <div class="article-compact__title">${a.name}</div>
+            <div class="article-byline" style="font-size:0.73rem">
+              &#128205; ${a.state}
+              <span class="byline-sep">&middot;</span>
+              <span class="stars-inline" style="font-size:0.78rem">&#9733;</span> ${a.rating}
+            </div>
+            <div class="article-actions" style="margin-top:0.3rem">
+              ${itinBtn(a.id, '+ Add', 'btn-add-trip')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Build Pull Quote ----
+    function buildPullQuote(a) {
+      return `
+        <div class="pull-quote">
+          <div class="pull-quote__text">${pullQuoteText(a)}</div>
+          <div class="pull-quote__attribution">${a.name} &nbsp;&middot;&nbsp; ${a.state}</div>
+        </div>
+      `;
+    }
+
+    // ---- Build Region Card ----
+    const regionImages = {
+      'Rocky Mountains': 'https://picsum.photos/seed/rocky-mountain/500/700',
+      'Pacific West':    'https://picsum.photos/seed/yosemite/500/700',
+      'Southwest':       'https://picsum.photos/seed/grand-canyon/500/700',
+      'Northeast':       'https://picsum.photos/seed/acadia-coast/500/700',
+      'Southeast':       'https://picsum.photos/seed/smoky-mountains/500/700',
+      'Great Plains':    'https://picsum.photos/seed/badlands-sd/500/700',
+      'Hawaii':          'https://picsum.photos/seed/hawaii-volcano/500/700',
+      'Midwest':         'https://picsum.photos/seed/midwest-lake/500/700',
+      'Alaska':          'https://picsum.photos/seed/alaska-wild/500/700',
+    };
+
+    function buildRegionCard(region, count) {
+      const img = regionImages[region] || `https://picsum.photos/seed/${encodeURIComponent(region)}/500/700`;
+      return `
+        <div class="region-card" onclick="filterByRegion('${region.replace(/'/g,"\\'")}')">
+          <div class="region-card__bg" style="background-image:url('${img}')"></div>
+          <div class="region-card__overlay"></div>
+          <div class="region-card__content">
+            <div class="region-card__count">${count} destination${count !== 1 ? 's' : ''}</div>
+            <div class="region-card__name">${region}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Region Filter ----
+    function filterByRegion(region) {
+      if (currentFilter.region === region) {
+        currentFilter.region = '';
+        document.getElementById('filtered-section').style.display = 'none';
+        // un-active region cards
+        document.querySelectorAll('.region-card').forEach(c => c.classList.remove('active-filter'));
+        return;
+      }
+      currentFilter.region = region;
+      currentFilter.category = '';
+
+      document.querySelectorAll('.region-card').forEach(c => {
+        c.classList.toggle('active-filter', c.querySelector('.region-card__name').textContent === region);
+      });
+
+      const results = App.filterAttractions(attractions, { region });
+      showFilteredGrid(results, `${region} — ${results.length} Destinations`);
+      document.getElementById('filtered-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function openCategoryFilter() {
+      // Get unique categories
+      const cats = [...new Set(attractions.map(a => a.category))].sort();
+      const chosen = prompt('Filter by category:\n' + cats.map((c,i) => `${i+1}. ${c}`).join('\n') + '\n\nEnter number or name (blank = all):');
+      if (chosen === null) return;
+      const trimmed = chosen.trim();
+      if (!trimmed) {
+        currentFilter.category = '';
+        document.getElementById('filtered-section').style.display = 'none';
+        return;
+      }
+      const num = parseInt(trimmed);
+      const cat = (!isNaN(num) && cats[num - 1]) ? cats[num - 1] : cats.find(c => c.toLowerCase().includes(trimmed.toLowerCase()));
+      if (!cat) return;
+      currentFilter.category = cat;
+      currentFilter.region = '';
+      const results = App.filterAttractions(attractions, { category: cat });
+      showFilteredGrid(results, `${cat} — ${results.length} Attractions`);
+      document.getElementById('filtered-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showFilteredGrid(list, headingText) {
+      document.getElementById('filtered-heading-text').textContent = headingText;
+      document.getElementById('filtered-grid').innerHTML = list.map(a => buildArticleCard(a)).join('');
+      document.getElementById('filtered-section').style.display = 'block';
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ---- Quick Picks Sidebar ----
+    function buildQuickPicks() {
+      const picks = attractions.slice(0, 8);
+      document.getElementById('quick-picks-list').innerHTML = picks.map((a, i) => `
+        <div class="quick-pick" data-open-detail="${a.id}" tabindex="0" aria-label="${a.name}">
+          <div class="quick-pick__rank">${String(i + 1).padStart(2, '0')}</div>
+          <div class="quick-pick__info">
+            <div class="quick-pick__name">${a.name}</div>
+            <div class="quick-pick__sub">${a.state} &middot; &#9733; ${a.rating}</div>
+          </div>
+          ${itinBtn(a.id, '+ Add', 'quick-pick__add')}
+        </div>
+      `).join('');
+    }
+
+    // ---- HERO ----
+    function buildHero() {
+      const a = attractions[0];
+      document.getElementById('hero-bg').style.backgroundImage = `url('${a.image.replace('800/450','1600/900')}')`;
+      document.getElementById('hero-title').textContent = a.name;
+      document.getElementById('hero-location').innerHTML = `&#128205; ${a.state} &nbsp;&middot;&nbsp; ${a.region}`;
+      document.getElementById('hero-rating').textContent = `★ ${a.rating}`;
+      document.getElementById('hero-tagline').textContent = excerpt(a.description, 1);
+      document.getElementById('hero-cta').dataset.openDetail = a.id;
+
+      // Trigger zoom animation after a tick
+      requestAnimationFrame(() => {
+        document.getElementById('mag-hero').classList.add('loaded');
+      });
+    }
+
+    // ---- MAIN GRID ----
+    function buildGrid() {
+      // Cover story = item 1 (index 0 is hero, so use index 1)
+      const coverIdx = 1;
+      const cover = attractions[coverIdx];
+      document.getElementById('cover-story-slot').innerHTML = buildCoverStory(cover);
+
+      // Pull quote 1 from cover
+      document.getElementById('pull-quote-1').innerHTML = buildPullQuote(cover);
+
+      // 3 equal articles: indices 2, 3, 4
+      document.getElementById('articles-row-3').innerHTML =
+        attractions.slice(2, 5).map(buildArticleCard).join('');
+
+      // Pull quote 2 from index 5
+      document.getElementById('pull-quote-2').innerHTML = buildPullQuote(attractions[5]);
+
+      // Spotlight: index 6 large, indices 7 & 8 small
+      const spotMain = attractions[6];
+      const spotSmall1 = attractions[7];
+      const spotSmall2 = attractions[8];
+      document.getElementById('spotlight-row').innerHTML = `
+        ${buildSpotlightMain(spotMain)}
+        <div class="spotlight-stack">
+          ${buildCompactCard(spotSmall1)}
+          ${buildCompactCard(spotSmall2)}
+        </div>
+      `;
+    }
+
+    // ---- REGIONS ----
+    function buildRegions() {
+      const regionMap = {};
+      attractions.forEach(a => {
+        regionMap[a.region] = (regionMap[a.region] || 0) + 1;
+      });
+      document.getElementById('regions-scroll').innerHTML =
+        Object.entries(regionMap)
+          .sort((a, b) => b[1] - a[1])
+          .map(([region, count]) => buildRegionCard(region, count))
+          .join('');
+    }
+
+    // ---- INIT ----
+    function init() {
+      buildHero();
+      buildGrid();
+      buildRegions();
+      buildQuickPicks();
+      updateFabCount();
+    }
+
+    init();
+  </script>
+</body>
+</html>

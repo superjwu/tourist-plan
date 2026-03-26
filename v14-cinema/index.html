@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>American Landscapes Film Festival</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Raleway:wght@300;400;600;700&display=swap');
+
+    :root {
+      --bg: #0A0A0A;
+      --bg-alt: #111111;
+      --primary: #C9A84C;
+      --primary-light: #E8C97A;
+      --accent: #E63946;
+      --text: #F5F5F0;
+      --text-muted: #999888;
+      --text-light: #555545;
+      --card-bg: #111111;
+      --card-border: rgba(201,168,76,0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+    }
+
+    /* ---- HEADER ---- */
+    .fest-header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .fest-header-inner {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .fest-back { color: var(--text-muted); font-size: 0.75rem; text-decoration: none; letter-spacing: 0.1em; }
+    .fest-back:hover { color: var(--primary); }
+    .fest-title-block { flex: 1; }
+    .fest-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .fest-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-style: italic;
+      color: var(--primary);
+      line-height: 1;
+    }
+    .fest-badge {
+      border: 1px solid var(--primary);
+      border-radius: 50%;
+      width: 60px; height: 60px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-size: 0.55rem;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      text-align: center;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .fest-badge strong { font-size: 1rem; display: block; font-weight: 700; }
+    .fest-actions { display: flex; gap: 0.75rem; align-items: center; }
+    .search-icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .search-icon-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .schedule-btn {
+      padding: 0.5rem 1.2rem;
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .schedule-btn:hover { background: var(--primary); color: var(--bg); }
+
+    /* Marquee */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid rgba(201,168,76,0.1);
+      padding: 6px 0;
+      background: rgba(201,168,76,0.04);
+    }
+    .marquee-inner {
+      display: flex;
+      white-space: nowrap;
+      animation: marqueeScroll 60s linear infinite;
+      gap: 3rem;
+    }
+    .marquee-inner:hover { animation-play-state: paused; }
+    @keyframes marqueeScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .marquee-item { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); opacity: 0.6; }
+    .marquee-sep { color: var(--primary); opacity: 0.3; }
+
+    /* ---- CATEGORY TABS ---- */
+    .category-strip {
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--card-border);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .category-strip::-webkit-scrollbar { display: none; }
+    .category-inner {
+      display: flex;
+      gap: 0;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .cat-tab {
+      padding: 0.85rem 1.25rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      background: none;
+      border-top: none; border-left: none; border-right: none;
+      font-family: 'Raleway', sans-serif;
+      transition: all 0.2s;
+    }
+    .cat-tab:hover { color: var(--text); }
+    .cat-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* ---- FILM GRID ---- */
+    .films-section { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .films-count { font-size: 0.72rem; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 1.5rem; text-transform: uppercase; }
+    .films-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Film Poster Card */
+    .film-card {
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .film-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 0 1px var(--primary), 0 12px 40px rgba(0,0,0,0.6);
+    }
+    .film-card:hover .film-strip-top,
+    .film-card:hover .film-strip-bot { opacity: 1; }
+    .film-strip-top, .film-strip-bot {
+      height: 14px;
+      background: repeating-linear-gradient(90deg, #111 0px, #111 8px, #222 8px, #222 16px);
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
+      display: flex; align-items: center; justify-content: space-around;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .film-strip-top::after, .film-strip-bot::after {
+      content: '';
+      display: block;
+      width: calc(100% - 16px);
+      height: 6px;
+      background: repeating-linear-gradient(90deg, #333 0, #333 10px, transparent 10px, transparent 16px);
+    }
+    .film-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+    }
+    .film-selection-badge {
+      position: absolute;
+      top: 26px; left: 10px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid var(--primary);
+      padding: 3px 7px;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+    .film-shortlisted-ribbon {
+      position: absolute;
+      top: 24px; right: -6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.55rem;
+      padding: 3px 10px;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+    .film-shortlisted-ribbon::after {
+      content: '';
+      position: absolute;
+      bottom: -5px; right: 0;
+      border-top: 5px solid #8B0000;
+      border-right: 6px solid transparent;
+    }
+
+    .film-info { padding: 0.75rem 0.85rem; }
+    .film-genre {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .film-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .film-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .film-meta {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .film-sep { color: var(--card-border); }
+    .film-rating { color: var(--primary); }
+    .film-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+    }
+    .film-card-actions { display: flex; gap: 0.5rem; }
+    .film-action-btn {
+      flex: 1;
+      padding: 0.4rem 0;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .film-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .film-action-btn.shortlisted { color: var(--accent); border-color: var(--accent); }
+    .film-action-btn.scheduled { color: var(--primary); border-color: var(--primary); }
+
+    /* ---- FILM DETAIL MODAL ---- */
+    #film-modal {
+      display: none;
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.96);
+    }
+    #film-modal.open { display: flex; }
+    .modal-inner {
+      width: 100%;
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      max-height: 100vh;
+      overflow: hidden;
+    }
+    .modal-poster-side {
+      width: 40%;
+      flex-shrink: 0;
+    }
+    .modal-poster-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .modal-info-side {
+      flex: 1;
+      overflow-y: auto;
+      padding: 3rem 2.5rem;
+      background: #0D0D0D;
+      border-left: 1px solid var(--card-border);
+    }
+    .modal-selection {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .modal-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .modal-divider { border: none; border-top: 1px solid var(--card-border); margin: 1.25rem 0; }
+    .modal-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .modal-stat label { display: block; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .modal-stat span { font-size: 0.82rem; }
+    .modal-section-title {
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.6rem;
+    }
+    .modal-directors-note {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    .modal-activities { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .modal-activity-tag {
+      padding: 0.25rem 0.6rem;
+      border: 1px solid var(--card-border);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+    .critic-review { margin-bottom: 0.75rem; }
+    .critic-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 0.2rem;
+    }
+    .critic-source { font-size: 0.6rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+    .modal-actions { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1.5rem; }
+    .modal-action-btn {
+      padding: 0.7rem 1.5rem;
+      border: 1px solid;
+      background: transparent;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-shortlist { border-color: var(--accent); color: var(--accent); }
+    .btn-shortlist:hover { background: var(--accent); color: #fff; }
+    .btn-schedule { border-color: var(--primary); color: var(--primary); }
+    .btn-schedule:hover { background: var(--primary); color: var(--bg); }
+    .btn-close-modal { border-color: var(--text-light); color: var(--text-muted); }
+    .btn-close-modal:hover { border-color: var(--text-muted); color: var(--text); }
+
+    /* ---- SCHEDULE SIDEBAR ---- */
+    #schedule-sidebar {
+      position: fixed; top: 0; right: -420px; bottom: 0;
+      width: 400px;
+      background: #0D0D0D;
+      border-left: 1px solid var(--card-border);
+      z-index: 400;
+      transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+      display: flex; flex-direction: column;
+    }
+    #schedule-sidebar.open { right: 0; }
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .sidebar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      flex: 1;
+    }
+    .sidebar-close {
+      width: 28px; height: 28px;
+      background: transparent; border: 1px solid var(--card-border);
+      color: var(--text-muted); cursor: pointer; font-size: 0.8rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sidebar-items { flex: 1; overflow-y: auto; }
+    .schedule-item {
+      display: flex; gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(201,168,76,0.08);
+      align-items: flex-start;
+    }
+    .schedule-day { color: var(--primary); font-size: 0.65rem; letter-spacing: 0.1em; width: 40px; flex-shrink: 0; margin-top: 0.15rem; }
+    .schedule-info { flex: 1; }
+    .schedule-name { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; }
+    .schedule-meta { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .schedule-remove { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 0.9rem; padding: 0 0.25rem; }
+    .schedule-remove:hover { color: var(--accent); }
+    .schedule-empty { padding: 2rem 1.5rem; color: var(--text-muted); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; }
+    .schedule-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--card-border);
+      display: flex; gap: 0.75rem;
+    }
+    .sched-btn {
+      flex: 1; padding: 0.6rem;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sched-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ---- SEARCH OVERLAY ---- */
+    #search-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.97);
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 2rem 2rem;
+    }
+    #search-overlay.open { display: flex; }
+    .search-input-line {
+      width: 100%; max-width: 600px;
+      display: flex; align-items: center; gap: 1rem;
+      border-bottom: 1px solid var(--primary);
+      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+    }
+    .search-q {
+      flex: 1;
+      background: transparent; border: none;
+      color: var(--text);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-style: italic;
+      outline: none;
+    }
+    .search-q::placeholder { color: var(--text-light); }
+    .search-close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; }
+    .search-results-list { width: 100%; max-width: 600px; overflow-y: auto; max-height: 60vh; }
+    .search-res-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+    }
+    .search-res-item:hover .search-res-name { color: var(--primary); }
+    .search-res-thumb { width: 60px; height: 40px; object-fit: cover; flex-shrink: 0; }
+    .search-res-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; flex: 1; }
+    .search-res-genre { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.1em; }
+
+    @media (max-width: 768px) {
+      .modal-inner { flex-direction: column; max-height: 100vh; overflow-y: auto; }
+      .modal-poster-side { width: 100%; height: 200px; }
+      .modal-poster-img { height: 200px; }
+      .fest-header-inner { padding: 0.75rem 1rem; }
+      .fest-name { font-size: 1.1rem; }
+      #schedule-sidebar { width: 100%; right: -100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="fest-header">
+  <div class="fest-header-inner">
+    <a href="../gallery.html" class="fest-back">← ALL VERSIONS</a>
+    <div class="fest-title-block">
+      <div class="fest-label">The American Landscapes</div>
+      <div class="fest-name">Film Festival</div>
+    </div>
+    <div class="fest-badge"><strong id="filmCount">100</strong>Films<br>2026</div>
+    <div class="fest-actions">
+      <button class="search-icon-btn" onclick="openSearch()" title="Search">🔍</button>
+      <button class="schedule-btn" onclick="toggleSchedule()">🎬 My Schedule (<span id="schedCount">0</span>)</button>
+    </div>
+  </div>
+  <div class="marquee-wrap">
+    <div class="marquee-inner" id="marqueeInner"></div>
+  </div>
+</header>
+
+<!-- CATEGORY TABS -->
+<div class="category-strip">
+  <div class="category-inner" id="categoryTabs"></div>
+</div>
+
+<!-- FILMS GRID -->
+<main class="films-section">
+  <div class="films-count" id="filmsCount">100 Official Selections</div>
+  <div class="films-grid" id="filmsGrid"></div>
+</main>
+
+<!-- FILM DETAIL MODAL -->
+<div id="film-modal">
+  <div class="modal-inner">
+    <div class="modal-poster-side">
+      <img class="modal-poster-img" id="modalImg" src="" alt="">
+    </div>
+    <div class="modal-info-side" id="modalInfo"></div>
+  </div>
+</div>
+
+<!-- SCHEDULE SIDEBAR -->
+<div id="schedule-sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Your Screening Schedule</div>
+    <button class="sidebar-close" onclick="toggleSchedule()">✕</button>
+  </div>
+  <div class="sidebar-items" id="scheduleItems"></div>
+  <div class="schedule-footer">
+    <button class="sched-btn" onclick="window.print()">🖨 Print</button>
+    <button class="sched-btn" onclick="clearSchedule()">Clear All</button>
+  </div>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div class="search-input-line">
+    <input class="search-q" id="searchQ" placeholder="Search films…" autocomplete="off">
+    <button class="search-close-btn" onclick="closeSearch()">✕</button>
+  </div>
+  <div class="search-results-list" id="searchResultsList"></div>
+</div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+  let activeCategory = '';
+  let currentModalId = null;
+
+  // Genre from activities/difficulty
+  function getGenre(a) {
+    const acts = a.activities.join(' ').toLowerCase();
+    const tags = (a.tags || []).join(' ').toLowerCase();
+    if (acts.includes('hik') && a.difficulty === 'Strenuous') return 'Adventure · Epic';
+    if (acts.includes('beach') || acts.includes('swim')) return 'Drama · Romance';
+    if (acts.includes('wildlife') || acts.includes('bird')) return 'Documentary · Nature';
+    if (acts.includes('archaeolog') || tags.includes('history')) return 'Historical · Drama';
+    if (acts.includes('scenic drive') || acts.includes('road')) return 'Road Movie · Journey';
+    if (a.accessibility && a.difficulty === 'Easy') return 'Family · Adventure';
+    if (acts.includes('kayak') || acts.includes('snorkel')) return 'Thriller · Discovery';
+    return 'Adventure · Drama';
+  }
+
+  function getCriticReviews(a) {
+    return [
+      { quote: `"${a.name} is the ${a.category.toLowerCase()} experience of a generation"`, source: 'Wilderness Quarterly' },
+      { quote: `"A ${a.difficulty.toLowerCase()} yet unforgettable journey through ${a.state}'s finest landscape"`, source: 'Adventure Cinema Review' },
+    ];
+  }
+
+  function isShortlisted(id) { return App.isFavorite(id); }
+  function isScheduled(id) { return App.isInItinerary(id); }
+
+  // ---- Marquee ----
+  function buildMarquee() {
+    const items = attractions.slice(0, 40).map(a =>
+      `<span class="marquee-item">${a.name}</span><span class="marquee-sep">✦</span>`
+    ).join('');
+    document.getElementById('marqueeInner').innerHTML = items + items; // duplicate for seamless
+  }
+
+  // ---- Category Tabs ----
+  const categories = ['', ...new Set(attractions.map(a => a.region))].sort();
+  const catLabels = {
+    '': 'Main Competition',
+    'Rocky Mountains': 'Rocky Mountains Selection',
+    'Southwest': 'Southwest Panorama',
+    'Pacific West': 'Pacific Shores',
+    'Northeast': 'Eastern Wilderness (North)',
+    'Southeast': 'Eastern Wilderness (South)',
+    'Great Plains': 'Great Plains',
+    'Hawaii': 'Island Stories',
+  };
+
+  function buildCategoryTabs() {
+    document.getElementById('categoryTabs').innerHTML = categories.map(c => `
+      <button class="cat-tab ${c === activeCategory ? 'active' : ''}"
+              onclick="setCategory('${c}')">
+        ${catLabels[c] || c}
+        <span style="color:var(--text-muted);font-size:0.6em;margin-left:0.3em">
+          (${(c ? attractions.filter(a => a.region === c) : attractions).length})
+        </span>
+      </button>`).join('');
+  }
+
+  function setCategory(cat) {
+    activeCategory = cat;
+    buildCategoryTabs();
+    renderFilms();
+  }
+
+  // ---- Films Grid ----
+  function renderFilms() {
+    const list = activeCategory ? attractions.filter(a => a.region === activeCategory) : attractions;
+    document.getElementById('filmsCount').textContent = `${list.length} Official Selection${list.length !== 1 ? 's' : ''}`;
+    document.getElementById('filmCount').textContent = list.length;
+    document.getElementById('filmsGrid').innerHTML = list.map(a => {
+      const genre = getGenre(a);
+      const quote = '"' + a.description.split('.')[0].trim().slice(0,80) + '…"';
+      const shortlisted = isShortlisted(a.id);
+      const scheduled = isScheduled(a.id);
+      return `
+        <div class="film-card" onclick="openModal(${a.id})">
+          <div class="film-strip-top"></div>
+          <div style="position:relative">
+            <img class="film-poster" src="${a.image}" alt="${a.name}"
+                 onerror="this.src='https://picsum.photos/seed/${a.id}/400/600'">
+            <div class="film-selection-badge">Official Selection</div>
+            ${shortlisted ? '<div class="film-shortlisted-ribbon">SHORTLISTED</div>' : ''}
+          </div>
+          <div class="film-strip-bot"></div>
+          <div class="film-info">
+            <div class="film-genre">${genre}</div>
+            <div class="film-title">${a.name}</div>
+            <div class="film-subtitle">${a.category}</div>
+            <div class="film-meta">
+              <span>${a.state}</span>
+              <span class="film-sep">·</span>
+              <span>${a.duration}</span>
+              <span class="film-sep">·</span>
+              <span class="film-rating">★ ${a.rating}</span>
+            </div>
+            <div class="film-quote">${quote}</div>
+            <div class="film-card-actions" onclick="event.stopPropagation()">
+              <button class="film-action-btn ${shortlisted?'shortlisted':''}"
+                      onclick="toggleShortlist(${a.id}, this)">
+                ${shortlisted ? '♥ Shortlisted' : '♡ Shortlist'}
+              </button>
+              <button class="film-action-btn ${scheduled?'scheduled':''}"
+                      onclick="toggleSchedule2(${a.id}, this)">
+                ${scheduled ? '✓ Scheduled' : '+ Schedule'}
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function toggleShortlist(id, btn) {
+    const now = App.toggleFavorite(id);
+    btn.className = `film-action-btn ${now ? 'shortlisted' : ''}`;
+    btn.textContent = now ? '♥ Shortlisted' : '♡ Shortlist';
+    renderFilms();
+  }
+  function toggleSchedule2(id, btn) {
+    if (App.isInItinerary(id)) {
+      App.removeFromItinerary(id);
+    } else {
+      App.addToItinerary(id);
+    }
+    const now = App.isInItinerary(id);
+    btn.className = `film-action-btn ${now ? 'scheduled' : ''}`;
+    btn.textContent = now ? '✓ Scheduled' : '+ Schedule';
+    updateSchedCount();
+    renderSchedule();
+  }
+
+  // ---- Modal ----
+  function openModal(id) {
+    const a = attractions.find(x => x.id === id);
+    if (!a) return;
+    currentModalId = id;
+    const genre = getGenre(a);
+    const reviews = getCriticReviews(a);
+    const shortlisted = isShortlisted(id);
+    const scheduled = isScheduled(id);
+
+    document.getElementById('modalImg').src = a.image;
+    document.getElementById('modalImg').onerror = function() { this.src = `https://picsum.photos/seed/${a.id}/400/600`; };
+    document.getElementById('modalInfo').innerHTML = `
+      <div class="modal-selection">✦ Official Selection 2026 ✦</div>
+      <div class="modal-title">${a.name}</div>
+      <div class="modal-subtitle">${a.category}</div>
+      <hr class="modal-divider">
+      <div class="modal-stats">
+        <div class="modal-stat"><label>Genre</label><span>${genre}</span></div>
+        <div class="modal-stat"><label>Runtime</label><span>${a.duration}</span></div>
+        <div class="modal-stat"><label>Location</label><span>${a.state}</span></div>
+        <div class="modal-stat"><label>Entry</label><span>${a.fee}</span></div>
+        <div class="modal-stat"><label>Best Season</label><span>${a.bestTime}</span></div>
+        <div class="modal-stat"><label>Rating</label><span style="color:var(--primary)">★ ${a.rating} (${a.reviews.toLocaleString()})</span></div>
+      </div>
+      <hr class="modal-divider">
+      <div class="modal-section-title">Director's Note</div>
+      <div class="modal-directors-note">"${a.description}"</div>
+      <div class="modal-section-title">Featured Activities</div>
+      <div class="modal-activities">
+        ${a.activities.map(act => `<span class="modal-activity-tag">${act}</span>`).join('')}
+      </div>
+      <hr class="modal-divider">
+      <div class="modal-section-title">Critic Reviews</div>
+      ${reviews.map(r => `
+        <div class="critic-review">
+          <div class="critic-quote">${r.quote}</div>
+          <div class="critic-source">— ${r.source}</div>
+        </div>`).join('')}
+      <div class="modal-actions">
+        <button class="modal-action-btn btn-shortlist" id="modalShortBtn" onclick="toggleShortlistModal(${id})">
+          ${shortlisted ? '♥ Remove from Shortlist' : '♡ Add to Shortlist'}
+        </button>
+        <button class="modal-action-btn btn-schedule" id="modalSchedBtn" onclick="toggleScheduleModal(${id})">
+          ${scheduled ? '✓ In Screening Schedule' : '+ Add to Screening Schedule'}
+        </button>
+        <button class="modal-action-btn btn-close-modal" onclick="closeModal()">✕ Close</button>
+      </div>`;
+
+    document.getElementById('film-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('film-modal').classList.remove('open');
+    document.body.style.overflow = '';
+    renderFilms();
+  }
+
+  function toggleShortlistModal(id) {
+    App.toggleFavorite(id);
+    openModal(id);
+  }
+  function toggleScheduleModal(id) {
+    if (App.isInItinerary(id)) App.removeFromItinerary(id);
+    else App.addToItinerary(id);
+    updateSchedCount();
+    renderSchedule();
+    openModal(id);
+  }
+
+  // ---- Schedule sidebar ----
+  function toggleSchedule() {
+    document.getElementById('schedule-sidebar').classList.toggle('open');
+    renderSchedule();
+  }
+  function updateSchedCount() {
+    document.getElementById('schedCount').textContent = App.getItinerary().length;
+  }
+  function renderSchedule() {
+    const itin = App.getItinerary();
+    updateSchedCount();
+    const el = document.getElementById('scheduleItems');
+    if (itin.length === 0) {
+      el.innerHTML = '<div class="schedule-empty">Your screening schedule is empty.<br><br>Browse films and add them to build your itinerary.</div>';
+      return;
+    }
+    let totalDays = 0;
+    el.innerHTML = itin.map((id, i) => {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return '';
+      return `<div class="schedule-item">
+        <div class="schedule-day">DAY ${i+1}</div>
+        <div class="schedule-info">
+          <div class="schedule-name">${a.name}</div>
+          <div class="schedule-meta">${a.duration} · ${a.fee}</div>
+        </div>
+        <button class="schedule-remove" onclick="removeFromSchedule(${id})">✕</button>
+      </div>`;
+    }).join('');
+  }
+  function removeFromSchedule(id) {
+    App.removeFromItinerary(id);
+    renderSchedule();
+    updateSchedCount();
+    renderFilms();
+  }
+  function clearSchedule() {
+    if (confirm('Clear your entire screening schedule?')) {
+      App.clearItinerary();
+      renderSchedule();
+      updateSchedCount();
+      renderFilms();
+    }
+  }
+
+  // ---- Search ----
+  function openSearch() {
+    document.getElementById('search-overlay').classList.add('open');
+    document.getElementById('searchQ').value = '';
+    document.getElementById('searchResultsList').innerHTML = '';
+    setTimeout(() => document.getElementById('searchQ').focus(), 100);
+  }
+  function closeSearch() {
+    document.getElementById('search-overlay').classList.remove('open');
+  }
+  document.getElementById('searchQ').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    if (!q) { document.getElementById('searchResultsList').innerHTML = ''; return; }
+    const res = attractions.filter(a =>
+      a.name.toLowerCase().includes(q) || a.state.toLowerCase().includes(q) ||
+      a.category.toLowerCase().includes(q) || a.region.toLowerCase().includes(q)
+    ).slice(0, 10);
+    document.getElementById('searchResultsList').innerHTML = res.map(a =>
+      `<div class="search-res-item" onclick="closeSearch(); openModal(${a.id})">
+        <img class="search-res-thumb" src="${a.image}" alt="${a.name}"
+             onerror="this.src='https://picsum.photos/seed/${a.id}/60/40'">
+        <span class="search-res-name">${a.name}</span>
+        <span class="search-res-genre">${getGenre(a)}</span>
+      </div>`).join('');
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeSearch();
+      document.getElementById('schedule-sidebar').classList.remove('open');
+    }
+  });
+  document.getElementById('film-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('film-modal')) closeModal();
+  });
+
+  // ---- Init ----
+  buildMarquee();
+  buildCategoryTabs();
+  renderFilms();
+  updateSchedCount();
+</script>
+</body>
+</html>

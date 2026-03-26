@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover America — Story Mode</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ---- v3: Fullscreen Story Scroll — Dark Night Theme ---- */
+    :root {
+      --bg:           #0F172A;
+      --bg-alt:       #1E293B;
+      --primary:      #10B981;
+      --primary-dark: #059669;
+      --primary-light:#34d399;
+      --accent:       #F59E0B;
+      --accent-light: #FCD34D;
+      --text:         #F1F5F9;
+      --text-muted:   #94A3B8;
+      --text-light:   #64748B;
+      --card-bg:      #1E293B;
+      --card-border:  rgba(255,255,255,0.08);
+      --shadow-sm:    0 1px 4px rgba(0,0,0,0.3);
+      --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
+      --shadow-lg:    0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
+
+    /* ---- Top Strip ---- */
+    .story-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      background: linear-gradient(to bottom, rgba(15,23,42,0.95), transparent);
+    }
+    .story-logo { font-family: var(--font-serif); font-size: 1.1rem; font-weight: bold; color: var(--text); }
+    .story-logo span { color: var(--primary); }
+    .story-progress-text {
+      margin-left: auto;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .story-filter-btn {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .story-filter-btn:hover { background: rgba(255,255,255,0.18); }
+
+    /* ---- Story Scroll Container ---- */
+    .story-scroll {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    /* ---- Individual Story Slide ---- */
+    .story-slide {
+      height: 100vh;
+      width: 100%;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.05);
+      transition: transform 8s ease;
+    }
+    .story-slide.active .slide-bg { transform: scale(1); }
+
+    /* Multi-layer gradient for readability */
+    .slide-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%),
+        linear-gradient(to right, rgba(0,0,0,0.3) 0%, transparent 60%);
+    }
+
+    /* ---- Slide Content ---- */
+    .slide-content {
+      position: relative;
+      z-index: 2;
+      padding: 2rem 2.5rem 5.5rem;
+      max-width: 680px;
+    }
+
+    .slide-region-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+
+    .slide-category {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .slide-title {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-location {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .slide-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .slide-rating .stars { font-size: 1rem; color: var(--accent-light); }
+    .slide-rating span   { color: rgba(255,255,255,0.85); font-size: 0.9rem; }
+
+    .slide-desc {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.7;
+      max-width: 540px;
+      margin-bottom: 1.25rem;
+    }
+
+    .slide-meta-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .slide-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(4px);
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .slide-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .slide-tag {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    /* ---- Floating Action Bar (right side) ---- */
+    .fab-bar {
+      position: fixed;
+      right: 1.5rem;
+      bottom: 5rem;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .fab {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border: none;
+      transition: transform var(--transition), background var(--transition);
+      box-shadow: var(--shadow-md);
+    }
+    .fab:hover { transform: scale(1.12); }
+    .fab.fav-fab {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+    }
+    .fab.fav-fab.active { background: rgba(239,68,68,0.3); color: #ef4444; border-color: #ef4444; }
+    .fab.itin-fab {
+      background: var(--primary);
+      color: #fff;
+    }
+    .fab.itin-fab.added { background: var(--primary-dark); }
+    .fab.info-fab {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .fab-label {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+    }
+
+    /* ---- Bottom Progress Bar ---- */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 100;
+      background: linear-gradient(to top, rgba(15,23,42,0.98), transparent);
+      padding: 0.75rem 1.5rem 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .progress-dots {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow: hidden;
+    }
+    .progress-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .progress-dot.active {
+      background: var(--primary);
+      width: 20px;
+      border-radius: 3px;
+    }
+    .progress-dot:hover:not(.active) { background: rgba(255,255,255,0.4); }
+
+    .nav-arrows { display: flex; gap: 0.4rem; }
+    .nav-arrow {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition);
+    }
+    .nav-arrow:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ---- Filter Overlay ---- */
+    .filter-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: flex-end;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .filter-overlay.open { visibility: visible; opacity: 1; }
+
+    .filter-sheet {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 1.5rem;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .filter-overlay.open .filter-sheet { transform: translateY(0); }
+
+    .filter-sheet h3 {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      margin-top: 1rem;
+    }
+    .filter-sheet h3:first-child { margin-top: 0; }
+
+    .filter-sheet-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
+    }
+    .filter-sheet-header strong { color: var(--text); }
+
+    .pill-filters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .pill {
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+    .pill:hover  { background: rgba(16,185,129,0.15); color: var(--primary-light); }
+    .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .filter-search {
+      width: 100%;
+      padding: 0.55rem 1rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      margin-bottom: 0.5rem;
+    }
+    .filter-search::placeholder { color: var(--text-light); }
+    .filter-search:focus { border-color: var(--primary); }
+
+    /* ---- Itin Panel ---- */
+    .itin-panel {
+      position: fixed;
+      top: 56px; right: -340px;
+      width: 320px;
+      height: calc(100vh - 56px);
+      background: var(--card-bg);
+      border-left: 1px solid var(--card-border);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .itin-panel.open { right: 0; }
+    .itin-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .itin-header h3 { font-family: var(--font-sans); font-size: 0.95rem; color: var(--text); }
+    .itin-body { flex: 1; overflow-y: auto; padding: 0.75rem; }
+    .itin-stop {
+      display: flex; align-items: center; gap: 0.65rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem;
+      margin-bottom: 0.4rem;
+    }
+    .itin-stop img { width: 44px; height: 34px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+    .itin-stop-name { font-size: 0.82rem; font-weight: 600; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .itin-stop-state { font-size: 0.7rem; color: var(--text-muted); }
+    .itin-footer { padding: 0.75rem; border-top: 1px solid var(--card-border); display: flex; gap: 0.5rem; }
+
+    /* keyboard hint */
+    .key-hint {
+      position: fixed;
+      bottom: 5rem;
+      left: 1.5rem;
+      z-index: 100;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    @media (max-width: 600px) {
+      .slide-content { padding: 1.25rem 1.25rem 5rem; }
+      .slide-title   { font-size: 1.8rem; }
+      .fab-bar       { right: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="story-nav">
+  <a href="../gallery.html" class="nav-back-btn" style="font-size:0.8rem">← All Versions</a>
+  <span class="story-logo">Discover <span>America</span></span>
+  <span class="story-progress-text" id="progressText">1 / 25</span>
+  <button class="story-filter-btn" id="filterOpenBtn">⚙ Filter</button>
+</nav>
+
+<!-- Story Scroll -->
+<div class="story-scroll" id="storyScroll"></div>
+
+<!-- FAB Bar (right) -->
+<div class="fab-bar">
+  <div>
+    <button class="fab fav-fab" id="favFab" title="Favorite">♡</button>
+    <div class="fab-label">Save</div>
+  </div>
+  <div>
+    <button class="fab itin-fab" id="itinFab" title="Add to Trip">＋</button>
+    <div class="fab-label" id="itinFabLabel">Add</div>
+  </div>
+  <div>
+    <button class="fab info-fab" id="itinListBtn" title="View Itinerary">🗺</button>
+    <div class="fab-label">Trip</div>
+  </div>
+</div>
+
+<!-- Keyboard hint -->
+<div class="key-hint">↑ ↓ arrow keys to navigate</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <div class="progress-dots" id="progressDots"></div>
+  <div class="nav-arrows">
+    <button class="nav-arrow" id="prevBtn">↑</button>
+    <button class="nav-arrow" id="nextBtn">↓</button>
+  </div>
+</div>
+
+<!-- Filter Overlay -->
+<div class="filter-overlay" id="filterOverlay">
+  <div class="filter-sheet">
+    <div class="filter-sheet-header">
+      <strong>Filter Attractions</strong>
+      <button class="story-filter-btn" id="filterCloseBtn">Done</button>
+    </div>
+    <input type="text" class="filter-search" id="filterSearch" placeholder="Search attractions…">
+    <h3>Region</h3>
+    <div class="pill-filters" id="regionPills"></div>
+    <h3>Category</h3>
+    <div class="pill-filters" id="categoryPills"></div>
+    <h3>Best For</h3>
+    <div class="pill-filters" id="tagPills">
+      <span class="pill" data-tag="Wildlife">Wildlife</span>
+      <span class="pill" data-tag="Stargazing">Stargazing</span>
+      <span class="pill" data-tag="Photography">Photography</span>
+      <span class="pill" data-tag="UNESCO">UNESCO</span>
+      <span class="pill" data-tag="Hiking">Hiking</span>
+      <span class="pill" data-tag="Waterfall">Waterfall</span>
+    </div>
+    <div style="margin-top:1.25rem; display:flex; gap:0.5rem">
+      <button class="btn-primary" id="applyFilters" style="flex:1">Apply</button>
+      <button class="btn-secondary" id="clearFilters" style="flex:1">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Itinerary Panel -->
+<aside class="itin-panel" id="itinPanel">
+  <div class="itin-header">
+    <h3>🗺 My Itinerary</h3>
+    <button class="drawer-close" id="itinClose" style="color:var(--text-muted)">✕</button>
+  </div>
+  <div class="itin-body" id="itinBody"></div>
+  <div class="itin-footer">
+    <button class="btn-primary" onclick="window.print()" style="flex:1;font-size:0.8rem">Print</button>
+    <button class="btn-secondary" id="clearItin" style="flex:1;font-size:0.8rem">Clear</button>
+  </div>
+</aside>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+  let filteredList = [...attractions];
+  let currentIdx   = 0;
+  const scroll     = document.getElementById('storyScroll');
+
+  // ---- Build filter pills ----
+  const regions  = [...new Set(attractions.map(a => a.region))].sort();
+  const cats     = [...new Set(attractions.map(a => a.category))].sort();
+  document.getElementById('regionPills').innerHTML =
+    regions.map(r => `<span class="pill" data-region="${r}">${r}</span>`).join('');
+  document.getElementById('categoryPills').innerHTML =
+    cats.map(c => `<span class="pill" data-cat="${c}">${c}</span>`).join('');
+
+  // ---- Render slides ----
+  function renderSlides() {
+    scroll.innerHTML = filteredList.map((a, i) => `
+      <section class="story-slide" id="slide-${a.id}" data-idx="${i}" data-id="${a.id}">
+        <div class="slide-bg" style="background-image:url('${a.image}')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+          <span class="slide-region-badge">${a.region}</span>
+          <div class="slide-category">${a.category}</div>
+          <h1 class="slide-title">${a.name}</h1>
+          <div class="slide-location">📍 ${a.state}</div>
+          <div class="slide-rating">
+            <span class="stars">${App.starsHTML(a.rating)}</span>
+            <span>${a.rating} &nbsp;·&nbsp; ${App.formatReviews(a.reviews)} reviews</span>
+          </div>
+          <p class="slide-desc">${a.description}</p>
+          <div class="slide-meta-row">
+            <span class="slide-meta-item">💰 ${a.fee}</span>
+            <span class="slide-meta-item">⏱ ${a.duration}</span>
+            <span class="slide-meta-item">🥾 ${a.difficulty}</span>
+            <span class="slide-meta-item">📅 ${a.bestTime}</span>
+          </div>
+          <div class="slide-tags">${a.tags.map(t => `<span class="slide-tag">${t}</span>`).join('')}</div>
+        </div>
+      </section>`).join('');
+
+    // Progress dots
+    const dots = document.getElementById('progressDots');
+    dots.innerHTML = filteredList.map((a, i) =>
+      `<div class="progress-dot ${i === currentIdx ? 'active' : ''}" data-dot="${i}"></div>`
+    ).join('');
+
+    updateFabState();
+    updateProgressText();
+  }
+
+  // ---- Scroll tracking ----
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const slide = entry.target;
+        const idx   = parseInt(slide.dataset.idx);
+        currentIdx  = idx;
+        slide.classList.add('active');
+        updateActiveDot(idx);
+        updateFabState();
+        updateProgressText();
+      } else {
+        entry.target.classList.remove('active');
+      }
+    });
+  }, { threshold: 0.5 });
+
+  function observeSlides() {
+    document.querySelectorAll('.story-slide').forEach(s => observer.observe(s));
+  }
+
+  function updateActiveDot(idx) {
+    document.querySelectorAll('.progress-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === idx);
+    });
+  }
+
+  function updateProgressText() {
+    document.getElementById('progressText').textContent =
+      `${currentIdx + 1} / ${filteredList.length}`;
+  }
+
+  function updateFabState() {
+    const a = filteredList[currentIdx];
+    if (!a) return;
+    const favFab  = document.getElementById('favFab');
+    const itinFab = document.getElementById('itinFab');
+    favFab.classList.toggle('active', App.isFavorite(a.id));
+    favFab.textContent = App.isFavorite(a.id) ? '♥' : '♡';
+    const inTrip = App.isInItinerary(a.id);
+    itinFab.classList.toggle('added', inTrip);
+    itinFab.textContent = inTrip ? '✓' : '＋';
+    document.getElementById('itinFabLabel').textContent = inTrip ? 'Added' : 'Add';
+  }
+
+  // ---- Navigation ----
+  function goTo(idx) {
+    if (idx < 0 || idx >= filteredList.length) return;
+    const slide = document.getElementById(`slide-${filteredList[idx].id}`);
+    if (slide) slide.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(currentIdx + 1));
+  document.getElementById('prevBtn').addEventListener('click', () => goTo(currentIdx - 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); goTo(currentIdx + 1); }
+    if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  { e.preventDefault(); goTo(currentIdx - 1); }
+  });
+
+  document.getElementById('progressDots').addEventListener('click', e => {
+    const dot = e.target.closest('[data-dot]');
+    if (dot) goTo(parseInt(dot.dataset.dot));
+  });
+
+  // ---- FABs ----
+  document.getElementById('favFab').addEventListener('click', () => {
+    const a = filteredList[currentIdx];
+    if (!a) return;
+    const isNow = App.toggleFavorite(a.id);
+    const btn   = document.getElementById('favFab');
+    btn.classList.toggle('active', isNow);
+    btn.textContent = isNow ? '♥' : '♡';
+  });
+
+  document.getElementById('itinFab').addEventListener('click', () => {
+    const a = filteredList[currentIdx];
+    if (!a) return;
+    if (App.isInItinerary(a.id)) {
+      App.removeFromItinerary(a.id);
+    } else {
+      App.addToItinerary(a.id);
+    }
+    updateFabState();
+    renderItinPanel();
+  });
+
+  document.getElementById('itinListBtn').addEventListener('click', () => {
+    document.getElementById('itinPanel').classList.toggle('open');
+    renderItinPanel();
+  });
+
+  document.getElementById('itinClose').addEventListener('click', () => {
+    document.getElementById('itinPanel').classList.remove('open');
+  });
+
+  document.getElementById('clearItin').addEventListener('click', () => {
+    App.clearItinerary();
+    renderItinPanel();
+    updateFabState();
+  });
+
+  function renderItinPanel() {
+    const itin = App.getItinerary();
+    const body = document.getElementById('itinBody');
+    if (itin.length === 0) {
+      body.innerHTML = '<p style="padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.85rem">No stops yet. Tap ＋ to add attractions.</p>';
+      return;
+    }
+    body.innerHTML = itin.map((id, i) => {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return '';
+      return `
+        <div class="itin-stop">
+          <span style="font-size:0.72rem;color:var(--text-light);min-width:16px">${i+1}</span>
+          <img src="${a.image}" alt="${a.name}" onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+          <div style="flex:1;min-width:0">
+            <div class="itin-stop-name">${a.name}</div>
+            <div class="itin-stop-state">📍 ${a.state}</div>
+          </div>
+          <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.9rem"
+                  onclick="App.removeFromItinerary(${a.id});renderItinPanel();updateFabState()">✕</button>
+        </div>`;
+    }).join('');
+  }
+
+  // ---- Filter overlay ----
+  document.getElementById('filterOpenBtn').addEventListener('click', () => {
+    document.getElementById('filterOverlay').classList.add('open');
+  });
+
+  function closeFilter() { document.getElementById('filterOverlay').classList.remove('open'); }
+  document.getElementById('filterCloseBtn').addEventListener('click', () => { applyFiltersNow(); closeFilter(); });
+  document.getElementById('filterOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('filterOverlay')) closeFilter();
+  });
+
+  document.getElementById('applyFilters').addEventListener('click', () => { applyFiltersNow(); closeFilter(); });
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    document.querySelectorAll('.pill.active').forEach(p => p.classList.remove('active'));
+    document.getElementById('filterSearch').value = '';
+    filteredList = [...attractions];
+    currentIdx   = 0;
+    renderSlides();
+    observeSlides();
+    closeFilter();
+  });
+
+  // Pill toggle
+  document.getElementById('filterOverlay').addEventListener('click', e => {
+    const pill = e.target.closest('.pill');
+    if (pill) pill.classList.toggle('active');
+  });
+
+  function applyFiltersNow() {
+    const q      = document.getElementById('filterSearch').value.toLowerCase().trim();
+    const regions = [...document.querySelectorAll('#regionPills .pill.active')].map(p => p.dataset.region);
+    const cats    = [...document.querySelectorAll('#categoryPills .pill.active')].map(p => p.dataset.cat);
+    const tags    = [...document.querySelectorAll('#tagPills .pill.active')].map(p => p.dataset.tag);
+
+    filteredList = attractions.filter(a => {
+      if (q && !a.name.toLowerCase().includes(q) &&
+               !a.state.toLowerCase().includes(q) &&
+               !a.tags.join(' ').toLowerCase().includes(q)) return false;
+      if (regions.length && !regions.includes(a.region))   return false;
+      if (cats.length    && !cats.includes(a.category))    return false;
+      if (tags.length    && !tags.some(t => a.tags.includes(t) || a.activities.includes(t))) return false;
+      return true;
+    });
+
+    if (filteredList.length === 0) filteredList = [...attractions];
+    currentIdx = 0;
+    renderSlides();
+    observeSlides();
+  }
+
+  // ---- Init ----
+  renderSlides();
+  observeSlides();
+</script>
+</body>
+</html>

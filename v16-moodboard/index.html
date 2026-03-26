@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Board Explorer — U.S. Tourist Attractions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* =====================================================
+       ROOT & RESET
+    ===================================================== */
+    :root {
+      --vibe-bg: #f5f5f5;
+      --vibe-accent: #666;
+      --vibe-text: #222;
+      --vibe-card-bg: #fff;
+      --vibe-overlay: rgba(0,0,0,0.5);
+      --transition: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--vibe-bg);
+      color: var(--vibe-text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* =====================================================
+       LANDING — VIBE GRID
+    ===================================================== */
+    #landing {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, 33.333vh);
+      width: 100vw;
+      height: 100vh;
+      opacity: 1;
+      transition: opacity 300ms ease;
+    }
+
+    #landing.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .vibe-tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      border: none;
+      outline: none;
+      transition: transform 200ms ease, filter 200ms ease;
+    }
+
+    .vibe-tile:hover {
+      transform: scale(1.02);
+      z-index: 2;
+    }
+
+    .vibe-tile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+
+    .vibe-tile:hover::before {
+      opacity: 1;
+    }
+
+    /* SERENE */
+    .vibe-tile[data-vibe="SERENE"] {
+      background: linear-gradient(145deg, #c8ddc8 0%, #a8c8a8 40%, #e8f0e9 100%);
+    }
+    .vibe-tile[data-vibe="SERENE"]::before {
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+    }
+    .vibe-tile[data-vibe="SERENE"] .vibe-word {
+      color: #2d4a35;
+      font-style: italic;
+    }
+    .vibe-tile[data-vibe="SERENE"] .vibe-tag { color: #4a7c59; }
+
+    /* WILD */
+    .vibe-tile[data-vibe="WILD"] {
+      background: linear-gradient(145deg, #1a2a1a 0%, #243824 50%, #3a4a3a 100%);
+    }
+    .vibe-tile[data-vibe="WILD"]::before {
+      background: radial-gradient(ellipse at 30% 70%, rgba(90,138,58,0.25) 0%, transparent 60%);
+    }
+    .vibe-tile[data-vibe="WILD"] .vibe-word { color: #c8d8b8; }
+    .vibe-tile[data-vibe="WILD"] .vibe-tag { color: #7ab858; }
+
+    /* ANCIENT */
+    .vibe-tile[data-vibe="ANCIENT"] {
+      background: linear-gradient(145deg, #e8d4a8 0%, #d4b882 40%, #c89060 100%);
+    }
+    .vibe-tile[data-vibe="ANCIENT"]::before {
+      background: repeating-linear-gradient(
+        45deg, transparent, transparent 8px,
+        rgba(160,82,45,0.06) 8px, rgba(160,82,45,0.06) 9px
+      );
+    }
+    .vibe-tile[data-vibe="ANCIENT"] .vibe-word { color: #3d2010; }
+    .vibe-tile[data-vibe="ANCIENT"] .vibe-tag { color: #7a3010; }
+
+    /* DRAMATIC */
+    .vibe-tile[data-vibe="DRAMATIC"] {
+      background: linear-gradient(145deg, #0d0a1a 0%, #1a0d2a 40%, #2d1040 70%, #0d0a1a 100%);
+    }
+    .vibe-tile[data-vibe="DRAMATIC"]::before {
+      background: radial-gradient(ellipse at 70% 30%, rgba(123,45,139,0.5) 0%, transparent 60%);
+    }
+    .vibe-tile[data-vibe="DRAMATIC"] .vibe-word { color: #d4b8e0; }
+    .vibe-tile[data-vibe="DRAMATIC"] .vibe-tag { color: #9b60c0; }
+
+    /* COASTAL */
+    .vibe-tile[data-vibe="COASTAL"] {
+      background: linear-gradient(145deg, #b8e8f0 0%, #80d0e8 40%, #40b8d8 100%);
+    }
+    .vibe-tile[data-vibe="COASTAL"]::before {
+      background: repeating-linear-gradient(
+        -30deg, transparent, transparent 20px,
+        rgba(255,255,255,0.15) 20px, rgba(255,255,255,0.15) 22px
+      );
+    }
+    .vibe-tile[data-vibe="COASTAL"] .vibe-word { color: #003d55; }
+    .vibe-tile[data-vibe="COASTAL"] .vibe-tag { color: #0077a8; }
+
+    /* SPIRITUAL */
+    .vibe-tile[data-vibe="SPIRITUAL"] {
+      background: linear-gradient(145deg, #fdf5e0 0%, #f5e4b0 40%, #e8d080 100%);
+    }
+    .vibe-tile[data-vibe="SPIRITUAL"]::before {
+      background: radial-gradient(ellipse at 50% 30%, rgba(255,220,100,0.4) 0%, transparent 60%);
+    }
+    .vibe-tile[data-vibe="SPIRITUAL"] .vibe-word { color: #4a3800; }
+    .vibe-tile[data-vibe="SPIRITUAL"] .vibe-tag { color: #c89a2a; }
+
+    .vibe-word {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 5vw, 68px);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    }
+
+    .vibe-tagline {
+      font-size: clamp(10px, 1.2vw, 14px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 10px;
+      opacity: 0.75;
+      position: relative;
+      z-index: 1;
+      font-weight: 400;
+    }
+
+    .vibe-tile .vibe-tag {
+      font-size: clamp(9px, 1vw, 12px);
+      margin-top: 6px;
+      letter-spacing: 0.08em;
+      opacity: 0.8;
+      position: relative;
+      z-index: 1;
+      font-weight: 500;
+    }
+
+    /* =====================================================
+       MAIN BROWSE VIEW
+    ===================================================== */
+    #browse {
+      display: none;
+      min-height: 100vh;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    #browse.visible {
+      display: block;
+    }
+
+    #browse.entered {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Vibe header bar */
+    #vibe-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 64px;
+      backdrop-filter: blur(12px);
+      background: rgba(var(--header-rgb, 255,255,255), 0.85);
+      border-bottom: 1px solid rgba(128,128,128,0.1);
+      flex-wrap: wrap;
+    }
+
+    #back-btn {
+      background: none;
+      border: 2px solid var(--vibe-accent);
+      color: var(--vibe-accent);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 200ms;
+      flex-shrink: 0;
+    }
+
+    #back-btn:hover {
+      background: var(--vibe-accent);
+      color: var(--vibe-bg);
+    }
+
+    #active-vibe-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--vibe-accent);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    #add-vibe-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    #add-vibe-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: opacity 200ms;
+    }
+
+    #add-vibe-label:hover { opacity: 1; }
+
+    .vibe-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid currentColor;
+      transition: all 200ms;
+      flex-shrink: 0;
+    }
+
+    .vibe-pill:hover, .vibe-pill.active {
+      color: var(--vibe-bg) !important;
+    }
+
+    .vibe-pill[data-pill="SERENE"] { color: #4a7c59; }
+    .vibe-pill[data-pill="SERENE"]:hover, .vibe-pill[data-pill="SERENE"].active { background: #4a7c59; }
+    .vibe-pill[data-pill="WILD"] { color: #5a8a3a; }
+    .vibe-pill[data-pill="WILD"]:hover, .vibe-pill[data-pill="WILD"].active { background: #5a8a3a; }
+    .vibe-pill[data-pill="ANCIENT"] { color: #a0522d; }
+    .vibe-pill[data-pill="ANCIENT"]:hover, .vibe-pill[data-pill="ANCIENT"].active { background: #a0522d; }
+    .vibe-pill[data-pill="DRAMATIC"] { color: #7b2d8b; }
+    .vibe-pill[data-pill="DRAMATIC"]:hover, .vibe-pill[data-pill="DRAMATIC"].active { background: #7b2d8b; }
+    .vibe-pill[data-pill="COASTAL"] { color: #0077a8; }
+    .vibe-pill[data-pill="COASTAL"]:hover, .vibe-pill[data-pill="COASTAL"].active { background: #0077a8; }
+    .vibe-pill[data-pill="SPIRITUAL"] { color: #c89a2a; }
+    .vibe-pill[data-pill="SPIRITUAL"]:hover, .vibe-pill[data-pill="SPIRITUAL"].active { background: #c89a2a; }
+
+    /* =====================================================
+       MAIN GRID
+    ===================================================== */
+    #browse-content {
+      padding: 32px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(128,128,128,0.15);
+    }
+
+    .parks-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .parks-grid.secondary-grid {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .parks-grid { grid-template-columns: repeat(3, 1fr); }
+      .parks-grid.secondary-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 750px) {
+      .parks-grid { grid-template-columns: repeat(2, 1fr); }
+      .parks-grid.secondary-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .parks-grid, .parks-grid.secondary-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* =====================================================
+       MOOD TILE (primary match card)
+    ===================================================== */
+    .mood-tile {
+      position: relative;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      aspect-ratio: 3/4;
+      background: #222;
+      transition: transform 250ms ease, box-shadow 250ms ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .mood-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+
+    .mood-tile img {
+      width: 100%;
+      height: 80%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mood-tile-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 14px 6px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+      padding-top: 40px;
+    }
+
+    .mood-tile-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 4px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+
+    .mood-tile-state {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .mood-score-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--vibe-accent);
+      border-radius: 0 2px 0 0;
+      transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* =====================================================
+       SECONDARY TILE (greyscale)
+    ===================================================== */
+    .secondary-tile {
+      position: relative;
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: pointer;
+      aspect-ratio: 4/3;
+      background: #555;
+      transition: transform 200ms, filter 200ms;
+      filter: grayscale(85%) opacity(0.7);
+    }
+
+    .secondary-tile:hover {
+      filter: grayscale(30%) opacity(0.9);
+      transform: translateY(-2px);
+    }
+
+    .secondary-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .secondary-tile-name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 10px 8px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.03em;
+    }
+
+    /* =====================================================
+       MODAL
+    ===================================================== */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: var(--vibe-overlay);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      transition: opacity 300ms;
+    }
+
+    #modal-overlay.visible {
+      display: flex;
+    }
+
+    #modal-overlay.entered {
+      opacity: 1;
+    }
+
+    #modal {
+      background: var(--vibe-card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      width: min(680px, 100%);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.95) translateY(20px);
+      transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+
+    #modal-overlay.entered #modal {
+      transform: scale(1) translateY(0);
+    }
+
+    #modal-img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    #modal-body {
+      padding: 24px 28px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    #modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 200ms;
+      z-index: 10;
+    }
+
+    #modal-close:hover { background: rgba(0,0,0,0.75); }
+
+    #modal-vibe-tag {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 3px;
+      background: var(--vibe-accent);
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    #modal-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--vibe-text);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    #modal-state {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--vibe-accent);
+      margin-bottom: 14px;
+      opacity: 0.8;
+    }
+
+    #modal-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .modal-stars {
+      color: #f0a020;
+      font-size: 15px;
+      letter-spacing: 2px;
+    }
+
+    .modal-rating-num {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .modal-reviews {
+      font-size: 12px;
+      opacity: 0.55;
+    }
+
+    #modal-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .meta-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(128,128,128,0.1);
+      border: 1px solid rgba(128,128,128,0.15);
+      color: var(--vibe-text);
+      letter-spacing: 0.02em;
+    }
+
+    #modal-desc {
+      font-size: 14px;
+      line-height: 1.7;
+      opacity: 0.8;
+      margin-bottom: 18px;
+    }
+
+    #modal-activities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .activity-chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--vibe-accent);
+      color: #fff;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    #modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-save-trip {
+      flex: 1;
+      padding: 12px 20px;
+      background: var(--vibe-accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: opacity 200ms, transform 100ms;
+    }
+
+    .btn-save-trip:hover { opacity: 0.85; }
+    .btn-save-trip:active { transform: scale(0.98); }
+
+    .btn-heart {
+      width: 46px;
+      height: 46px;
+      border-radius: 5px;
+      border: 2px solid var(--vibe-accent);
+      background: none;
+      color: var(--vibe-accent);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms;
+      flex-shrink: 0;
+    }
+
+    .btn-heart:hover, .btn-heart.active {
+      background: var(--vibe-accent);
+      color: #fff;
+    }
+
+    /* =====================================================
+       TRIPS SIDEBAR
+    ===================================================== */
+    #trips-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 200;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--vibe-accent);
+      color: #fff;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      transition: transform 200ms, box-shadow 200ms;
+    }
+
+    #trips-fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+    }
+
+    #trips-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e53e3e;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--vibe-bg);
+    }
+
+    #trips-badge.show { display: flex; }
+
+    #trips-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: min(380px, 100vw);
+      background: var(--vibe-card-bg);
+      z-index: 300;
+      box-shadow: -8px 0 40px rgba(0,0,0,0.2);
+      transform: translateX(100%);
+      transition: transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #trips-drawer.open {
+      transform: translateX(0);
+    }
+
+    #drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 299;
+      display: none;
+      opacity: 0;
+      transition: opacity 300ms;
+    }
+
+    #drawer-backdrop.show {
+      display: block;
+    }
+
+    #drawer-backdrop.visible {
+      opacity: 1;
+    }
+
+    #drawer-header {
+      padding: 22px 22px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(128,128,128,0.12);
+      flex-shrink: 0;
+    }
+
+    #drawer-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--vibe-text);
+    }
+
+    #drawer-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(128,128,128,0.12);
+      color: var(--vibe-text);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .drawer-empty {
+      text-align: center;
+      padding: 48px 24px;
+      opacity: 0.5;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .drawer-vibe-group {
+      margin-bottom: 20px;
+    }
+
+    .drawer-vibe-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 8px;
+      padding: 3px 8px;
+      display: inline-block;
+      border-radius: 3px;
+      color: #fff;
+    }
+
+    .drawer-park-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(128,128,128,0.08);
+    }
+
+    .drawer-park-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 5px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .drawer-park-info { flex: 1; min-width: 0; }
+
+    .drawer-park-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--vibe-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .drawer-park-state {
+      font-size: 11px;
+      opacity: 0.55;
+      margin-top: 1px;
+    }
+
+    .drawer-remove-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(128,128,128,0.12);
+      color: var(--vibe-text);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      opacity: 0.6;
+      transition: opacity 200ms, background 200ms;
+    }
+
+    .drawer-remove-btn:hover {
+      opacity: 1;
+      background: #fee;
+      color: #e53e3e;
+    }
+
+    /* =====================================================
+       THEME CLASSES
+    ===================================================== */
+    body.theme-SERENE {
+      --vibe-bg: #e8f0e9;
+      --vibe-accent: #4a7c59;
+      --vibe-text: #2d4a35;
+      --vibe-card-bg: #f2f7f2;
+      --vibe-overlay: rgba(45,74,53,0.65);
+      --header-rgb: 232,240,233;
+    }
+
+    body.theme-WILD {
+      --vibe-bg: #1a2a1a;
+      --vibe-accent: #5a8a3a;
+      --vibe-text: #c8d8b8;
+      --vibe-card-bg: #243824;
+      --vibe-overlay: rgba(0,0,0,0.75);
+      --header-rgb: 26,42,26;
+    }
+
+    body.theme-ANCIENT {
+      --vibe-bg: #f5e6c8;
+      --vibe-accent: #a0522d;
+      --vibe-text: #3d2010;
+      --vibe-card-bg: #fdf3e0;
+      --vibe-overlay: rgba(61,32,16,0.65);
+      --header-rgb: 245,230,200;
+    }
+
+    body.theme-DRAMATIC {
+      --vibe-bg: #0d0a1a;
+      --vibe-accent: #7b2d8b;
+      --vibe-text: #d4b8e0;
+      --vibe-card-bg: #180f28;
+      --vibe-overlay: rgba(0,0,0,0.8);
+      --header-rgb: 13,10,26;
+    }
+
+    body.theme-COASTAL {
+      --vibe-bg: #e0f4f8;
+      --vibe-accent: #0077a8;
+      --vibe-text: #003d55;
+      --vibe-card-bg: #f0f9fc;
+      --vibe-overlay: rgba(0,61,85,0.65);
+      --header-rgb: 224,244,248;
+    }
+
+    body.theme-SPIRITUAL {
+      --vibe-bg: #fdf5e0;
+      --vibe-accent: #c89a2a;
+      --vibe-text: #4a3800;
+      --vibe-card-bg: #fffbf0;
+      --vibe-overlay: rgba(74,56,0,0.65);
+      --header-rgb: 253,245,224;
+    }
+
+    /* Cormorant for headings in themed mode */
+    body.vibe-active h1, body.vibe-active h2 {
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    /* =====================================================
+       UTILITY / SCROLLBAR
+    ===================================================== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 3px; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 250ms, transform 250ms;
+      z-index: 2000;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Loading placeholder on images */
+    img {
+      background: rgba(128,128,128,0.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- =====================================================
+       LANDING — VIBE SELECTION GRID
+  ====================================================== -->
+  <div id="landing">
+    <div class="vibe-tile" data-vibe="SERENE" role="button" tabindex="0"
+         aria-label="Select Serene vibe">
+      <span class="vibe-word">Serene</span>
+      <span class="vibe-tagline">Still waters &amp; soft horizons</span>
+      <span class="vibe-tag">Lakes · Valleys · Easy Trails</span>
+    </div>
+
+    <div class="vibe-tile" data-vibe="WILD" role="button" tabindex="0"
+         aria-label="Select Wild vibe">
+      <span class="vibe-word">Wild</span>
+      <span class="vibe-tagline">Untamed &amp; raw</span>
+      <span class="vibe-tag">Wilderness · Backpacking · Remote</span>
+    </div>
+
+    <div class="vibe-tile" data-vibe="ANCIENT" role="button" tabindex="0"
+         aria-label="Select Ancient vibe">
+      <span class="vibe-word">Ancient</span>
+      <span class="vibe-tagline">Time carved in stone</span>
+      <span class="vibe-tag">Archaeology · History · Fossils</span>
+    </div>
+
+    <div class="vibe-tile" data-vibe="DRAMATIC" role="button" tabindex="0"
+         aria-label="Select Dramatic vibe">
+      <span class="vibe-word">Dramatic</span>
+      <span class="vibe-tagline">Edge of the world</span>
+      <span class="vibe-tag">Volcanic · Canyon · Extreme</span>
+    </div>
+
+    <div class="vibe-tile" data-vibe="COASTAL" role="button" tabindex="0"
+         aria-label="Select Coastal vibe">
+      <span class="vibe-word">Coastal</span>
+      <span class="vibe-tagline">Salt air &amp; endless blue</span>
+      <span class="vibe-tag">Beaches · Snorkeling · Islands</span>
+    </div>
+
+    <div class="vibe-tile" data-vibe="SPIRITUAL" role="button" tabindex="0"
+         aria-label="Select Spiritual vibe">
+      <span class="vibe-word">Spiritual</span>
+      <span class="vibe-tagline">Silence &amp; starlight</span>
+      <span class="vibe-tag">Stargazing · Sacred · Desert</span>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       BROWSE VIEW
+  ====================================================== -->
+  <div id="browse">
+    <!-- Sticky header -->
+    <div id="vibe-header">
+      <button id="back-btn" aria-label="Back to vibe selection">&#8592; Vibes</button>
+      <span id="active-vibe-label">Serene</span>
+
+      <div id="add-vibe-strip">
+        <span id="add-vibe-label">+ Add another vibe</span>
+        <div id="vibe-pills" style="display:none; gap:6px; flex-wrap:wrap;">
+          <!-- Pills injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div id="browse-content">
+      <div class="section-title" id="primary-label">Top Matches</div>
+      <div class="parks-grid" id="primary-grid"></div>
+
+      <div class="section-title" id="secondary-divider" style="display:none;">Also consider...</div>
+      <div class="parks-grid secondary-grid" id="secondary-grid"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL
+  ====================================================== -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-name">
+    <div id="modal">
+      <button id="modal-close" aria-label="Close">&#215;</button>
+      <img id="modal-img" src="" alt="">
+      <div id="modal-body">
+        <div id="modal-vibe-tag"></div>
+        <h2 id="modal-name"></h2>
+        <div id="modal-state"></div>
+        <div id="modal-rating">
+          <span class="modal-stars" id="modal-stars"></span>
+          <span class="modal-rating-num" id="modal-rating-num"></span>
+          <span class="modal-reviews" id="modal-reviews"></span>
+        </div>
+        <div id="modal-meta"></div>
+        <p id="modal-desc"></p>
+        <div id="modal-activities"></div>
+        <div id="modal-actions">
+          <button class="btn-save-trip" id="modal-save-btn">Save to My Trip</button>
+          <button class="btn-heart" id="modal-heart-btn" aria-label="Favorite">&#9825;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       TRIPS SIDEBAR
+  ====================================================== -->
+  <button id="trips-fab" aria-label="My Vibes Trip">
+    &#9825;
+    <span id="trips-badge"></span>
+  </button>
+
+  <div id="drawer-backdrop"></div>
+  <div id="trips-drawer" aria-label="My Vibes Trip">
+    <div id="drawer-header">
+      <span id="drawer-title">My Vibes Trip</span>
+      <button id="drawer-close" aria-label="Close drawer">&#215;</button>
+    </div>
+    <div id="drawer-content">
+      <div class="drawer-empty">Your saved parks will appear here.<br>Explore a vibe to get started.</div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- =====================================================
+       SCRIPTS
+  ====================================================== -->
+  <script src="../shared/data.js"></script>
+  <script src="../shared/app.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    /* ==================================================
+       VIBE DEFINITIONS
+    ================================================== */
+    const VIBES = {
+      SERENE: {
+        label: 'Serene',
+        tagline: 'Still waters & soft horizons',
+        accent: '#4a7c59',
+        score(a) {
+          let s = 0;
+          const acts = a.activities.join(' ').toLowerCase();
+          const tags = a.tags.join(' ').toLowerCase();
+          const diff = a.difficulty.toLowerCase();
+          if (acts.includes('hiking')) s += 15;
+          if (acts.includes('swimming') || acts.includes('kayaking') || acts.includes('birdwatching')) s += 12;
+          if (diff.startsWith('easy')) s += 20;
+          if (diff === 'easy') s += 10;
+          if (tags.includes('lake') || tags.includes('valley') || a.name.toLowerCase().includes('lake')) s += 12;
+          if (tags.includes('waterfall') || tags.includes('falls')) s += 10;
+          if (a.fee === 'Free' || a.fee.startsWith('Free')) s += 8;
+          if (a.reviews < 25000) s += 6; // peaceful / less crowded
+          if (tags.includes('rainforest') || tags.includes('moss')) s += 8;
+          if (a.state === 'Oregon' || a.state === 'Washington' || a.state === 'Vermont') s += 6;
+          if (tags.includes('fog') || tags.includes('mist')) s += 8;
+          if (acts.includes('bird')) s += 10;
+          return s;
+        }
+      },
+      WILD: {
+        label: 'Wild',
+        tagline: 'Untamed & raw',
+        accent: '#5a8a3a',
+        score(a) {
+          let s = 0;
+          const acts = a.activities.join(' ').toLowerCase();
+          const tags = a.tags.join(' ').toLowerCase();
+          const diff = a.difficulty.toLowerCase();
+          if (diff.includes('strenuous')) s += 25;
+          if (diff.includes('extreme')) s += 20;
+          if (diff.includes('moderate')) s += 12;
+          if (acts.includes('backpacking')) s += 22;
+          if (acts.includes('mountaineering')) s += 20;
+          if (tags.includes('wilderness') || tags.includes('remote')) s += 18;
+          if (a.state === 'Alaska') s += 20;
+          if (a.reviews < 15000) s += 10; // remote
+          if (tags.includes('wildlife') || acts.includes('wildlife')) s += 10;
+          if (acts.includes('rock climbing') || acts.includes('canyoneering')) s += 12;
+          if (tags.includes('forest') || tags.includes('mountains')) s += 8;
+          return s;
+        }
+      },
+      ANCIENT: {
+        label: 'Ancient',
+        tagline: 'Time carved in stone',
+        accent: '#a0522d',
+        score(a) {
+          let s = 0;
+          const tags = a.tags.join(' ').toLowerCase();
+          const acts = a.activities.join(' ').toLowerCase();
+          const cat = a.category.toLowerCase();
+          const desc = a.description.toLowerCase();
+          if (tags.includes('archaeolog') || tags.includes('ruins') || tags.includes('pueblo')) s += 30;
+          if (tags.includes('fossil') || acts.includes('fossil')) s += 25;
+          if (tags.includes('history') || tags.includes('historic')) s += 20;
+          if (cat.includes('monument') || cat.includes('historical') || cat.includes('tribal')) s += 18;
+          if (tags.includes('petroglyph') || acts.includes('petroglyph')) s += 22;
+          if (tags.includes('ancient') || desc.includes('ancient')) s += 15;
+          if (tags.includes('cliff dwelling') || desc.includes('cliff dwelling')) s += 28;
+          if (tags.includes('navajo')) s += 18;
+          if (desc.includes('million years') || desc.includes('billion years')) s += 15;
+          if (tags.includes('geology') || desc.includes('geological')) s += 10;
+          if (tags.includes('pioneer') || desc.includes('pioneer')) s += 10;
+          if (acts.includes('museum')) s += 10;
+          return s;
+        }
+      },
+      DRAMATIC: {
+        label: 'Dramatic',
+        tagline: 'Edge of the world',
+        accent: '#7b2d8b',
+        score(a) {
+          let s = 0;
+          const tags = a.tags.join(' ').toLowerCase();
+          const acts = a.activities.join(' ').toLowerCase();
+          const desc = a.description.toLowerCase();
+          if (tags.includes('volcano') || tags.includes('lava') || tags.includes('volcanic')) s += 28;
+          if (tags.includes('canyon') || desc.includes('canyon')) s += 22;
+          if (tags.includes('glacier') || tags.includes('glaciers')) s += 18;
+          if (tags.includes('desert') || desc.includes('desert')) s += 14;
+          if (tags.includes('caldera')) s += 25;
+          if (a.rating >= 4.8) s += 12;
+          if (a.rating >= 4.9) s += 8;
+          if (tags.includes('extreme') || desc.includes('extreme')) s += 15;
+          if (desc.includes('world record') || desc.includes('tallest') || desc.includes('deepest') || desc.includes('largest')) s += 18;
+          if (desc.includes('otherworldly') || desc.includes('surreal')) s += 12;
+          if (tags.includes('dark sky') || tags.includes('hoodoos')) s += 10;
+          if (tags.includes('salt flats') || desc.includes('salt flat')) s += 15;
+          if (desc.includes('14,') || desc.includes('20,310') || desc.includes('miles deep')) s += 14;
+          return s;
+        }
+      },
+      COASTAL: {
+        label: 'Coastal',
+        tagline: 'Salt air & endless blue',
+        accent: '#0077a8',
+        score(a) {
+          let s = 0;
+          const acts = a.activities.join(' ').toLowerCase();
+          const tags = a.tags.join(' ').toLowerCase();
+          const desc = a.description.toLowerCase();
+          const coastalStates = ['florida','hawaii','california','maine','washington','oregon','alaska','north carolina','south carolina'];
+          const st = a.state.toLowerCase();
+          if (coastalStates.some(cs => st.includes(cs))) s += 18;
+          if (acts.includes('snorkeling') || acts.includes('kayaking')) s += 22;
+          if (acts.includes('boat') || acts.includes('swimming')) s += 16;
+          if (acts.includes('tide pooling') || acts.includes('surfing')) s += 20;
+          if (acts.includes('airboat') || acts.includes('kayaking')) s += 15;
+          if (tags.includes('coast') || tags.includes('beach') || tags.includes('island')) s += 20;
+          if (tags.includes('ocean') || desc.includes('ocean') || desc.includes('sea') || desc.includes('beach')) s += 14;
+          if (desc.includes('atlantic') || desc.includes('pacific') || desc.includes('gulf')) s += 14;
+          if (tags.includes('waterfall') && st.includes('hawaii')) s += 10;
+          if (desc.includes('snorkeling') || desc.includes('coral')) s += 18;
+          if (st.includes('florida') && (desc.includes('bay') || desc.includes('water'))) s += 12;
+          return s;
+        }
+      },
+      SPIRITUAL: {
+        label: 'Spiritual',
+        tagline: 'Silence & starlight',
+        accent: '#c89a2a',
+        score(a) {
+          let s = 0;
+          const tags = a.tags.join(' ').toLowerCase();
+          const acts = a.activities.join(' ').toLowerCase();
+          const desc = a.description.toLowerCase();
+          if (tags.includes('stargazing') || acts.includes('stargazing')) s += 28;
+          if (tags.includes('dark sky') || tags.includes('dark-sky')) s += 22;
+          if (tags.includes('sacred') || desc.includes('sacred')) s += 25;
+          if (a.fee === 'Free' || a.fee.startsWith('Free')) s += 15;
+          if (tags.includes('remote') || desc.includes('remote') || desc.includes('solitude')) s += 18;
+          if (tags.includes('desert') || desc.includes('desert')) s += 12;
+          if (desc.includes('silence') || desc.includes('solitude') || desc.includes('peaceful')) s += 15;
+          if (desc.includes('ancient') && (desc.includes('spiritual') || desc.includes('sacred'))) s += 20;
+          if (tags.includes('navajo') || tags.includes('tribal')) s += 12;
+          if (a.reviews < 20000) s += 8;
+          if (acts.includes('sunrise') || acts.includes('sunset') || desc.includes('sunrise') || desc.includes('sunset')) s += 10;
+          if (desc.includes('humbling') || desc.includes('awe-inspiring') || desc.includes('transcen')) s += 14;
+          return s;
+        }
+      }
+    };
+
+    const VIBE_KEYS = Object.keys(VIBES);
+
+    /* ==================================================
+       STATE
+    ================================================== */
+    let primaryVibe = null;
+    let secondaryVibe = null;
+    let openParkId = null;
+
+    const LS_VIBES = 'moodboard_vibes';
+
+    function loadState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(LS_VIBES) || 'null');
+        if (s && s.primary) {
+          primaryVibe = s.primary;
+          secondaryVibe = s.secondary || null;
+        }
+      } catch(e) {}
+    }
+
+    function saveState() {
+      localStorage.setItem(LS_VIBES, JSON.stringify({ primary: primaryVibe, secondary: secondaryVibe }));
+    }
+
+    /* ==================================================
+       SCORING
+    ================================================== */
+    function scoreAttraction(a) {
+      if (!primaryVibe) return 0;
+      const ps = VIBES[primaryVibe].score(a);
+      if (!secondaryVibe) return ps;
+      const ss = VIBES[secondaryVibe].score(a);
+      return ps * 0.6 + ss * 0.4;
+    }
+
+    function primaryVibeOf(a) {
+      let best = null, bestScore = -1;
+      for (const k of VIBE_KEYS) {
+        const s = VIBES[k].score(a);
+        if (s > bestScore) { bestScore = s; best = k; }
+      }
+      return best || 'SERENE';
+    }
+
+    function sortedAttractions() {
+      return [...attractions].map(a => ({ ...a, _score: scoreAttraction(a) }))
+        .sort((a, b) => b._score - a._score);
+    }
+
+    /* ==================================================
+       THEME APPLICATION
+    ================================================== */
+    function applyTheme(vibe1, vibe2) {
+      document.body.className = '';
+      if (vibe1) {
+        document.body.classList.add('vibe-active', 'theme-' + vibe1);
+      }
+      // For blended theme: just use primary theme (CSS vars are set per theme class)
+    }
+
+    /* ==================================================
+       RENDERING
+    ================================================== */
+    function starsHtml(rating) {
+      const full = Math.round(rating);
+      return '★'.repeat(full) + '☆'.repeat(5 - full);
+    }
+
+    function fmtReviews(n) {
+      return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+    }
+
+    function renderPrimaryGrid(sorted) {
+      const grid = document.getElementById('primary-grid');
+      const top12 = sorted.slice(0, 12);
+      const maxScore = top12[0]?._score || 1;
+
+      grid.innerHTML = top12.map(a => {
+        const pct = Math.round((a._score / maxScore) * 100);
+        return `
+          <div class="mood-tile" data-id="${a.id}" role="button" tabindex="0" aria-label="${a.name}">
+            <img src="../shared/images/${a.slug}.jpg" alt="${a.name}" loading="lazy"
+                 onerror="this.src='https://picsum.photos/seed/${a.id}park/600/800'">
+            <div class="mood-tile-info">
+              <div class="mood-tile-name">${a.name}</div>
+              <div class="mood-tile-state">${a.state}</div>
+            </div>
+            <div class="mood-score-bar" style="width:${pct}%"></div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderSecondaryGrid(sorted) {
+      const rest = sorted.slice(12);
+      const div = document.getElementById('secondary-divider');
+      const grid = document.getElementById('secondary-grid');
+
+      if (rest.length === 0) {
+        div.style.display = 'none';
+        grid.innerHTML = '';
+        return;
+      }
+
+      div.style.display = 'block';
+      grid.innerHTML = rest.map(a => `
+        <div class="secondary-tile" data-id="${a.id}" role="button" tabindex="0" aria-label="${a.name}">
+          <img src="../shared/images/${a.slug}.jpg" alt="${a.name}" loading="lazy"
+               onerror="this.src='https://picsum.photos/seed/${a.id}park/400/300'">
+          <div class="secondary-tile-name">${a.name}</div>
+        </div>`).join('');
+    }
+
+    function renderBrowse() {
+      const sorted = sortedAttractions();
+      renderPrimaryGrid(sorted);
+      renderSecondaryGrid(sorted);
+      updateVibePills();
+      updateActiveLabel();
+    }
+
+    function updateActiveLabel() {
+      const lbl = document.getElementById('active-vibe-label');
+      if (secondaryVibe) {
+        lbl.textContent = VIBES[primaryVibe].label + ' + ' + VIBES[secondaryVibe].label;
+      } else {
+        lbl.textContent = VIBES[primaryVibe]?.label || '';
+      }
+    }
+
+    function updateVibePills() {
+      const container = document.getElementById('vibe-pills');
+      container.innerHTML = '';
+      for (const k of VIBE_KEYS) {
+        if (k === primaryVibe) continue;
+        const pill = document.createElement('span');
+        pill.className = 'vibe-pill' + (k === secondaryVibe ? ' active' : '');
+        pill.dataset.pill = k;
+        pill.textContent = VIBES[k].label;
+        pill.style.color = VIBES[k].accent;
+        pill.style.borderColor = VIBES[k].accent;
+        if (k === secondaryVibe) {
+          pill.style.background = VIBES[k].accent;
+          pill.style.color = '#fff';
+        }
+        pill.addEventListener('click', () => toggleSecondaryVibe(k));
+        container.appendChild(pill);
+      }
+    }
+
+    function toggleSecondaryVibe(vibe) {
+      if (secondaryVibe === vibe) {
+        secondaryVibe = null;
+      } else {
+        secondaryVibe = vibe;
+      }
+      saveState();
+      renderBrowse();
+      // Subtle palette blend hint via accent color
+      // (we keep primary theme but update accent label)
+    }
+
+    /* ==================================================
+       NAVIGATION
+    ================================================== */
+    function showBrowse(vibe) {
+      primaryVibe = vibe;
+      secondaryVibe = null;
+      saveState();
+      applyTheme(vibe);
+
+      const landing = document.getElementById('landing');
+      const browse = document.getElementById('browse');
+
+      landing.classList.add('hidden');
+
+      browse.classList.add('visible');
+      requestAnimationFrame(() => {
+        renderBrowse();
+        requestAnimationFrame(() => browse.classList.add('entered'));
+      });
+
+      // Show pills
+      const addLabel = document.getElementById('add-vibe-label');
+      const pillsContainer = document.getElementById('vibe-pills');
+      addLabel.style.display = 'inline';
+      pillsContainer.style.display = 'flex';
+
+      updateTripsDrawer();
+      updateTrips();
+    }
+
+    function showLanding() {
+      const landing = document.getElementById('landing');
+      const browse = document.getElementById('browse');
+
+      browse.classList.remove('entered');
+      landing.classList.remove('hidden');
+
+      setTimeout(() => {
+        browse.classList.remove('visible');
+        document.body.className = '';
+      }, 350);
+
+      primaryVibe = null;
+      secondaryVibe = null;
+      saveState();
+    }
+
+    /* ==================================================
+       MODAL
+    ================================================== */
+    function openModal(id) {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return;
+      openParkId = id;
+
+      const vibe = primaryVibe || primaryVibeOf(a);
+      const vibeInfo = VIBES[vibe];
+
+      document.getElementById('modal-img').src = `../shared/images/${a.slug}.jpg`;
+      document.getElementById('modal-img').onerror = function() {
+        this.src = `https://picsum.photos/seed/${a.id}park/680/300`;
+      };
+      document.getElementById('modal-img').alt = a.name;
+
+      const vibeTag = document.getElementById('modal-vibe-tag');
+      vibeTag.textContent = vibeInfo.label;
+      vibeTag.style.background = vibeInfo.accent;
+
+      document.getElementById('modal-name').textContent = a.name;
+      document.getElementById('modal-state').textContent = a.state + ' · ' + a.category;
+      document.getElementById('modal-stars').textContent = starsHtml(a.rating);
+      document.getElementById('modal-rating-num').textContent = a.rating;
+      document.getElementById('modal-reviews').textContent = '(' + fmtReviews(a.reviews) + ' reviews)';
+
+      document.getElementById('modal-meta').innerHTML = [
+        `<span class="meta-badge">&#128197; ${a.bestTime}</span>`,
+        `<span class="meta-badge">&#8987; ${a.duration}</span>`,
+        `<span class="meta-badge">&#128336; ${a.difficulty}</span>`,
+        `<span class="meta-badge">&#128184; ${a.fee}</span>`,
+      ].join('');
+
+      document.getElementById('modal-desc').textContent = a.description;
+
+      document.getElementById('modal-activities').innerHTML =
+        a.activities.map(act => `<span class="activity-chip">${act}</span>`).join('');
+
+      updateModalButtons(a);
+
+      const overlay = document.getElementById('modal-overlay');
+      overlay.classList.add('visible');
+      requestAnimationFrame(() => {
+        overlay.classList.add('entered');
+      });
+      document.body.style.overflow = 'hidden';
+    }
+
+    function updateModalButtons(a) {
+      const saveBtn = document.getElementById('modal-save-btn');
+      const heartBtn = document.getElementById('modal-heart-btn');
+      const inItin = App.isInItinerary(a.id);
+      const isFav = App.isFavorite(a.id);
+
+      saveBtn.textContent = inItin ? '&#10003; Saved to Trip' : 'Save to My Trip';
+      saveBtn.style.opacity = inItin ? '0.7' : '1';
+
+      heartBtn.innerHTML = isFav ? '&#9829;' : '&#9825;';
+      heartBtn.classList.toggle('active', isFav);
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('modal-overlay');
+      overlay.classList.remove('entered');
+      setTimeout(() => {
+        overlay.classList.remove('visible');
+        openParkId = null;
+        document.body.style.overflow = '';
+      }, 300);
+    }
+
+    /* ==================================================
+       TRIPS DRAWER
+    ================================================== */
+    let drawerOpen = false;
+
+    function updateTrips() {
+      const itin = App.getItinerary();
+      const badge = document.getElementById('trips-badge');
+      badge.textContent = itin.length;
+      badge.classList.toggle('show', itin.length > 0);
+    }
+
+    function updateTripsDrawer() {
+      const content = document.getElementById('drawer-content');
+      const itin = App.getItinerary();
+
+      if (itin.length === 0) {
+        content.innerHTML = '<div class="drawer-empty">Your saved parks will appear here.<br>Explore a vibe and save parks to build your trip!</div>';
+        return;
+      }
+
+      // Group by primary vibe
+      const groups = {};
+      for (const id of itin) {
+        const a = attractions.find(x => x.id === id);
+        if (!a) continue;
+        const v = primaryVibeOf(a);
+        if (!groups[v]) groups[v] = [];
+        groups[v].push(a);
+      }
+
+      let html = '';
+      for (const v of VIBE_KEYS) {
+        if (!groups[v]) continue;
+        const info = VIBES[v];
+        html += `<div class="drawer-vibe-group">
+          <div class="drawer-vibe-label" style="background:${info.accent}">${info.label}</div>`;
+        for (const a of groups[v]) {
+          html += `
+            <div class="drawer-park-row">
+              <img class="drawer-park-img" src="../shared/images/${a.slug}.jpg" alt="${a.name}"
+                   onerror="this.src='https://picsum.photos/seed/${a.id}t/48/48'">
+              <div class="drawer-park-info">
+                <div class="drawer-park-name">${a.name}</div>
+                <div class="drawer-park-state">${a.state}</div>
+              </div>
+              <button class="drawer-remove-btn" data-remove="${a.id}" aria-label="Remove ${a.name}">&#215;</button>
+            </div>`;
+        }
+        html += '</div>';
+      }
+
+      content.innerHTML = html;
+    }
+
+    function openDrawer() {
+      drawerOpen = true;
+      updateTripsDrawer();
+      const backdrop = document.getElementById('drawer-backdrop');
+      const drawer = document.getElementById('trips-drawer');
+      backdrop.classList.add('show');
+      requestAnimationFrame(() => {
+        backdrop.classList.add('visible');
+        drawer.classList.add('open');
+      });
+    }
+
+    function closeDrawer() {
+      drawerOpen = false;
+      const backdrop = document.getElementById('drawer-backdrop');
+      const drawer = document.getElementById('trips-drawer');
+      backdrop.classList.remove('visible');
+      drawer.classList.remove('open');
+      setTimeout(() => backdrop.classList.remove('show'), 350);
+    }
+
+    /* ==================================================
+       TOAST
+    ================================================== */
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      clearTimeout(toastTimer);
+      toast.textContent = msg;
+      toast.classList.add('show');
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    /* ==================================================
+       EVENT DELEGATION
+    ================================================== */
+    // Landing vibe tiles
+    document.getElementById('landing').addEventListener('click', e => {
+      const tile = e.target.closest('[data-vibe]');
+      if (tile) showBrowse(tile.dataset.vibe);
+    });
+
+    document.getElementById('landing').addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const tile = e.target.closest('[data-vibe]');
+        if (tile) showBrowse(tile.dataset.vibe);
+      }
+    });
+
+    // Back button
+    document.getElementById('back-btn').addEventListener('click', showLanding);
+
+    // Add vibe label toggle
+    document.getElementById('add-vibe-label').addEventListener('click', () => {
+      const pills = document.getElementById('vibe-pills');
+      const label = document.getElementById('add-vibe-label');
+      const visible = pills.style.display === 'flex';
+      pills.style.display = visible ? 'none' : 'flex';
+      label.style.opacity = visible ? '0.6' : '1';
+    });
+
+    // Park tile clicks (primary and secondary grid)
+    document.getElementById('browse-content').addEventListener('click', e => {
+      const tile = e.target.closest('[data-id]');
+      if (tile) openModal(parseInt(tile.dataset.id, 10));
+    });
+
+    document.getElementById('browse-content').addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const tile = e.target.closest('[data-id]');
+        if (tile) openModal(parseInt(tile.dataset.id, 10));
+      }
+    });
+
+    // Modal close
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+
+    // Modal save to trip
+    document.getElementById('modal-save-btn').addEventListener('click', () => {
+      if (!openParkId) return;
+      const a = attractions.find(x => x.id === openParkId);
+      if (!a) return;
+      if (App.isInItinerary(openParkId)) {
+        App.removeFromItinerary(openParkId);
+        showToast('Removed from your trip');
+      } else {
+        App.addToItinerary(openParkId);
+        showToast('Saved to My Vibes Trip!');
+      }
+      updateModalButtons(a);
+      updateTrips();
+    });
+
+    // Modal heart
+    document.getElementById('modal-heart-btn').addEventListener('click', () => {
+      if (!openParkId) return;
+      const a = attractions.find(x => x.id === openParkId);
+      if (!a) return;
+      const nowFav = App.toggleFavorite(openParkId);
+      showToast(nowFav ? 'Added to favorites' : 'Removed from favorites');
+      updateModalButtons(a);
+    });
+
+    // Trips FAB
+    document.getElementById('trips-fab').addEventListener('click', () => {
+      if (drawerOpen) closeDrawer(); else openDrawer();
+    });
+
+    // Drawer close
+    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+    document.getElementById('drawer-backdrop').addEventListener('click', closeDrawer);
+
+    // Drawer remove buttons
+    document.getElementById('drawer-content').addEventListener('click', e => {
+      const btn = e.target.closest('[data-remove]');
+      if (btn) {
+        const id = parseInt(btn.dataset.remove, 10);
+        App.removeFromItinerary(id);
+        updateTrips();
+        updateTripsDrawer();
+        showToast('Removed from trip');
+      }
+    });
+
+    // Keyboard escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (openParkId) closeModal();
+        else if (drawerOpen) closeDrawer();
+      }
+    });
+
+    /* ==================================================
+       INIT
+    ================================================== */
+    loadState();
+    updateTrips();
+
+    if (primaryVibe) {
+      applyTheme(primaryVibe);
+      showBrowse(primaryVibe);
+      if (secondaryVibe) {
+        setTimeout(() => {
+          // re-apply secondary after browse loaded
+          const v = secondaryVibe;
+          secondaryVibe = null;
+          toggleSecondaryVibe(v);
+        }, 50);
+      }
+    }
+
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quest Board — U.S. Tourist Attractions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --parchment: #f4e4c1;
+      --parchment-dark: #e8d09a;
+      --parchment-shadow: #c9a86c;
+      --parchment-secret: #d4c4a0;
+      --cork: #8b6f47;
+      --cork-light: #a07f55;
+      --aged-brown: #3d2410;
+      --aged-brown-light: #6b3f1e;
+      --aged-brown-mid: #5a3018;
+      --ink: #2c1a0e;
+      --ink-fade: #6b4c2e;
+      --common-grey: #9e9e9e;
+      --rare-green: #2d7a2d;
+      --epic-blue: #1a4a8a;
+      --legendary-gold: #c8860a;
+      --legendary-shimmer: #f5c842;
+      --tack-red: #c0392b;
+      --tack-shadow: #7b1e1e;
+      --ribbon-fold: rgba(0,0,0,0.25);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'IM Fell English', Georgia, serif;
+      background: var(--parchment);
+      color: var(--aged-brown);
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       GUILD SELECTION SCREEN
+    ============================================================ */
+    #guild-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--parchment);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(139,111,71,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(139,111,71,0.12) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a07f55' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    #guild-screen.hidden { display: none; }
+
+    .guild-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .guild-header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: var(--aged-brown);
+      letter-spacing: 0.08em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      line-height: 1.1;
+    }
+
+    .guild-header .subtitle {
+      font-style: italic;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--ink-fade);
+      margin-top: 0.75rem;
+    }
+
+    .guild-header .ornament {
+      font-size: 1.5rem;
+      color: var(--parchment-shadow);
+      margin: 0.5rem 0;
+      letter-spacing: 0.5rem;
+    }
+
+    .guild-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .guild-card {
+      background: var(--parchment);
+      border: 4px solid var(--aged-brown);
+      border-radius: 4px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 4px 4px 0 var(--parchment-shadow), 8px 8px 16px rgba(61,36,16,0.3);
+      background-image:
+        linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 20px,
+          rgba(139,111,71,0.04) 20px,
+          rgba(139,111,71,0.04) 21px
+        );
+    }
+
+    .guild-card::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1.5px solid var(--parchment-shadow);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    .guild-card:hover {
+      transform: translateY(-6px) rotate(-0.5deg);
+      box-shadow: 6px 10px 0 var(--parchment-shadow), 10px 16px 24px rgba(61,36,16,0.4);
+    }
+
+    .guild-card:active {
+      transform: translateY(-2px);
+    }
+
+    .guild-icon {
+      font-size: 3.5rem;
+      display: block;
+      margin-bottom: 0.75rem;
+      filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.3));
+    }
+
+    .guild-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--aged-brown);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .guild-motto {
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--ink-fade);
+      line-height: 1.4;
+    }
+
+    .guild-divider {
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--parchment-shadow), transparent);
+      margin: 0.75rem auto;
+    }
+
+    .guild-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .guild-tag {
+      font-size: 0.7rem;
+      font-family: 'Cinzel', serif;
+      background: var(--aged-brown);
+      color: var(--parchment);
+      padding: 0.15rem 0.5rem;
+      border-radius: 2px;
+      letter-spacing: 0.03em;
+    }
+
+    /* ============================================================
+       MAIN BOARD LAYOUT
+    ============================================================ */
+    #board-screen {
+      display: none;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    #board-screen.active { display: block; }
+
+    /* Cork board background */
+    .cork-board {
+      min-height: 100vh;
+      background-color: #8b6f47;
+      background-image:
+        radial-gradient(ellipse at 30% 40%, #9a7c54 0%, transparent 40%),
+        radial-gradient(ellipse at 70% 60%, #7a6040 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 20%, #a08050 0%, transparent 30%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%238b6f47'/%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%236d5535' opacity='0.4'/%3E%3Ccircle cx='3' cy='3' r='0.4' fill='%23a07f55' opacity='0.3'/%3E%3Ccircle cx='2' cy='0' r='0.3' fill='%235a4428' opacity='0.25'/%3E%3C/svg%3E");
+      padding-bottom: 4rem;
+    }
+
+    /* ============================================================
+       TOP NAVIGATION BAR
+    ============================================================ */
+    .board-topbar {
+      background: linear-gradient(180deg, #3d2410 0%, #5a3018 100%);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      border-bottom: 3px solid var(--parchment-shadow);
+    }
+
+    .topbar-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 1.3rem;
+      color: var(--parchment);
+      letter-spacing: 0.08em;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+
+    .topbar-guild-badge {
+      background: var(--parchment-dark);
+      color: var(--aged-brown);
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.7rem;
+      border-radius: 3px;
+      border: 1.5px solid var(--parchment-shadow);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .topbar-guild-badge:hover {
+      background: var(--parchment);
+    }
+
+    .topbar-sep {
+      flex: 1;
+    }
+
+    .topbar-filters {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      color: var(--parchment-dark);
+      letter-spacing: 0.05em;
+    }
+
+    .filter-select {
+      background: var(--parchment-dark);
+      border: 1.5px solid var(--parchment-shadow);
+      color: var(--aged-brown);
+      font-family: 'IM Fell English', serif;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: 2px solid var(--legendary-gold);
+    }
+
+    .filter-toggle {
+      background: transparent;
+      border: 1.5px solid var(--parchment-shadow);
+      color: var(--parchment-dark);
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .filter-toggle.active {
+      background: var(--parchment-dark);
+      color: var(--aged-brown);
+    }
+
+    .quest-log-toggle {
+      background: var(--legendary-gold);
+      border: none;
+      color: var(--aged-brown);
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.4rem 0.8rem;
+      border-radius: 3px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+
+    .quest-log-toggle:hover {
+      background: var(--legendary-shimmer);
+    }
+
+    .quest-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--tack-red);
+      color: #fff;
+      font-size: 0.65rem;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-left: 0.3rem;
+      vertical-align: middle;
+    }
+
+    /* ============================================================
+       QUEST BOARD GRID
+    ============================================================ */
+    .board-grid {
+      columns: 4;
+      column-gap: 1.5rem;
+      padding: 2rem 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1300px) { .board-grid { columns: 3; } }
+    @media (max-width: 900px)  { .board-grid { columns: 2; } }
+    @media (max-width: 580px)  { .board-grid { columns: 1; } }
+
+    /* ============================================================
+       QUEST CARDS
+    ============================================================ */
+    .quest-card {
+      break-inside: avoid;
+      position: relative;
+      margin-bottom: 2rem;
+      display: inline-block;
+      width: 100%;
+      cursor: default;
+
+      animation: flutter 6s ease-in-out infinite;
+    }
+
+    .quest-card:nth-child(2n)   { animation-delay: -2s; }
+    .quest-card:nth-child(3n)   { animation-delay: -4s; }
+    .quest-card:nth-child(4n)   { animation-delay: -1.5s; }
+    .quest-card:nth-child(5n)   { animation-delay: -3.5s; }
+
+    @keyframes flutter {
+      0%   { transform: rotate(0deg); }
+      25%  { transform: rotate(0.3deg); }
+      75%  { transform: rotate(-0.3deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .quest-card:hover {
+      animation-play-state: paused;
+      transform: translateY(-4px) rotate(0deg) !important;
+      z-index: 10;
+    }
+
+    .quest-card:hover .card-body-inner {
+      box-shadow:
+        0 2px 0 var(--parchment-shadow),
+        2px 4px 0 var(--parchment-shadow),
+        6px 16px 32px rgba(0,0,0,0.5);
+    }
+
+    /* Thumbtack */
+    .card-tack {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle at 35% 35%, #e74c3c, #922b21);
+      border-radius: 50%;
+      box-shadow:
+        inset -2px -2px 4px rgba(0,0,0,0.4),
+        inset 1px 1px 3px rgba(255,255,255,0.2),
+        0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .card-tack::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 8px;
+      background: linear-gradient(180deg, #7b1e1e, #3d0f0f);
+      border-radius: 0 0 2px 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    /* Card parchment body */
+    .card-body-inner {
+      background: var(--parchment);
+      padding: 1.5rem 1.2rem 1.2rem;
+      position: relative;
+      clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 8px),
+        calc(100% - 6px) 100%,
+        calc(100% - 14px) calc(100% - 5px),
+        calc(100% - 20px) 100%,
+        calc(100% - 28px) calc(100% - 6px),
+        calc(100% - 36px) 100%,
+        calc(100% - 46px) calc(100% - 4px),
+        0% calc(100% - 4px)
+      );
+      box-shadow:
+        0 2px 0 var(--parchment-shadow),
+        2px 4px 0 var(--parchment-shadow),
+        4px 10px 20px rgba(0,0,0,0.35);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 24px,
+          rgba(139,111,71,0.06) 24px,
+          rgba(139,111,71,0.06) 25px
+        ),
+        linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    /* Secret location cards */
+    .quest-card.secret .card-body-inner {
+      background: var(--parchment-secret);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 24px,
+          rgba(61,36,16,0.08) 24px,
+          rgba(61,36,16,0.08) 25px
+        );
+    }
+
+    /* ============================================================
+       RARITY RIBBON (top-right corner fold)
+    ============================================================ */
+    .rarity-ribbon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 70px;
+      height: 70px;
+      overflow: hidden;
+      z-index: 5;
+    }
+
+    .rarity-ribbon span {
+      position: absolute;
+      top: 12px;
+      right: -18px;
+      transform: rotate(45deg);
+      width: 80px;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 0;
+      text-transform: uppercase;
+    }
+
+    .rarity-ribbon.common span {
+      background: var(--common-grey);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .rarity-ribbon.rare span {
+      background: var(--rare-green);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .rarity-ribbon.epic span {
+      background: var(--epic-blue);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .rarity-ribbon.legendary span {
+      background: linear-gradient(90deg, #b8730a, #f5c842, #b8730a);
+      background-size: 200% 100%;
+      color: var(--aged-brown);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      animation: shimmer 2.5s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ============================================================
+       CARD CONTENT
+    ============================================================ */
+    .card-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0.4rem 0 0.2rem;
+      line-height: 1.3;
+      padding-right: 40px; /* space for ribbon */
+    }
+
+    .card-realm {
+      font-style: italic;
+      font-size: 0.75rem;
+      color: var(--ink-fade);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-desc {
+      font-size: 0.78rem;
+      line-height: 1.55;
+      color: var(--aged-brown-mid);
+      margin-bottom: 0.8rem;
+      font-style: italic;
+    }
+
+    /* Stat bars */
+    .card-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-family: 'Cinzel', serif;
+    }
+
+    .stat-label {
+      color: var(--ink-fade);
+      min-width: 60px;
+      font-size: 0.65rem;
+      letter-spacing: 0.03em;
+    }
+
+    .stat-icons {
+      color: var(--aged-brown);
+      letter-spacing: 0.05em;
+    }
+
+    .stat-icons.swords  { color: #7b1e1e; }
+    .stat-icons.coins   { color: #8b6f00; }
+    .stat-duration {
+      color: var(--ink-fade);
+      font-size: 0.68rem;
+      font-style: italic;
+      font-family: 'IM Fell English', serif;
+    }
+
+    /* Activity chips */
+    .card-activities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .act-chip {
+      font-size: 0.62rem;
+      font-family: 'Cinzel', serif;
+      background: rgba(61,36,16,0.1);
+      color: var(--aged-brown);
+      border: 1px solid rgba(61,36,16,0.2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Guild quest badge */
+    .guild-quest-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c8860a, #f5c842);
+      color: var(--aged-brown);
+      padding: 0.15rem 0.5rem;
+      border-radius: 2px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* Card action buttons */
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-accept {
+      flex: 1;
+      background: linear-gradient(180deg, #5a3018 0%, #3d2410 100%);
+      color: var(--parchment);
+      border: 1.5px solid var(--aged-brown);
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.4rem 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .btn-accept:hover {
+      background: linear-gradient(180deg, #7a4020 0%, #5a3018 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-accept.active {
+      background: linear-gradient(180deg, #2d7a2d 0%, #1e5c1e 100%);
+      border-color: var(--rare-green);
+      cursor: default;
+    }
+
+    .btn-inspect {
+      background: transparent;
+      color: var(--aged-brown);
+      border: 1.5px solid var(--parchment-shadow);
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-inspect:hover {
+      background: rgba(61,36,16,0.1);
+      transform: translateY(-1px);
+    }
+
+    /* ============================================================
+       SECRET LOCATION CARDS
+    ============================================================ */
+    .quest-card.secret .card-name {
+      filter: blur(4px);
+      user-select: none;
+      transition: filter 0.4s ease;
+    }
+
+    .quest-card.secret:hover .card-name {
+      filter: blur(0);
+    }
+
+    .secret-icon {
+      font-size: 2.5rem;
+      text-align: center;
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--ink-fade);
+    }
+
+    .secret-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--ink-fade);
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      border: 1px dashed var(--parchment-shadow);
+      padding: 0.25rem;
+    }
+
+    .secret-reveal-hint {
+      font-style: italic;
+      font-size: 0.7rem;
+      color: var(--parchment-shadow);
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .quest-card.secret .card-desc,
+    .quest-card.secret .card-stats,
+    .quest-card.secret .card-activities {
+      filter: blur(3px);
+      transition: filter 0.4s ease;
+    }
+
+    .quest-card.secret:hover .card-desc,
+    .quest-card.secret:hover .card-stats,
+    .quest-card.secret:hover .card-activities {
+      filter: blur(0);
+    }
+
+    /* ============================================================
+       QUEST LOG SIDEBAR
+    ============================================================ */
+    #quest-log {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 360px;
+      height: 100vh;
+      z-index: 500;
+      background: var(--parchment-dark);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+      border-left: 3px solid var(--aged-brown);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(61,36,16,0.07) 28px,
+          rgba(61,36,16,0.07) 29px
+        );
+    }
+
+    #quest-log.open { right: 0; }
+
+    .quest-log-header {
+      background: linear-gradient(180deg, #3d2410 0%, #5a3018 100%);
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--parchment-shadow);
+    }
+
+    .quest-log-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--parchment);
+      letter-spacing: 0.08em;
+    }
+
+    .quest-log-close {
+      background: none;
+      border: 1.5px solid var(--parchment-shadow);
+      color: var(--parchment);
+      font-size: 1rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .quest-log-close:hover { background: rgba(255,255,255,0.15); }
+
+    .quest-log-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .quest-log-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      font-style: italic;
+      color: var(--ink-fade);
+      font-size: 0.9rem;
+    }
+
+    .log-entry {
+      background: var(--parchment);
+      border: 1px solid var(--parchment-shadow);
+      border-radius: 3px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .log-entry-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .log-entry-info { flex: 1; min-width: 0; }
+
+    .log-entry-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--aged-brown);
+      margin-bottom: 0.2rem;
+      line-height: 1.3;
+    }
+
+    .log-entry-meta {
+      font-size: 0.7rem;
+      color: var(--ink-fade);
+      font-style: italic;
+    }
+
+    .log-entry-rarity {
+      font-size: 0.6rem;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+      display: inline-block;
+      margin-top: 0.2rem;
+    }
+
+    .log-entry-rarity.common  { background: var(--common-grey); color: #fff; }
+    .log-entry-rarity.rare    { background: var(--rare-green);  color: #fff; }
+    .log-entry-rarity.epic    { background: var(--epic-blue);   color: #fff; }
+    .log-entry-rarity.legendary { background: var(--legendary-gold); color: var(--aged-brown); }
+
+    .log-remove {
+      background: none;
+      border: none;
+      color: var(--parchment-shadow);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .log-remove:hover { color: var(--tack-red); }
+
+    .quest-log-footer {
+      padding: 1rem;
+      border-top: 2px solid var(--parchment-shadow);
+      background: linear-gradient(0deg, rgba(61,36,16,0.08) 0%, transparent 100%);
+    }
+
+    .log-summary-text {
+      font-size: 0.75rem;
+      color: var(--ink-fade);
+      font-style: italic;
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .btn-complete-journey {
+      width: 100%;
+      background: linear-gradient(135deg, #c8860a, #f5c842, #c8860a);
+      background-size: 200% 100%;
+      border: 2px solid var(--aged-brown);
+      color: var(--aged-brown);
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.7rem;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      animation: shimmer 3s linear infinite;
+      transition: transform 0.1s;
+    }
+
+    .btn-complete-journey:hover { transform: translateY(-2px); }
+
+    /* ============================================================
+       DETAIL MODAL
+    ============================================================ */
+    #detail-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 800;
+      background: rgba(30,15,5,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(3px);
+    }
+
+    #detail-overlay.open {
+      display: flex;
+    }
+
+    .detail-modal {
+      background: var(--parchment);
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 3px solid var(--aged-brown);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 0 0 6px rgba(139,111,71,0.15);
+      position: relative;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(139,111,71,0.05) 28px,
+          rgba(139,111,71,0.05) 29px
+        ),
+        linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    }
+
+    .detail-modal::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 1px solid var(--parchment-shadow);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .detail-close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10;
+      background: var(--aged-brown);
+      color: var(--parchment);
+      border: none;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: background 0.15s;
+    }
+
+    .detail-close-btn:hover { background: var(--aged-brown-light); }
+
+    .detail-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+    }
+
+    .detail-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: sepia(45%) contrast(1.1) brightness(0.9);
+    }
+
+    .detail-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(30,15,5,0.7) 0%, transparent 60%);
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+    }
+
+    .detail-img-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--parchment);
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      line-height: 1.2;
+    }
+
+    .detail-img-sub {
+      font-style: italic;
+      color: var(--parchment-dark);
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+    }
+
+    .detail-body {
+      padding: 1.5rem;
+    }
+
+    .detail-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .detail-stat {
+      background: rgba(61,36,16,0.06);
+      border: 1px solid var(--parchment-shadow);
+      border-radius: 3px;
+      padding: 0.6rem 0.5rem;
+      text-align: center;
+    }
+
+    .detail-stat-value {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--aged-brown);
+      display: block;
+    }
+
+    .detail-stat-key {
+      font-size: 0.65rem;
+      color: var(--ink-fade);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: 'Cinzel', serif;
+      display: block;
+      margin-top: 0.15rem;
+    }
+
+    .detail-description {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--aged-brown-mid);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .detail-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--aged-brown);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .detail-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--parchment-shadow);
+    }
+
+    .detail-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-chip {
+      font-size: 0.72rem;
+      font-family: 'Cinzel', serif;
+      padding: 0.25rem 0.6rem;
+      border-radius: 3px;
+      border: 1px solid rgba(61,36,16,0.25);
+      background: rgba(61,36,16,0.08);
+      color: var(--aged-brown);
+    }
+
+    .detail-chip.tag {
+      background: var(--aged-brown);
+      color: var(--parchment);
+      border-color: var(--aged-brown);
+    }
+
+    .detail-accept-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(180deg, #5a3018 0%, #3d2410 100%);
+      color: var(--parchment);
+      border: 2px solid var(--aged-brown);
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .detail-accept-btn:hover {
+      background: linear-gradient(180deg, #7a4020 0%, #5a3018 100%);
+      transform: translateY(-1px);
+    }
+
+    .detail-accept-btn.active {
+      background: linear-gradient(180deg, #2d7a2d 0%, #1e5c1e 100%);
+      border-color: var(--rare-green);
+      cursor: default;
+    }
+
+    /* ============================================================
+       SUMMARY MODAL
+    ============================================================ */
+    #summary-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: rgba(30,15,5,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #summary-overlay.open { display: flex; }
+
+    .summary-modal {
+      background: var(--parchment);
+      max-width: 500px;
+      width: 100%;
+      border: 3px solid var(--aged-brown);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      padding: 2.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .summary-modal::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 1px solid var(--parchment-shadow);
+      pointer-events: none;
+    }
+
+    .summary-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--aged-brown);
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-subtitle {
+      font-style: italic;
+      color: var(--ink-fade);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-stat {
+      background: rgba(61,36,16,0.06);
+      border: 1px solid var(--parchment-shadow);
+      padding: 1rem 0.5rem;
+      border-radius: 3px;
+    }
+
+    .summary-stat-num {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--aged-brown);
+      display: block;
+    }
+
+    .summary-stat-label {
+      font-size: 0.65rem;
+      font-family: 'Cinzel', serif;
+      color: var(--ink-fade);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .summary-list {
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--parchment-shadow);
+      padding: 0.75rem;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.3);
+    }
+
+    .summary-list-item {
+      font-size: 0.8rem;
+      font-family: 'Cinzel', serif;
+      color: var(--aged-brown);
+      padding: 0.3rem 0;
+      border-bottom: 1px dotted var(--parchment-shadow);
+    }
+
+    .summary-list-item:last-child { border-bottom: none; }
+
+    .summary-close-btn {
+      background: linear-gradient(180deg, #5a3018 0%, #3d2410 100%);
+      color: var(--parchment);
+      border: 2px solid var(--aged-brown);
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.7rem 2rem;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    /* ============================================================
+       BOARD HIDDEN STATE
+    ============================================================ */
+    .quest-card.hidden-card {
+      display: none;
+    }
+
+    /* ============================================================
+       SCROLLBAR STYLING
+    ============================================================ */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--parchment-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--parchment-shadow); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--aged-brown); }
+
+    /* ============================================================
+       BOARD OVERLAY (sidebar backdrop)
+    ============================================================ */
+    #sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 490;
+      display: none;
+      background: transparent;
+    }
+
+    #sidebar-backdrop.open { display: block; }
+
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     GUILD SELECTION SCREEN
+============================================================ -->
+<div id="guild-screen">
+  <div class="guild-header">
+    <h1>Quest Board</h1>
+    <div class="ornament">— ✦ —</div>
+    <p class="subtitle">Choose your Guild, brave adventurer, and let the journey begin</p>
+  </div>
+
+  <div class="guild-grid">
+    <div class="guild-card" data-guild="nature">
+      <span class="guild-icon">🌿</span>
+      <div class="guild-name">Nature Seekers</div>
+      <div class="guild-divider"></div>
+      <div class="guild-motto">"For those who hear the call of the wild"</div>
+      <div class="guild-tags">
+        <span class="guild-tag">Hiking</span>
+        <span class="guild-tag">Wildlife</span>
+        <span class="guild-tag">Wilderness</span>
+      </div>
+    </div>
+
+    <div class="guild-card" data-guild="history">
+      <span class="guild-icon">📜</span>
+      <div class="guild-name">History Hunters</div>
+      <div class="guild-divider"></div>
+      <div class="guild-motto">"Unravel the stories carved in stone"</div>
+      <div class="guild-tags">
+        <span class="guild-tag">Historical</span>
+        <span class="guild-tag">Cultural</span>
+        <span class="guild-tag">Archaeological</span>
+      </div>
+    </div>
+
+    <div class="guild-card" data-guild="thrill">
+      <span class="guild-icon">⚡</span>
+      <div class="guild-name">Thrill Chasers</div>
+      <div class="guild-divider"></div>
+      <div class="guild-motto">"The summit is just the beginning"</div>
+      <div class="guild-tags">
+        <span class="guild-tag">Strenuous</span>
+        <span class="guild-tag">Adventure</span>
+        <span class="guild-tag">Climbing</span>
+      </div>
+    </div>
+
+    <div class="guild-card" data-guild="budget">
+      <span class="guild-icon">🪙</span>
+      <div class="guild-name">Budget Explorers</div>
+      <div class="guild-divider"></div>
+      <div class="guild-motto">"Great adventures, no fortune required"</div>
+      <div class="guild-tags">
+        <span class="guild-tag">Free Entry</span>
+        <span class="guild-tag">Easy</span>
+        <span class="guild-tag">Accessible</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN BOARD SCREEN
+============================================================ -->
+<div id="board-screen">
+  <div class="cork-board">
+
+    <!-- Top Navigation Bar -->
+    <div class="board-topbar">
+      <div class="topbar-title">⚔ Quest Board</div>
+      <div id="active-guild-badge" class="topbar-guild-badge"></div>
+
+      <div class="topbar-sep"></div>
+
+      <div class="topbar-filters">
+        <span class="filter-label">RARITY:</span>
+        <select class="filter-select" id="filter-rarity">
+          <option value="">All Rarities</option>
+          <option value="common">Common</option>
+          <option value="rare">Rare</option>
+          <option value="epic">Epic</option>
+          <option value="legendary">Legendary</option>
+        </select>
+
+        <span class="filter-label">REALM:</span>
+        <select class="filter-select" id="filter-realm">
+          <option value="">All Realms</option>
+        </select>
+
+        <button class="filter-toggle active" id="guild-filter-toggle">Guild Filter ON</button>
+      </div>
+
+      <button class="quest-log-toggle" id="quest-log-btn">
+        📜 Quest Log <span class="quest-count-badge" id="quest-count">0</span>
+      </button>
+    </div>
+
+    <!-- Quest Card Grid -->
+    <div class="board-grid" id="board-grid">
+      <!-- Cards injected by JS -->
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     QUEST LOG SIDEBAR
+============================================================ -->
+<div id="sidebar-backdrop"></div>
+<div id="quest-log">
+  <div class="quest-log-header">
+    <div class="quest-log-title">📜 Quest Log</div>
+    <button class="quest-log-close" id="quest-log-close">✕</button>
+  </div>
+  <div class="quest-log-scroll" id="quest-log-list">
+    <div class="quest-log-empty">No quests accepted yet, adventurer.<br><br>Pin a destination to your log!</div>
+  </div>
+  <div class="quest-log-footer">
+    <div class="log-summary-text" id="log-summary-text"></div>
+    <button class="btn-complete-journey" id="complete-journey-btn">⚔ Complete Journey</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     DETAIL MODAL
+============================================================ -->
+<div id="detail-overlay">
+  <div class="detail-modal" id="detail-modal">
+    <button class="detail-close-btn" id="detail-close">✕ Close</button>
+    <!-- Content injected by JS -->
+  </div>
+</div>
+
+<!-- ============================================================
+     SUMMARY MODAL
+============================================================ -->
+<div id="summary-overlay">
+  <div class="summary-modal" id="summary-modal">
+    <!-- Content injected by JS -->
+  </div>
+</div>
+
+<!-- ============================================================
+     DATA + APP SCRIPTS
+============================================================ -->
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+/* ============================================================
+   QUEST BOARD — Main Application Logic
+============================================================ */
+
+const GUILD_KEY  = 'questboard_guild';
+const QUEST_KEY  = 'questboard_quests';
+
+// Guild definitions
+const GUILDS = {
+  nature: {
+    icon: '🌿',
+    name: 'Nature Seekers',
+    tags: ['hiking', 'wildlife', 'wilderness', 'forest', 'mountain', 'wild', 'nature',
+           'rainforest', 'alpine', 'tundra', 'wetlands', 'glacier'],
+    secretTags: ['hiking', 'wildlife', 'wilderness', 'forest', 'alpine'],
+  },
+  history: {
+    icon: '📜',
+    name: 'History Hunters',
+    tags: ['history', 'historical', 'archaeology', 'archaeological', 'cultural', 'culture',
+           'monument', 'landmark', 'ancient', 'pueblo', 'navajo', 'pioneer', 'fossil',
+           'petroglyph', 'cliff dwelling', 'symbol', 'unesco'],
+    secretTags: ['history', 'archaeology', 'ancient', 'pueblo', 'landmark', 'fossil', 'monument'],
+  },
+  thrill: {
+    icon: '⚡',
+    name: 'Thrill Chasers',
+    tags: ['strenuous', 'climbing', 'adventure', 'mountaineering', 'canyoneering', 'extreme',
+           'backpacking', 'rafting', 'summit', 'rock climbing', 'alpine', 'remote'],
+    secretTags: ['climbing', 'mountaineering', 'canyoneering', 'strenuous', 'extreme'],
+  },
+  budget: {
+    icon: '🪙',
+    name: 'Budget Explorers',
+    tags: [],  // handled specially: free or easy
+    secretTags: ['free', 'easy'],
+    special: 'budget',
+  },
+};
+
+// ---- Rarity system ----------------------------------------
+function getRarity(park) {
+  if (park.rating >= 4.9) return 'legendary';
+  if (park.rating >= 4.8 || park.difficulty.toLowerCase().includes('strenuous')) return 'epic';
+  if (park.rating >= 4.7 || park.difficulty.toLowerCase().includes('moderate')) return 'rare';
+  return 'common';
+}
+
+function rarityLabel(r) {
+  return r.charAt(0).toUpperCase() + r.slice(1);
+}
+
+// ---- Sword / coin rendering --------------------------------
+function swords(difficulty) {
+  const map = { 'easy': 1, 'moderate': 2, 'moderate to strenuous': 3, 'strenuous': 4, 'easy to strenuous': 3, 'easy to moderate': 2, 'easy to extreme': 5, 'extreme': 5 };
+  const d = difficulty.toLowerCase();
+  let count = 2;
+  for (const [k, v] of Object.entries(map)) {
+    if (d.includes(k.split(' ')[0]) || d === k) { count = v; break; }
+  }
+  if (d === 'easy') count = 1;
+  else if (d.includes('extreme')) count = 5;
+  else if (d.includes('strenuous') && !d.includes('moderate')) count = 4;
+  else if (d.includes('moderate') && !d.includes('strenuous')) count = 2;
+  else if (d.includes('easy') && d.includes('strenuous')) count = 3;
+  else if (d.includes('easy') && d.includes('moderate')) count = 2;
+  const filled = '⚔'.repeat(count);
+  const empty  = '·'.repeat(5 - count);
+  return `<span class="stat-icons swords">${filled}</span><span style="color:var(--parchment-shadow);font-size:0.8em">${empty}</span>`;
+}
+
+function coins(fee) {
+  const f = fee.toLowerCase();
+  let count = 2;
+  if (f.includes('free') || f.startsWith('free')) count = 0;
+  else if (f.includes('10') || f.includes('15') || f.includes('$1')) count = 1;
+  else if (f.includes('20') || f.includes('24') || f.includes('25') || f.includes('30')) count = 2;
+  else count = 3;
+  const filled = '🪙'.repeat(count);
+  const empty  = '·'.repeat(3 - count);
+  return count === 0
+    ? `<span style="color:var(--rare-green);font-family:'Cinzel',serif;font-size:0.7rem">FREE</span>`
+    : `<span class="stat-icons coins">${filled}</span><span style="color:var(--parchment-shadow);font-size:0.8em">${empty}</span>`;
+}
+
+// ---- Guild matching ----------------------------------------
+function matchesGuild(park, guildKey) {
+  if (!guildKey) return true;
+  const guild = GUILDS[guildKey];
+  if (guild.special === 'budget') {
+    const isFree = park.fee.toLowerCase().includes('free');
+    const isEasy = park.difficulty.toLowerCase().includes('easy');
+    const isLowFee = /\$10|\$15|\$20/.test(park.fee);
+    return isFree || isEasy || isLowFee;
+  }
+  const parkText = [
+    ...park.tags.map(t => t.toLowerCase()),
+    ...park.activities.map(a => a.toLowerCase()),
+    park.category.toLowerCase(),
+    park.difficulty.toLowerCase(),
+  ].join(' ');
+  return guild.tags.some(t => parkText.includes(t));
+}
+
+function isSecretMatch(park, guildKey) {
+  if (!guildKey) return false;
+  const guild = GUILDS[guildKey];
+  if (guild.special === 'budget') {
+    return park.fee.toLowerCase().includes('free') || park.difficulty.toLowerCase() === 'easy';
+  }
+  const parkText = [
+    ...park.tags.map(t => t.toLowerCase()),
+    ...park.activities.map(a => a.toLowerCase()),
+    park.difficulty.toLowerCase(),
+  ].join(' ');
+  return guild.secretTags.some(t => parkText.includes(t));
+}
+
+// ---- LocalStorage helpers for quests ----------------------
+function getAccepted() {
+  try { return JSON.parse(localStorage.getItem(QUEST_KEY)) || []; }
+  catch { return []; }
+}
+
+function setAccepted(ids) {
+  localStorage.setItem(QUEST_KEY, JSON.stringify(ids));
+}
+
+function isAccepted(id) {
+  return getAccepted().includes(id);
+}
+
+function toggleAccepted(id) {
+  const list = getAccepted();
+  const idx  = list.indexOf(id);
+  if (idx === -1) list.push(id);
+  else list.splice(idx, 1);
+  setAccepted(list);
+  return idx === -1;
+}
+
+function getSavedGuild() {
+  return localStorage.getItem(GUILD_KEY) || null;
+}
+
+function saveGuild(g) {
+  localStorage.setItem(GUILD_KEY, g);
+}
+
+// ---- State ------------------------------------------------
+let currentGuild   = null;
+let guildFilterOn  = true;
+let filterRarity   = '';
+let filterRealm    = '';
+let secretIds      = new Set();
+
+// ---- Card building ----------------------------------------
+function firstSentence(text) {
+  const m = text.match(/^[^.!?]*[.!?]/);
+  return m ? m[0] : text.slice(0, 120) + '…';
+}
+
+function buildQuestCard(park, isSecret) {
+  const rarity   = getRarity(park);
+  const accepted = isAccepted(park.id);
+  const isGuild  = secretIds.has(park.id);
+
+  const cardClasses = ['quest-card', `rarity-${rarity}`, `realm-${park.region.replace(/\s+/g,'-').toLowerCase()}`];
+  if (isSecret) cardClasses.push('secret');
+
+  return `
+    <div class="${cardClasses.join(' ')}" data-id="${park.id}">
+      <div class="card-tack"></div>
+      <div class="card-body-inner">
+        <div class="rarity-ribbon ${rarity}"><span>${rarityLabel(rarity)}</span></div>
+
+        ${isSecret ? `
+          <div class="secret-icon">❓</div>
+          <div class="secret-label">⚠ Secret Location</div>
+          <div class="secret-reveal-hint">Hover to reveal…</div>
+        ` : ''}
+
+        ${isGuild && !isSecret ? `<div class="guild-quest-badge">★ Guild Quest</div>` : ''}
+        ${isGuild && isSecret  ? `<div class="guild-quest-badge">★ Guild Secret</div>` : ''}
+
+        <div class="card-name">${park.name}</div>
+        <div class="card-realm">Realm of ${park.state}</div>
+
+        <p class="card-desc">${firstSentence(park.description)}</p>
+
+        <div class="card-stats">
+          <div class="stat-row">
+            <span class="stat-label">Difficulty</span>
+            ${swords(park.difficulty)}
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Tribute</span>
+            ${coins(park.fee)}
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Journey</span>
+            <span class="stat-duration">${park.duration}</span>
+          </div>
+        </div>
+
+        <div class="card-activities">
+          ${park.activities.slice(0, 4).map(a => `<span class="act-chip">${a}</span>`).join('')}
+        </div>
+
+        <div class="card-actions">
+          <button class="btn-accept ${accepted ? 'active' : ''}" data-accept="${park.id}">
+            ${accepted ? '✓ Quest Active' : 'Accept Quest'}
+          </button>
+          <button class="btn-inspect" data-inspect="${park.id}">Inspect</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---- Rendering ----------------------------------------
+function renderBoard() {
+  const grid      = document.getElementById('board-grid');
+  const rarityF   = filterRarity;
+  const realmF    = filterRealm;
+
+  // Decide which parks are secret (hidden)
+  secretIds.clear();
+  if (currentGuild) {
+    const matches = attractions.filter(p => isSecretMatch(p, currentGuild));
+    const secrets = matches.slice(0, 10);
+    secrets.forEach(p => secretIds.add(p.id));
+  }
+
+  let cards = '';
+  let shown = 0;
+
+  attractions.forEach(park => {
+    const rarity = getRarity(park);
+
+    // Apply filters
+    if (rarityF && rarity !== rarityF) return;
+    if (realmF  && park.region !== realmF) return;
+    if (guildFilterOn && currentGuild && !matchesGuild(park, currentGuild)) return;
+
+    const isSecret = secretIds.has(park.id) && guildFilterOn;
+    cards += buildQuestCard(park, isSecret);
+    shown++;
+  });
+
+  grid.innerHTML = cards || `<div style="color:var(--parchment);font-family:'Cinzel',serif;padding:3rem;font-size:1.1rem;text-align:center;grid-column:1/-1;">No quests match your current filters, adventurer.</div>`;
+
+  updateQuestLog();
+  updateQuestCount();
+}
+
+// ---- Quest Log ----------------------------------------
+function updateQuestLog() {
+  const list    = document.getElementById('quest-log-list');
+  const summary = document.getElementById('log-summary-text');
+  const accepted = getAccepted();
+
+  if (accepted.length === 0) {
+    list.innerHTML = `<div class="quest-log-empty">No quests accepted yet, adventurer.<br><br>Pin a destination to your log!</div>`;
+    summary.textContent = '';
+    return;
+  }
+
+  const parks = accepted.map(id => attractions.find(p => p.id === id)).filter(Boolean);
+  const realms = [...new Set(parks.map(p => p.region))];
+
+  list.innerHTML = parks.map(p => {
+    const rarity = getRarity(p);
+    return `
+      <div class="log-entry">
+        <div class="log-entry-icon">${GUILDS[currentGuild]?.icon || '⚔'}</div>
+        <div class="log-entry-info">
+          <div class="log-entry-name">${p.name}</div>
+          <div class="log-entry-meta">${p.difficulty} · ${p.duration}</div>
+          <span class="log-entry-rarity ${rarity}">${rarityLabel(rarity)}</span>
+        </div>
+        <button class="log-remove" data-remove="${p.id}" title="Remove quest">✕</button>
+      </div>`;
+  }).join('');
+
+  summary.innerHTML = `<strong>${parks.length}</strong> quest${parks.length !== 1 ? 's' : ''} across <strong>${realms.length}</strong> realm${realms.length !== 1 ? 's' : ''}`;
+}
+
+function updateQuestCount() {
+  const badge = document.getElementById('quest-count');
+  badge.textContent = getAccepted().length;
+}
+
+// ---- Realm filter options ----------------------------------
+function populateRealmFilter() {
+  const sel    = document.getElementById('filter-realm');
+  const realms = [...new Set(attractions.map(p => p.region))].sort();
+  sel.innerHTML = `<option value="">All Realms</option>` +
+    realms.map(r => `<option value="${r}">Realm of ${r}</option>`).join('');
+}
+
+// ---- Detail modal -----------------------------------------
+function openDetail(parkId) {
+  const park  = attractions.find(p => p.id === parkId);
+  if (!park) return;
+
+  const rarity   = getRarity(park);
+  const accepted = isAccepted(park.id);
+  const modal    = document.getElementById('detail-modal');
+  const overlay  = document.getElementById('detail-overlay');
+
+  modal.innerHTML = `
+    <button class="detail-close-btn" id="detail-close">✕ Close</button>
+    <div class="detail-img-wrap">
+      <img class="detail-img" src="${park.image}" alt="${park.name}"
+           onerror="this.src='https://picsum.photos/seed/fallback${park.id}/800/450'">
+      <div class="detail-img-overlay">
+        <div>
+          <div class="detail-img-title">${park.name}</div>
+          <div class="detail-img-sub">Realm of ${park.state} · ${park.region}</div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
+        <span class="log-entry-rarity ${rarity}" style="font-size:0.7rem;padding:0.25rem 0.6rem">${rarityLabel(rarity)}</span>
+        <span style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--ink-fade)">★ ${park.rating} · ${App.formatReviews(park.reviews)} reviews</span>
+      </div>
+
+      <div class="detail-stats-grid">
+        <div class="detail-stat">
+          <span class="detail-stat-value">${park.fee}</span>
+          <span class="detail-stat-key">Tribute</span>
+        </div>
+        <div class="detail-stat">
+          <span class="detail-stat-value">${park.duration}</span>
+          <span class="detail-stat-key">Journey Time</span>
+        </div>
+        <div class="detail-stat">
+          <span class="detail-stat-value">${park.difficulty}</span>
+          <span class="detail-stat-key">Difficulty</span>
+        </div>
+        <div class="detail-stat">
+          <span class="detail-stat-value">${park.bestTime}</span>
+          <span class="detail-stat-key">Best Season</span>
+        </div>
+        <div class="detail-stat">
+          <span class="detail-stat-value">${park.category}</span>
+          <span class="detail-stat-key">Quest Type</span>
+        </div>
+        <div class="detail-stat">
+          <span class="detail-stat-value">${park.accessibility ? '✓ Yes' : '✗ No'}</span>
+          <span class="detail-stat-key">Accessible</span>
+        </div>
+      </div>
+
+      <p class="detail-description">${park.description}</p>
+
+      <div class="detail-section-title">Activities</div>
+      <div class="detail-chips" style="margin-bottom:1rem">
+        ${park.activities.map(a => `<span class="detail-chip">${a}</span>`).join('')}
+      </div>
+
+      <div class="detail-section-title">Lore Tags</div>
+      <div class="detail-chips" style="margin-bottom:1.5rem">
+        ${park.tags.map(t => `<span class="detail-chip tag">${t}</span>`).join('')}
+      </div>
+
+      <button class="detail-accept-btn ${accepted ? 'active' : ''}" data-detail-accept="${park.id}">
+        ${accepted ? '✓ Quest Already Accepted' : '⚔ Accept Quest'}
+      </button>
+    </div>`;
+
+  overlay.classList.add('open');
+
+  document.getElementById('detail-close').addEventListener('click', closeDetail);
+
+  modal.querySelector('[data-detail-accept]').addEventListener('click', function () {
+    const id  = parseInt(this.dataset.detailAccept);
+    const now = toggleAccepted(id);
+    this.textContent  = now ? '✓ Quest Already Accepted' : '⚔ Accept Quest';
+    this.classList.toggle('active', now);
+
+    // Sync card button on board
+    syncCardAcceptBtn(id, now);
+    updateQuestLog();
+    updateQuestCount();
+  });
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+// ---- Sync accept buttons ----------------------------------
+function syncCardAcceptBtn(id, accepted) {
+  document.querySelectorAll(`[data-accept="${id}"]`).forEach(btn => {
+    btn.textContent = accepted ? '✓ Quest Active' : 'Accept Quest';
+    btn.classList.toggle('active', accepted);
+  });
+}
+
+// ---- Summary modal ----------------------------------------
+function openSummary() {
+  const accepted = getAccepted();
+  const parks    = accepted.map(id => attractions.find(p => p.id === id)).filter(Boolean);
+  const overlay  = document.getElementById('summary-overlay');
+  const modal    = document.getElementById('summary-modal');
+
+  if (parks.length === 0) {
+    modal.innerHTML = `
+      <div style="padding:2rem;text-align:center">
+        <div style="font-size:3rem;margin-bottom:1rem">📜</div>
+        <div class="summary-title">Quest Log Empty</div>
+        <p style="font-style:italic;color:var(--ink-fade);margin:1rem 0">You haven't accepted any quests yet, adventurer!</p>
+        <button class="summary-close-btn" id="summary-close-btn">Return to Board</button>
+      </div>`;
+    overlay.classList.add('open');
+    document.getElementById('summary-close-btn').addEventListener('click', () => overlay.classList.remove('open'));
+    return;
+  }
+
+  const realms    = [...new Set(parks.map(p => p.region))];
+  const rarities  = parks.reduce((acc, p) => { const r = getRarity(p); acc[r] = (acc[r]||0)+1; return acc; }, {});
+  const guild     = currentGuild ? GUILDS[currentGuild] : null;
+
+  modal.innerHTML = `
+    <div style="position:absolute;inset:8px;border:1px solid var(--parchment-shadow);pointer-events:none"></div>
+
+    <div style="font-size:2.5rem;margin-bottom:0.5rem">⚔</div>
+    <div class="summary-title">Journey Complete!</div>
+    <p class="summary-subtitle">${guild ? `${guild.icon} ${guild.name} · ` : ''}${parks.length} Quest${parks.length !== 1 ? 's' : ''} Undertaken</p>
+
+    <div class="summary-stats">
+      <div class="summary-stat">
+        <span class="summary-stat-num">${parks.length}</span>
+        <span class="summary-stat-label">Quests</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-stat-num">${realms.length}</span>
+        <span class="summary-stat-label">Realms</span>
+      </div>
+      <div class="summary-stat">
+        <span class="summary-stat-num">${rarities.legendary || 0}</span>
+        <span class="summary-stat-label">Legendary</span>
+      </div>
+    </div>
+
+    <div class="summary-list">
+      ${parks.map(p => {
+        const r = getRarity(p);
+        return `<div class="summary-list-item">
+          <span class="log-entry-rarity ${r}" style="font-size:0.55rem;padding:0.1rem 0.3rem;margin-right:0.4rem">${rarityLabel(r)[0]}</span>
+          ${p.name} <span style="color:var(--ink-fade);font-size:0.7rem">— Realm of ${p.state}</span>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <button class="summary-close-btn" id="summary-close-btn">Return to Board</button>`;
+
+  overlay.classList.add('open');
+  document.getElementById('summary-close-btn').addEventListener('click', () => overlay.classList.remove('open'));
+}
+
+// ---- Guild selection flow ---------------------------------
+function selectGuild(guildKey) {
+  currentGuild = guildKey;
+  saveGuild(guildKey);
+  guildFilterOn = true;
+
+  const guild = GUILDS[guildKey];
+  document.getElementById('active-guild-badge').textContent = `${guild.icon} ${guild.name}`;
+  document.getElementById('guild-filter-toggle').textContent = 'Guild Filter ON';
+  document.getElementById('guild-filter-toggle').classList.add('active');
+
+  document.getElementById('guild-screen').classList.add('hidden');
+  document.getElementById('board-screen').classList.add('active');
+
+  populateRealmFilter();
+  renderBoard();
+}
+
+// ---- Event Delegation -------------------------------------
+document.getElementById('board-grid').addEventListener('click', function (e) {
+  // Accept Quest
+  const acceptBtn = e.target.closest('[data-accept]');
+  if (acceptBtn) {
+    const id  = parseInt(acceptBtn.dataset.accept);
+    const now = toggleAccepted(id);
+    syncCardAcceptBtn(id, now);
+    updateQuestLog();
+    updateQuestCount();
+    return;
+  }
+
+  // Inspect
+  const inspectBtn = e.target.closest('[data-inspect]');
+  if (inspectBtn) {
+    openDetail(parseInt(inspectBtn.dataset.inspect));
+    return;
+  }
+});
+
+document.getElementById('quest-log-list').addEventListener('click', function (e) {
+  const removeBtn = e.target.closest('[data-remove]');
+  if (removeBtn) {
+    const id = parseInt(removeBtn.dataset.remove);
+    const list = getAccepted().filter(i => i !== id);
+    setAccepted(list);
+    syncCardAcceptBtn(id, false);
+    updateQuestLog();
+    updateQuestCount();
+  }
+});
+
+// Quest Log toggle
+document.getElementById('quest-log-btn').addEventListener('click', () => {
+  document.getElementById('quest-log').classList.add('open');
+  document.getElementById('sidebar-backdrop').classList.add('open');
+});
+
+document.getElementById('quest-log-close').addEventListener('click', () => {
+  document.getElementById('quest-log').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('open');
+});
+
+document.getElementById('sidebar-backdrop').addEventListener('click', () => {
+  document.getElementById('quest-log').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('open');
+});
+
+// Complete journey
+document.getElementById('complete-journey-btn').addEventListener('click', openSummary);
+
+// Detail overlay close
+document.getElementById('detail-overlay').addEventListener('click', function (e) {
+  if (e.target === this) closeDetail();
+});
+
+// Filters
+document.getElementById('filter-rarity').addEventListener('change', function () {
+  filterRarity = this.value;
+  renderBoard();
+});
+
+document.getElementById('filter-realm').addEventListener('change', function () {
+  filterRealm = this.value;
+  renderBoard();
+});
+
+document.getElementById('guild-filter-toggle').addEventListener('click', function () {
+  guildFilterOn = !guildFilterOn;
+  this.textContent = guildFilterOn ? 'Guild Filter ON' : 'All Guilds';
+  this.classList.toggle('active', guildFilterOn);
+  renderBoard();
+});
+
+document.getElementById('active-guild-badge').addEventListener('click', () => {
+  // Return to guild selection
+  document.getElementById('board-screen').classList.remove('active');
+  document.getElementById('guild-screen').classList.remove('hidden');
+});
+
+// Guild cards click
+document.querySelectorAll('.guild-card').forEach(card => {
+  card.addEventListener('click', () => selectGuild(card.dataset.guild));
+});
+
+// ---- Init ------------------------------------------------
+(function init() {
+  const saved = getSavedGuild();
+  if (saved && GUILDS[saved]) {
+    selectGuild(saved);
+  }
+})();
+</script>
+</body>
+</html>

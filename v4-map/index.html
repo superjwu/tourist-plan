@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map Explorer — Discover America</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ============================================================
+       MAP EXPLORER — Sunrise Desert Theme
+       ============================================================ */
+    :root {
+      --bg:           #FEF9F0;
+      --bg-alt:       #FEF3C7;
+      --primary:      #B45309;
+      --primary-dark: #92400E;
+      --primary-light:#D97706;
+      --accent:       #DC2626;
+      --accent-light: #EF4444;
+      --text:         #1C1917;
+      --text-muted:   #78716C;
+      --text-light:   #A8A29E;
+      --card-bg:      #FFFFFF;
+      --card-border:  rgba(180,83,9,0.12);
+      --shadow-sm:    0 1px 4px rgba(180,83,9,0.08);
+      --shadow-md:    0 4px 16px rgba(180,83,9,0.14);
+      --shadow-lg:    0 8px 32px rgba(180,83,9,0.22);
+      --radius-sm:    6px;
+      --radius-md:    12px;
+      --radius-lg:    20px;
+      --nav-h:        64px;
+      --panel-w:      320px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---- NAV ---- */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      height: var(--nav-h);
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      gap: 0.75rem;
+      box-shadow: 0 2px 12px rgba(180,83,9,0.35);
+    }
+
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .nav-logo span { color: #FCD34D; }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-count {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .nav-count strong { color: #FCD34D; }
+
+    .nav-search {
+      background: rgba(255,255,255,0.18);
+      border: none;
+      border-radius: 999px;
+      padding: 0.38rem 1rem;
+      color: #fff;
+      font-size: 0.88rem;
+      outline: none;
+      width: 200px;
+      transition: background 0.2s, width 0.3s;
+    }
+    .nav-search::placeholder { color: rgba(255,255,255,0.55); }
+    .nav-search:focus { background: rgba(255,255,255,0.28); width: 240px; }
+
+    /* ---- LAYOUT ---- */
+    .explorer-layout {
+      display: flex;
+      height: calc(100vh - var(--nav-h));
+      overflow: hidden;
+    }
+
+    /* ---- MAP AREA ---- */
+    .map-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .map-header {
+      background: var(--bg-alt);
+      border-bottom: 1px solid rgba(180,83,9,0.15);
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .map-header h2 {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    .region-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .region-pill {
+      padding: 0.28rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #fff;
+    }
+    .region-pill:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .region-pill.active {
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.25);
+      transform: translateY(-1px);
+    }
+
+    .clear-btn {
+      padding: 0.28rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(180,83,9,0.1);
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .clear-btn:hover { background: var(--primary); color: #fff; }
+
+    .map-canvas {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(180deg, #E8F4F8 0%, #C8E6F0 50%, #A8D4E8 100%);
+      cursor: pointer;
+    }
+
+    /* Ocean/water texture */
+    .map-canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 80%, rgba(147,197,220,0.3) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 20%, rgba(147,197,220,0.2) 0%, transparent 35%);
+      pointer-events: none;
+    }
+
+    #usa-map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ---- SVG REGIONS ---- */
+    .region-shape {
+      cursor: pointer;
+      transition: filter 0.25s, opacity 0.25s;
+      stroke: rgba(255,255,255,0.7);
+      stroke-width: 1.5;
+    }
+    .region-shape:hover {
+      filter: brightness(1.08) drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+      stroke-width: 2.5;
+      stroke: rgba(255,255,255,1);
+    }
+    .region-shape.selected {
+      filter: brightness(1.12) drop-shadow(0 0 18px rgba(0,0,0,0.5));
+      stroke: #fff;
+      stroke-width: 3;
+      animation: regionPulse 2s ease-in-out infinite;
+    }
+    .region-shape.dimmed {
+      opacity: 0.42;
+    }
+
+    @keyframes regionPulse {
+      0%, 100% { filter: brightness(1.12) drop-shadow(0 0 16px rgba(0,0,0,0.45)); }
+      50%       { filter: brightness(1.2)  drop-shadow(0 0 28px rgba(0,0,0,0.65)); }
+    }
+
+    /* Region count badges on SVG */
+    .region-count-text {
+      font-size: 11px;
+      font-weight: 700;
+      fill: rgba(255,255,255,0.95);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .region-name-text {
+      font-size: 9.5px;
+      font-weight: 600;
+      fill: rgba(255,255,255,0.88);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .count-circle {
+      fill: rgba(0,0,0,0.28);
+      pointer-events: none;
+    }
+
+    /* ---- SIDE PANEL ---- */
+    .side-panel {
+      width: var(--panel-w);
+      background: var(--card-bg);
+      border-left: 1px solid rgba(180,83,9,0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: -4px 0 24px rgba(180,83,9,0.08);
+    }
+
+    .panel-header {
+      padding: 1rem 1.1rem 0.75rem;
+      border-bottom: 1px solid var(--bg-alt);
+      background: var(--bg-alt);
+    }
+
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel-title .region-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .panel-count-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    .panel-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .panel-body::-webkit-scrollbar { width: 4px; }
+    .panel-body::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 2px; }
+
+    /* ---- MINI CARDS in panel ---- */
+    .mini-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      gap: 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .mini-card:hover {
+      transform: translateX(3px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(180,83,9,0.25);
+    }
+
+    .mini-thumb {
+      width: 80px;
+      min-width: 80px;
+      height: 80px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mini-info {
+      flex: 1;
+      padding: 0.55rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+
+    .mini-name {
+      font-family: var(--font-serif);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-state {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .mini-rating {
+      font-size: 0.7rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .mini-rating span { color: var(--text-muted); }
+
+    .mini-fee {
+      font-size: 0.68rem;
+      color: var(--text-light);
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 0.3rem;
+      padding: 0.45rem 0.55rem;
+      align-items: center;
+      border-left: 1px solid var(--bg-alt);
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mini-trip-btn {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.28rem 0.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .mini-trip-btn:hover { background: var(--primary-dark); }
+    .mini-trip-btn.in-trip { background: #16A34A; }
+
+    .mini-fav-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #ccc;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mini-fav-btn:hover { transform: scale(1.15); }
+    .mini-fav-btn.active { color: #DC2626; background: #FEE2E2; }
+
+    /* ---- EMPTY / WELCOME STATE ---- */
+    .panel-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      gap: 1rem;
+      flex: 1;
+    }
+    .panel-welcome .welcome-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+    .panel-welcome h3 {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+    .panel-welcome p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ---- BOTTOM STRIP ---- */
+    .bottom-strip {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: var(--panel-w);
+      background: var(--primary-dark);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0.65rem 1.25rem;
+      gap: 1rem;
+      z-index: 150;
+      box-shadow: 0 -4px 20px rgba(180,83,9,0.3);
+    }
+
+    .strip-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+    }
+
+    .strip-icon {
+      font-size: 1.3rem;
+    }
+
+    .strip-text {
+      font-size: 0.85rem;
+    }
+    .strip-text strong { color: #FCD34D; font-size: 1rem; }
+
+    .strip-view-btn {
+      background: #FCD34D;
+      color: var(--primary-dark);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.5rem 1.2rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .strip-view-btn:hover { background: #FDE68A; transform: translateY(-1px); }
+    .strip-view-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ---- TRIP DRAWER ---- */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    .trip-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 72vh;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      z-index: 301;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.25);
+    }
+    .trip-drawer.open { transform: translateY(0); }
+
+    .drawer-handle {
+      width: 48px;
+      height: 4px;
+      background: var(--bg-alt);
+      border-radius: 2px;
+      margin: 0.75rem auto 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--bg-alt);
+      gap: 0.75rem;
+    }
+
+    .drawer-title {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      color: var(--primary);
+      flex: 1;
+    }
+
+    .drawer-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-alt);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .drawer-close:hover { background: rgba(180,83,9,0.15); color: var(--primary); }
+
+    .drawer-clear {
+      font-size: 0.78rem;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .drawer-clear:hover { opacity: 0.75; }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem 1rem;
+    }
+
+    .drawer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .drawer-empty {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-muted);
+    }
+    .drawer-empty .de-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+
+    /* ---- TOOLTIP ---- */
+    .map-tooltip {
+      position: fixed;
+      background: rgba(28,25,23,0.92);
+      color: #fff;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      pointer-events: none;
+      z-index: 250;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    }
+    .map-tooltip.visible { opacity: 1; }
+    .map-tooltip strong { color: #FCD34D; display: block; font-size: 0.82rem; }
+
+    /* ---- MAP LEGEND ---- */
+    .map-legend {
+      position: absolute;
+      bottom: 52px;
+      left: 12px;
+      background: rgba(254,249,240,0.92);
+      border: 1px solid rgba(180,83,9,0.18);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 0.9rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    .map-legend-title {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+      font-size: 0.75rem;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    /* ---- COMPASS ---- */
+    .map-compass {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 48px;
+      height: 48px;
+      background: rgba(254,249,240,0.9);
+      border: 1px solid rgba(180,83,9,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--primary);
+      pointer-events: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 820px) {
+      .explorer-layout {
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+      }
+
+      .map-area {
+        height: 55vw;
+        min-height: 280px;
+        max-height: 400px;
+      }
+
+      .map-header {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+      }
+      .map-header h2 { font-size: 0.85rem; }
+      .region-pill { font-size: 0.7rem; padding: 0.22rem 0.6rem; }
+
+      .side-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 2px solid var(--bg-alt);
+        max-height: 55vh;
+      }
+
+      .bottom-strip {
+        right: 0;
+        padding: 0.5rem 1rem;
+      }
+
+      .map-legend { display: none; }
+
+      .nav-search { width: 140px; }
+      .nav-count { display: none; }
+    }
+
+    @media (max-width: 500px) {
+      .nav-search { display: none; }
+      .region-pills { display: none; }
+    }
+
+    /* ---- SEARCH HIGHLIGHT ---- */
+    .mini-card.search-match { border-color: var(--primary); }
+    .mini-card.search-hidden { display: none; }
+
+    /* ---- Scroll to bottom strip ---- */
+    .map-area { padding-bottom: 46px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav" role="navigation">
+  <div class="nav-logo">Discover <span>America</span></div>
+  <input class="nav-search" type="search" id="globalSearch" placeholder="Search attractions…" autocomplete="off">
+  <div class="nav-spacer"></div>
+  <div class="nav-count" id="navCount"><strong>25</strong> Attractions</div>
+  <a href="../gallery.html" class="nav-back-btn">← All Versions</a>
+</nav>
+
+<!-- LAYOUT -->
+<div class="explorer-layout">
+
+  <!-- MAP AREA -->
+  <div class="map-area" id="mapArea">
+
+    <!-- Header with region pills -->
+    <div class="map-header">
+      <h2>Explore by Region</h2>
+      <div class="region-pills" id="regionPills">
+        <!-- injected by JS -->
+      </div>
+      <button class="clear-btn" id="clearRegion">Show All</button>
+    </div>
+
+    <!-- SVG Map Canvas -->
+    <div class="map-canvas" id="mapCanvas">
+
+      <svg id="usa-map" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg"
+           preserveAspectRatio="xMidYMid meet" role="img"
+           aria-label="Interactive map of U.S. regions">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <!-- Ocean gradient -->
+          <linearGradient id="oceanGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#B8D9E8"/>
+            <stop offset="100%" stop-color="#8EC5D6"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Ocean background -->
+        <rect x="0" y="0" width="800" height="520" fill="url(#oceanGrad)"/>
+
+        <!-- ======================================================
+             CONTINENTAL US OUTLINE (subtle background shape)
+             ====================================================== -->
+        <path d="M 95,70 L 680,62 L 700,80 L 710,100 L 715,135 L 680,170 L 655,200
+                 L 650,230 L 660,260 L 670,285 L 658,310 L 620,330 L 590,340
+                 L 560,355 L 530,360 L 500,370 L 460,385 L 430,395 L 400,400
+                 L 370,395 L 340,390 L 300,380 L 260,370 L 240,360 L 220,340
+                 L 200,320 L 195,300 L 190,280 L 180,260 L 170,240 L 155,210
+                 L 140,185 L 125,160 L 110,130 L 100,100 Z"
+              fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+
+        <!-- ======================================================
+             REGION 1: Pacific West (CA, OR, WA)
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Pacific West"
+              data-region="Pacific West"
+              fill="#0891B2"
+              d="M 98,68 L 145,65 L 148,90 L 152,130 L 155,175
+                 L 152,220 L 148,265 L 145,300 L 140,340 L 132,365
+                 L 125,390 L 115,380 L 108,350 L 102,320 L 96,290
+                 L 90,260 L 88,230 L 88,200 L 90,170 L 92,130 L 93,95 Z"
+        />
+
+        <!-- ======================================================
+             REGION 2: Rocky Mountains (CO, WY, MT, ID, UT-partial)
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Rocky Mountains"
+              data-region="Rocky Mountains"
+              fill="#D97706"
+              d="M 148,65 L 270,62 L 272,95 L 275,140 L 278,185
+                 L 280,225 L 278,265 L 275,300 L 270,335 L 265,360
+                 L 255,370 L 240,375 L 220,370 L 205,360 L 192,345
+                 L 185,320 L 180,295 L 175,265 L 170,235 L 165,205
+                 L 160,175 L 155,145 L 152,110 L 150,80 Z"
+        />
+
+        <!-- ======================================================
+             REGION 3: Southwest (AZ, NM, NV, UT)
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Southwest"
+              data-region="Southwest"
+              fill="#B45309"
+              d="M 140,340 L 148,265 L 155,210 L 165,210 L 175,265
+                 L 180,295 L 185,320 L 192,345 L 205,360 L 220,370
+                 L 240,375 L 255,370 L 268,360 L 270,380 L 265,400
+                 L 255,415 L 240,428 L 220,432 L 198,428 L 175,415
+                 L 160,400 L 148,385 L 138,370 Z"
+        />
+
+        <!-- ======================================================
+             REGION 4: Great Plains (ND, SD, NE, KS, MN-W, IA, MO-W)
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Great Plains"
+              data-region="Great Plains"
+              fill="#65A30D"
+              d="M 270,62 L 430,60 L 432,95 L 435,130 L 438,165
+                 L 438,200 L 435,235 L 430,265 L 422,295 L 410,320
+                 L 398,340 L 385,355 L 370,362 L 355,358 L 338,348
+                 L 320,335 L 305,318 L 290,298 L 278,275 L 272,250
+                 L 268,215 L 266,180 L 265,145 L 265,110 L 268,80 Z"
+        />
+
+        <!-- ======================================================
+             REGION 5: Southeast (FL, GA, AL, MS, SC, NC, TN, AR, LA)
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Southeast"
+              data-region="Southeast"
+              fill="#DC2626"
+              d="M 398,340 L 430,265 L 438,265 L 450,280 L 462,295
+                 L 475,308 L 488,318 L 500,325 L 510,330 L 520,335
+                 L 528,345 L 525,365 L 515,380 L 500,392 L 482,400
+                 L 462,408 L 442,415 L 422,418 L 402,415 L 385,405
+                 L 372,392 L 362,378 L 355,358 L 368,350 L 382,348 Z"
+        />
+
+        <!-- Peninsula (Florida) -->
+        <path class="region-shape"
+              id="shape-Southeast-fl"
+              data-region="Southeast"
+              fill="#DC2626"
+              d="M 500,392 L 510,395 L 520,405 L 528,420 L 532,438
+                 L 528,455 L 518,465 L 505,460 L 494,445 L 488,428
+                 L 488,410 Z"
+        />
+
+        <!-- ======================================================
+             REGION 6: Northeast (ME, NH, VT, MA, RI, CT, NY, PA, NJ, MD, DE, VA, WV)
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Northeast"
+              data-region="Northeast"
+              fill="#7C3AED"
+              d="M 430,60 L 578,55 L 590,75 L 598,100 L 605,130
+                 L 610,160 L 612,185 L 608,210 L 598,232 L 582,250
+                 L 565,262 L 548,268 L 530,268 L 510,262 L 492,250
+                 L 478,232 L 466,215 L 455,198 L 445,178 L 438,155
+                 L 434,125 L 432,95 Z"
+        />
+
+        <!-- ======================================================
+             REGION 7: Alaska
+             ====================================================== -->
+        <path class="region-shape"
+              id="shape-Alaska"
+              data-region="Alaska"
+              fill="#0F766E"
+              d="M 50,430 L 50,380 L 58,365 L 68,355 L 80,350
+                 L 95,348 L 110,352 L 122,360 L 130,372 L 132,388
+                 L 128,402 L 118,414 L 104,422 L 88,428 L 72,430 Z"
+        />
+
+        <!-- ======================================================
+             REGION 8: Hawaii
+             ====================================================== -->
+        <!-- Main island chain (simplified) -->
+        <ellipse class="region-shape" id="shape-Hawaii" data-region="Hawaii"
+                 cx="210" cy="470" rx="32" ry="14" fill="#0891B2"/>
+        <ellipse class="region-shape" id="shape-Hawaii2" data-region="Hawaii"
+                 cx="248" cy="468" rx="16" ry="10" fill="#0891B2"/>
+        <ellipse class="region-shape" id="shape-Hawaii3" data-region="Hawaii"
+                 cx="175" cy="472" rx="14" ry="9" fill="#0891B2"/>
+
+        <!-- ======================================================
+             LABELS & COUNT BADGES
+             ====================================================== -->
+        <!-- Pacific West -->
+        <text class="region-name-text" x="120" y="210">Pacific</text>
+        <text class="region-name-text" x="120" y="222">West</text>
+        <circle class="count-circle" cx="120" cy="240" r="13"/>
+        <text class="region-count-text" x="120" y="240" id="badge-Pacific West">5</text>
+
+        <!-- Rocky Mountains -->
+        <text class="region-name-text" x="210" y="195">Rocky</text>
+        <text class="region-name-text" x="210" y="207">Mountains</text>
+        <circle class="count-circle" cx="210" cy="225" r="13"/>
+        <text class="region-count-text" x="210" y="225" id="badge-Rocky Mountains">4</text>
+
+        <!-- Southwest -->
+        <text class="region-name-text" x="200" y="380">Southwest</text>
+        <circle class="count-circle" cx="200" cy="396" r="13"/>
+        <text class="region-count-text" x="200" y="396" id="badge-Southwest">8</text>
+
+        <!-- Great Plains -->
+        <text class="region-name-text" x="350" y="195">Great</text>
+        <text class="region-name-text" x="350" y="207">Plains</text>
+        <circle class="count-circle" cx="350" cy="225" r="13"/>
+        <text class="region-count-text" x="350" y="225" id="badge-Great Plains">2</text>
+
+        <!-- Southeast -->
+        <text class="region-name-text" x="458" y="360">Southeast</text>
+        <circle class="count-circle" cx="458" cy="375" r="13"/>
+        <text class="region-count-text" x="458" y="375" id="badge-Southeast">3</text>
+
+        <!-- Northeast -->
+        <text class="region-name-text" x="520" y="160">Northeast</text>
+        <circle class="count-circle" cx="520" cy="175" r="13"/>
+        <text class="region-count-text" x="520" y="175" id="badge-Northeast">3</text>
+
+        <!-- Alaska -->
+        <text class="region-name-text" x="90" y="388">Alaska</text>
+        <circle class="count-circle" cx="90" cy="402" r="12"/>
+        <text class="region-count-text" x="90" y="402" id="badge-Alaska">1</text>
+
+        <!-- Hawaii -->
+        <text class="region-name-text" x="210" y="488">Hawaii</text>
+        <circle class="count-circle" cx="210" cy="500" r="12"/>
+        <text class="region-count-text" x="210" y="500" id="badge-Hawaii">1</text>
+
+        <!-- Decorative elements -->
+        <!-- Compass rose -->
+        <g transform="translate(740, 470)" opacity="0.6">
+          <circle cx="0" cy="0" r="20" fill="rgba(255,255,255,0.5)" stroke="rgba(180,83,9,0.4)" stroke-width="1"/>
+          <text x="0" y="-8" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#B45309" font-weight="bold">N</text>
+          <text x="0" y="10" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#B45309">S</text>
+          <text x="-11" y="1" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#B45309">W</text>
+          <text x="11" y="1" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#B45309">E</text>
+          <polygon points="0,-15 3,0 0,3 -3,0" fill="#DC2626"/>
+          <polygon points="0,15 3,0 0,-3 -3,0" fill="#78716C"/>
+        </g>
+
+        <!-- Scale bar -->
+        <g transform="translate(580, 495)" opacity="0.7">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="#B45309" stroke-width="1.5"/>
+          <line x1="0" y1="-4" x2="0" y2="4" stroke="#B45309" stroke-width="1.5"/>
+          <line x1="80" y1="-4" x2="80" y2="4" stroke="#B45309" stroke-width="1.5"/>
+          <line x1="40" y1="-3" x2="40" y2="3" stroke="#B45309" stroke-width="1"/>
+          <text x="40" y="-8" text-anchor="middle" font-size="7" fill="#B45309" font-family="system-ui">~1,000 mi</text>
+        </g>
+
+        <!-- Click overlay for deselect on ocean click -->
+        <rect id="ocean-click" x="0" y="0" width="800" height="520"
+              fill="transparent" style="cursor:default"/>
+      </svg>
+
+      <!-- Legend -->
+      <div class="map-legend" id="mapLegend">
+        <div class="map-legend-title">Regions</div>
+        <!-- injected by JS -->
+      </div>
+
+    </div><!-- /map-canvas -->
+
+  </div><!-- /map-area -->
+
+  <!-- SIDE PANEL -->
+  <aside class="side-panel" id="sidePanel" role="complementary" aria-label="Attractions panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="region-dot" id="panelDot" style="background:#B45309"></span>
+        <span id="panelTitle">All Attractions</span>
+        <span class="panel-count-badge" id="panelCount">25</span>
+      </div>
+      <div class="panel-subtitle" id="panelSubtitle">Click a region on the map to explore</div>
+    </div>
+    <div class="panel-body" id="panelBody">
+      <div class="panel-welcome">
+        <div class="welcome-icon">🗺️</div>
+        <h3>Explore the Map</h3>
+        <p>Click any colored region on the map to discover attractions in that area. Use the region pills above for quick access.</p>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /explorer-layout -->
+
+<!-- BOTTOM STRIP -->
+<div class="bottom-strip" id="bottomStrip">
+  <div class="strip-info">
+    <span class="strip-icon">🧳</span>
+    <span class="strip-text">
+      My Trip: <strong id="stripCount">0</strong> <span id="stripLabel">stops planned</span>
+    </span>
+  </div>
+  <button class="strip-view-btn" id="viewTripBtn" disabled>View Trip ›</button>
+</div>
+
+<!-- TRIP DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="trip-drawer" id="tripDrawer" role="dialog" aria-modal="true" aria-label="My Trip">
+  <div class="drawer-handle"></div>
+  <div class="drawer-header">
+    <div class="drawer-title">🧳 My Trip Itinerary</div>
+    <button class="drawer-clear" id="drawerClear">Clear All</button>
+    <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <div class="drawer-empty">
+      <div class="de-icon">🗺️</div>
+      <p>No stops added yet.<br>Explore the map and add attractions to build your trip!</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="map-tooltip" id="mapTooltip"></div>
+
+<!-- DATA + APP -->
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+
+<script>
+/* ============================================================
+   MAP EXPLORER — Main Application Logic
+   ============================================================ */
+(function () {
+  'use strict';
+
+  // ---- REGION CONFIG ----------------------------------------
+  const REGIONS = [
+    { name: 'Pacific West',    color: '#0891B2', light: '#BAE6FD' },
+    { name: 'Rocky Mountains', color: '#D97706', light: '#FDE68A' },
+    { name: 'Southwest',       color: '#B45309', light: '#FCD34D' },
+    { name: 'Great Plains',    color: '#65A30D', light: '#D9F99D' },
+    { name: 'Southeast',       color: '#DC2626', light: '#FECACA' },
+    { name: 'Northeast',       color: '#7C3AED', light: '#DDD6FE' },
+    { name: 'Alaska',          color: '#0F766E', light: '#99F6E4' },
+    { name: 'Hawaii',          color: '#0891B2', light: '#BAE6FD' },
+  ];
+
+  // ---- STATE ------------------------------------------------
+  let selectedRegion = null;
+  let searchQuery    = '';
+
+  // ---- DOM REFS ---------------------------------------------
+  const regionPillsEl = document.getElementById('regionPills');
+  const panelBody     = document.getElementById('panelBody');
+  const panelTitle    = document.getElementById('panelTitle');
+  const panelSubtitle = document.getElementById('panelSubtitle');
+  const panelCount    = document.getElementById('panelCount');
+  const panelDot      = document.getElementById('panelDot');
+  const stripCount    = document.getElementById('stripCount');
+  const stripLabel    = document.getElementById('stripLabel');
+  const viewTripBtn   = document.getElementById('viewTripBtn');
+  const mapTooltip    = document.getElementById('mapTooltip');
+  const mapLegend     = document.getElementById('mapLegend');
+  const drawerOverlay = document.getElementById('drawerOverlay');
+  const tripDrawer    = document.getElementById('tripDrawer');
+  const drawerBody    = document.getElementById('drawerBody');
+  const drawerClose   = document.getElementById('drawerClose');
+  const drawerClear   = document.getElementById('drawerClear');
+  const clearBtn      = document.getElementById('clearRegion');
+  const navCount      = document.getElementById('navCount');
+  const globalSearch  = document.getElementById('globalSearch');
+
+  // ---- COUNT PER REGION -------------------------------------
+  function countsByRegion() {
+    const counts = {};
+    attractions.forEach(a => {
+      counts[a.region] = (counts[a.region] || 0) + 1;
+    });
+    return counts;
+  }
+
+  // ---- INIT PILLS -------------------------------------------
+  function initPills() {
+    const counts = countsByRegion();
+    const allPill = document.createElement('button');
+    allPill.className = 'region-pill';
+    allPill.dataset.region = '';
+    allPill.style.background = 'rgba(255,255,255,0.25)';
+    allPill.style.border = '1.5px solid rgba(255,255,255,0.5)';
+    allPill.style.color = '#1C1917';
+    allPill.textContent = `All (${attractions.length})`;
+    allPill.addEventListener('click', () => selectRegion(null));
+    regionPillsEl.appendChild(allPill);
+
+    REGIONS.forEach(r => {
+      const pill = document.createElement('button');
+      pill.className = 'region-pill';
+      pill.dataset.region = r.name;
+      pill.style.background = r.color;
+      pill.textContent = `${r.name} (${counts[r.name] || 0})`;
+      pill.addEventListener('click', () => selectRegion(r.name));
+      regionPillsEl.appendChild(pill);
+    });
+  }
+
+  // ---- INIT LEGEND ------------------------------------------
+  function initLegend() {
+    const title = document.createElement('div');
+    title.className = 'map-legend-title';
+    title.textContent = 'Regions';
+    mapLegend.appendChild(title);
+    REGIONS.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'legend-row';
+      row.innerHTML = `<div class="legend-swatch" style="background:${r.color}"></div><span>${r.name}</span>`;
+      mapLegend.appendChild(row);
+    });
+  }
+
+  // ---- INIT BADGES ------------------------------------------
+  function initBadges() {
+    const counts = countsByRegion();
+    REGIONS.forEach(r => {
+      const el = document.getElementById(`badge-${r.name}`);
+      if (el) el.textContent = counts[r.name] || 0;
+    });
+  }
+
+  // ---- NAV COUNT --------------------------------------------
+  function updateNavCount() {
+    const shown = selectedRegion
+      ? attractions.filter(a => a.region === selectedRegion).length
+      : attractions.length;
+    navCount.innerHTML = `<strong>${shown}</strong> Attraction${shown !== 1 ? 's' : ''}`;
+  }
+
+  // ---- SELECT REGION ----------------------------------------
+  function selectRegion(regionName) {
+    selectedRegion = regionName;
+    updateMapShapes();
+    updatePills();
+    renderPanel();
+    updateNavCount();
+  }
+
+  // ---- UPDATE SVG SHAPES ------------------------------------
+  function updateMapShapes() {
+    document.querySelectorAll('.region-shape').forEach(shape => {
+      const r = shape.dataset.region;
+      shape.classList.remove('selected', 'dimmed');
+      if (!selectedRegion) return;
+      if (r === selectedRegion) shape.classList.add('selected');
+      else shape.classList.add('dimmed');
+    });
+  }
+
+  // ---- UPDATE PILLS -----------------------------------------
+  function updatePills() {
+    document.querySelectorAll('.region-pill').forEach(pill => {
+      const r = pill.dataset.region;
+      pill.classList.remove('active');
+      if (r === (selectedRegion || '')) pill.classList.add('active');
+    });
+  }
+
+  // ---- RENDER PANEL -----------------------------------------
+  function renderPanel() {
+    const filtered = selectedRegion
+      ? attractions.filter(a => a.region === selectedRegion)
+      : attractions;
+
+    // Update header
+    if (selectedRegion) {
+      const regionCfg = REGIONS.find(r => r.name === selectedRegion);
+      panelDot.style.background = regionCfg ? regionCfg.color : '#B45309';
+      panelTitle.textContent = selectedRegion;
+      panelSubtitle.textContent = `${filtered.length} attraction${filtered.length !== 1 ? 's' : ''} — click map to change region`;
+    } else {
+      panelDot.style.background = '#B45309';
+      panelTitle.textContent = 'All Attractions';
+      panelSubtitle.textContent = 'Click a region on the map to filter';
+    }
+    panelCount.textContent = filtered.length;
+
+    // Render mini-cards
+    if (filtered.length === 0) {
+      panelBody.innerHTML = `<div class="panel-welcome">
+        <div class="welcome-icon">🔍</div>
+        <h3>No Attractions Found</h3>
+        <p>No attractions match this region.</p>
+      </div>`;
+      return;
+    }
+
+    panelBody.innerHTML = filtered.map(a => buildMiniCard(a)).join('');
+    applySearch();
+  }
+
+  // ---- BUILD MINI CARD --------------------------------------
+  function buildMiniCard(a) {
+    const fav  = App.isFavorite(a.id);
+    const itin = App.isInItinerary(a.id);
+    return `
+      <div class="mini-card" data-id="${a.id}" data-region="${a.region}">
+        <img class="mini-thumb"
+             src="${a.image}"
+             alt="${a.name}"
+             loading="lazy"
+             onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+        <div class="mini-info">
+          <div class="mini-name" title="${a.name}">${a.name}</div>
+          <div class="mini-state">📍 ${a.state}</div>
+          <div class="mini-rating">
+            <span>${App.starsHTML(a.rating)}</span>
+            <span>${a.rating} (${App.formatReviews(a.reviews)})</span>
+          </div>
+          <div class="mini-fee">💰 ${a.fee}</div>
+        </div>
+        <div class="mini-actions">
+          <button class="mini-fav-btn ${fav ? 'active' : ''}"
+                  data-fav="${a.id}"
+                  title="Favorite">
+            ${fav ? '♥' : '♡'}
+          </button>
+          <button class="mini-trip-btn ${itin ? 'in-trip' : ''}"
+                  data-itin="${a.id}">
+            ${itin ? '✓' : '+ Trip'}
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // ---- APPLY SEARCH FILTER ----------------------------------
+  function applySearch() {
+    const q = searchQuery.toLowerCase().trim();
+    document.querySelectorAll('#panelBody .mini-card').forEach(card => {
+      if (!q) {
+        card.classList.remove('search-hidden', 'search-match');
+        return;
+      }
+      const id = parseInt(card.dataset.id);
+      const a  = attractions.find(x => x.id === id);
+      if (!a) return;
+      const match = a.name.toLowerCase().includes(q) ||
+                    a.state.toLowerCase().includes(q) ||
+                    a.tags.join(' ').toLowerCase().includes(q) ||
+                    a.category.toLowerCase().includes(q);
+      card.classList.toggle('search-hidden', !match);
+      card.classList.toggle('search-match', match);
+    });
+
+    // Update visible count badge
+    const visible = document.querySelectorAll('#panelBody .mini-card:not(.search-hidden)').length;
+    panelCount.textContent = visible;
+  }
+
+  // ---- UPDATE TRIP STRIP ------------------------------------
+  function updateStrip() {
+    const itin = App.getItinerary();
+    const n    = itin.length;
+    stripCount.textContent = n;
+    stripLabel.textContent = n === 1 ? 'stop planned' : 'stops planned';
+    viewTripBtn.disabled   = n === 0;
+  }
+
+  // ---- RENDER DRAWER ----------------------------------------
+  function renderDrawer() {
+    const itin = App.getItinerary();
+    if (itin.length === 0) {
+      drawerBody.innerHTML = `
+        <div class="drawer-empty">
+          <div class="de-icon">🗺️</div>
+          <p>No stops added yet.<br>Explore the map and add attractions to build your trip!</p>
+        </div>`;
+      return;
+    }
+    const items = itin.map(id => {
+      const a = attractions.find(x => x.id === id);
+      return a ? App.buildCard(a, { extraClass: 'drawer-card' }) : '';
+    }).filter(Boolean).join('');
+    drawerBody.innerHTML = `<div class="drawer-grid">${items}</div>`;
+
+    // Bind buttons inside drawer
+    App.bindFavButtons(drawerBody);
+    App.bindItinButtons(drawerBody, () => {
+      updateStrip();
+      renderDrawer();
+      refreshTripButtons();
+    });
+  }
+
+  // ---- REFRESH TRIP BUTTONS in panel ------------------------
+  function refreshTripButtons() {
+    document.querySelectorAll('#panelBody [data-itin]').forEach(btn => {
+      const id   = parseInt(btn.dataset.itin);
+      const itin = App.isInItinerary(id);
+      btn.textContent = itin ? '✓' : '+ Trip';
+      btn.classList.toggle('in-trip', itin);
+    });
+  }
+
+  // ---- OPEN / CLOSE DRAWER ----------------------------------
+  function openDrawer() {
+    renderDrawer();
+    tripDrawer.classList.add('open');
+    drawerOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    tripDrawer.classList.remove('open');
+    drawerOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ---- TOOLTIP HANDLING -------------------------------------
+  function showTooltip(e, regionName) {
+    const counts = countsByRegion();
+    const cfg    = REGIONS.find(r => r.name === regionName);
+    mapTooltip.innerHTML = `<strong>${regionName}</strong>${counts[regionName] || 0} attraction${(counts[regionName] || 0) !== 1 ? 's' : ''}`;
+    mapTooltip.classList.add('visible');
+    moveTooltip(e);
+  }
+
+  function moveTooltip(e) {
+    const x = e.clientX + 14;
+    const y = e.clientY - 36;
+    mapTooltip.style.left = Math.min(x, window.innerWidth - 180) + 'px';
+    mapTooltip.style.top  = Math.max(y, 8) + 'px';
+  }
+
+  function hideTooltip() {
+    mapTooltip.classList.remove('visible');
+  }
+
+  // ---- SVG INTERACTIONS -------------------------------------
+  function initMapInteractions() {
+    const shapes = document.querySelectorAll('.region-shape');
+
+    shapes.forEach(shape => {
+      const regionName = shape.dataset.region;
+
+      shape.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (selectedRegion === regionName) selectRegion(null);
+        else selectRegion(regionName);
+      });
+
+      shape.addEventListener('mouseenter', (e) => showTooltip(e, regionName));
+      shape.addEventListener('mousemove',  (e) => moveTooltip(e));
+      shape.addEventListener('mouseleave', hideTooltip);
+    });
+
+    // Click ocean to deselect
+    document.getElementById('ocean-click').addEventListener('click', () => {
+      if (selectedRegion) selectRegion(null);
+    });
+    document.getElementById('mapCanvas').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget || e.target.id === 'usa-map') {
+        if (selectedRegion) selectRegion(null);
+      }
+    });
+  }
+
+  // ---- PANEL EVENT DELEGATION -------------------------------
+  function initPanelEvents() {
+    // Fav buttons
+    App.bindFavButtons(panelBody, () => {});
+
+    // Trip buttons
+    panelBody.addEventListener('click', e => {
+      const btn = e.target.closest('[data-itin]');
+      if (!btn) return;
+      const id   = parseInt(btn.dataset.itin);
+      const itin = App.isInItinerary(id);
+      if (itin) App.removeFromItinerary(id);
+      else App.addToItinerary(id);
+
+      // Toggle visual state
+      btn.textContent = !itin ? '✓' : '+ Trip';
+      btn.classList.toggle('in-trip', !itin);
+      updateStrip();
+    });
+  }
+
+  // ---- DRAWER EVENTS ----------------------------------------
+  function initDrawerEvents() {
+    viewTripBtn.addEventListener('click', openDrawer);
+    drawerClose.addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    drawerClear.addEventListener('click', () => {
+      if (!confirm('Clear all stops from your trip?')) return;
+      App.clearItinerary();
+      updateStrip();
+      renderDrawer();
+      refreshTripButtons();
+    });
+
+    // Swipe down to close
+    let touchStart = 0;
+    tripDrawer.addEventListener('touchstart', e => { touchStart = e.touches[0].clientY; }, { passive: true });
+    tripDrawer.addEventListener('touchend', e => {
+      if (e.changedTouches[0].clientY - touchStart > 60) closeDrawer();
+    }, { passive: true });
+  }
+
+  // ---- SEARCH -----------------------------------------------
+  function initSearch() {
+    globalSearch.addEventListener('input', e => {
+      searchQuery = e.target.value;
+      applySearch();
+    });
+  }
+
+  // ---- CLEAR REGION BUTTON ----------------------------------
+  function initClearBtn() {
+    clearBtn.addEventListener('click', () => selectRegion(null));
+  }
+
+  // ---- KEYBOARD SUPPORT -------------------------------------
+  function initKeyboard() {
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (tripDrawer.classList.contains('open')) closeDrawer();
+        else if (selectedRegion) selectRegion(null);
+      }
+    });
+  }
+
+  // ---- BOOT -------------------------------------------------
+  function init() {
+    initPills();
+    initLegend();
+    initBadges();
+    initMapInteractions();
+    initPanelEvents();
+    initDrawerEvents();
+    initSearch();
+    initClearBtn();
+    initKeyboard();
+    updateStrip();
+    updateNavCount();
+
+    // Start with welcome (no region selected, no cards shown)
+    updatePills();
+  }
+
+  // Wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>

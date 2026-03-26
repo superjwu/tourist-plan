@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover America — Browse Attractions</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ---- v1: Discovery Browse — National Park Earthy Theme ---- */
+    :root {
+      --bg:           #F5F0E8;
+      --bg-alt:       #EDE8DF;
+      --primary:      #2D5016;
+      --primary-dark: #1e3610;
+      --primary-light:#3d6b1f;
+      --accent:       #C4622D;
+      --accent-light: #e07845;
+      --text:         #1A1A1A;
+      --text-muted:   #5a5a4a;
+      --text-light:   #999;
+      --card-bg:      #FFFFFF;
+    }
+
+    /* ---- Hero Banner ---- */
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, #4a7c20 60%, #8aaa30 100%);
+      color: #fff;
+      padding: 3.5rem 2rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://picsum.photos/seed/forest-hero/1400/400') center/cover no-repeat;
+      opacity: 0.18;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero h1 { color: #fff; margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .hero p { font-size: 1.05rem; color: rgba(255,255,255,0.88); max-width: 540px; margin: 0 auto 1.5rem; }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; color: #fff; }
+    .hero-stat strong { display: block; font-size: 1.6rem; font-family: var(--font-serif); }
+    .hero-stat span { font-size: 0.8rem; opacity: 0.8; }
+
+    /* ---- Layout: Sidebar + Main ---- */
+    .layout {
+      display: flex;
+      min-height: calc(100vh - var(--nav-h));
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* ---- Sidebar ---- */
+    .sidebar-filter {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid var(--card-border);
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+    }
+    .sidebar-filter h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+      margin-top: 1.25rem;
+      font-family: var(--font-sans);
+    }
+    .sidebar-filter h3:first-child { margin-top: 0; }
+
+    .filter-group { margin-bottom: 0.25rem; }
+    .filter-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: var(--text);
+      transition: background var(--transition);
+    }
+    .filter-label:hover { background: var(--bg-alt); }
+    .filter-label input[type="checkbox"] { accent-color: var(--primary); width: 15px; height: 15px; }
+    .filter-count { margin-left: auto; font-size: 0.72rem; color: var(--text-light); }
+
+    .clear-btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.55rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-alt);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .clear-btn:hover { background: var(--accent); color: #fff; }
+
+    /* ---- Sidebar toggle (mobile) ---- */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      z-index: 200;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+    }
+
+    /* ---- Main Content ---- */
+    .main-content {
+      flex: 1;
+      padding: 1.5rem;
+      min-width: 0;
+    }
+
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .results-count { font-size: 0.88rem; color: var(--text-muted); }
+
+    .sort-select {
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    /* ---- Card Grid ---- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1400px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1100px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 740px)  { .card-grid { grid-template-columns: 1fr; } }
+
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .sidebar-filter {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%;
+        z-index: 300;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .sidebar-filter.open { display: block; }
+      .sidebar-toggle { display: flex; align-items: center; gap: 0.4rem; }
+    }
+
+    /* ---- Inline Detail Panel ---- */
+    .detail-row {
+      grid-column: 1 / -1;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .detail-panel {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--card-border);
+    }
+    .detail-inner { display: grid; grid-template-rows: auto auto; }
+    .detail-hero { position: relative; height: 280px; overflow: hidden; }
+    .detail-hero img { width: 100%; height: 100%; object-fit: cover; }
+    .detail-hero-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      padding: 1.5rem;
+      color: #fff;
+    }
+    .detail-hero-overlay h2 { color: #fff; margin-bottom: 0.25rem; }
+    .detail-hero-overlay p  { color: rgba(255,255,255,0.85); font-size: 0.9rem; }
+    .detail-body { padding: 1.5rem; }
+    .detail-stats {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .stat { text-align: center; min-width: 80px; }
+    .stat strong { display: block; font-size: 0.95rem; color: var(--text); }
+    .stat span   { font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; }
+    .tag-list    { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .detail-close {
+      position: absolute; top: 0.75rem; right: 0.75rem; z-index: 2;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      padding: 0.35rem 0.75rem; cursor: pointer; font-size: 0.85rem;
+    }
+
+    /* ---- Itinerary Drawer ---- */
+    .itinerary-drawer {
+      position: fixed;
+      top: 0; right: -400px;
+      width: 360px;
+      height: 100vh;
+      background: var(--card-bg);
+      box-shadow: var(--shadow-lg);
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .itinerary-drawer.open { right: 0; }
+    .drawer-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-header h3 { color: #fff; font-family: var(--font-sans); font-size: 1rem; }
+    .drawer-close { background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 1rem; }
+    .itin-empty { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.9rem; }
+    .itin-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem; border-radius: var(--radius-sm);
+      background: var(--bg-alt);
+      margin-bottom: 0.5rem;
+    }
+    .itin-item img { width: 50px; height: 38px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+    .itin-item-info { flex: 1; min-width: 0; }
+    .itin-item-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .itin-item-state { font-size: 0.75rem; color: var(--text-muted); }
+    .itin-remove { background: none; border: none; color: var(--text-light); font-size: 1.1rem; cursor: pointer; flex-shrink: 0; }
+    .itin-remove:hover { color: var(--accent); }
+    .drawer-footer {
+      padding: 1rem;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .itin-fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 200;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform var(--transition), background var(--transition);
+    }
+    .itin-fab:hover { transform: scale(1.05); background: var(--accent-light); }
+    .itin-fab .itin-count {
+      background: #fff;
+      color: var(--accent);
+      border-radius: 999px;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .drawer-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 390;
+    }
+    .drawer-overlay.open { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="site-nav">
+  <a href="../gallery.html" class="nav-back-btn">← All Versions</a>
+  <span class="nav-logo">Discover <span>America</span></span>
+  <div class="search-wrap">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search parks, states, tags…" autocomplete="off">
+  </div>
+  <div class="nav-links">
+    <a href="#">Parks</a>
+    <a href="#">Monuments</a>
+    <a href="#">Map</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Explore America's Greatest Wonders</h1>
+    <p>From volcanic peaks in Hawaii to Atlantic coastlines in Maine — find your next adventure.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong id="totalCount">25</strong><span>Attractions</span></div>
+      <div class="hero-stat"><strong>63</strong><span>National Parks</span></div>
+      <div class="hero-stat"><strong>50</strong><span>States Covered</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar-filter" id="sidebar">
+    <button class="drawer-close" id="sidebarClose" style="display:none;float:right;color:var(--text)">✕</button>
+
+    <h3>Region</h3>
+    <div id="regionFilters"></div>
+
+    <h3>Category</h3>
+    <div id="categoryFilters"></div>
+
+    <h3>Difficulty</h3>
+    <div id="difficultyFilters"></div>
+
+    <h3>Best For</h3>
+    <label class="filter-label">
+      <input type="checkbox" class="tag-filter" value="Wildlife"> Wildlife Watching
+    </label>
+    <label class="filter-label">
+      <input type="checkbox" class="tag-filter" value="Stargazing"> Stargazing
+    </label>
+    <label class="filter-label">
+      <input type="checkbox" class="tag-filter" value="Photography"> Photography
+    </label>
+    <label class="filter-label">
+      <input type="checkbox" class="tag-filter" value="UNESCO"> UNESCO Site
+    </label>
+
+    <button class="clear-btn" id="clearFilters">Clear All Filters</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="results-bar">
+      <div class="results-count" id="resultsCount">Showing all 25 attractions</div>
+      <select class="sort-select" id="sortSelect">
+        <option value="rating">Sort: Top Rated</option>
+        <option value="name">Sort: A–Z</option>
+        <option value="fee-asc">Sort: Free First</option>
+        <option value="reviews">Sort: Most Reviewed</option>
+      </select>
+    </div>
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="card-grid" id="cardGrid"></div>
+  </main>
+</div>
+
+<!-- Itinerary Drawer Overlay -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- Itinerary Drawer -->
+<aside class="itinerary-drawer" id="itinDrawer">
+  <div class="drawer-header">
+    <h3>🗺 My Trip Itinerary</h3>
+    <button class="drawer-close" id="drawerClose">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <p class="itin-empty">No stops added yet.<br>Click "+ Add to Trip" on any attraction.</p>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-primary" onclick="window.print()">🖨 Print Trip</button>
+    <button class="btn-secondary" id="clearItin">Clear All</button>
+  </div>
+</aside>
+
+<!-- FABs -->
+<button class="sidebar-toggle" id="sidebarToggle">⚙ Filters</button>
+<button class="itin-fab" id="itinFab">
+  🗺 My Trip <span class="itin-count" id="itinCount">0</span>
+</button>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+  const grid    = document.getElementById('cardGrid');
+  const sidebar = document.getElementById('sidebar');
+  let activeDetailId = null;
+
+  // ---- Build filter checkboxes ----
+  function buildCheckboxes(containerId, values, type) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = values.map(v => `
+      <label class="filter-label">
+        <input type="checkbox" class="${type}-filter" value="${v}">
+        ${v}
+      </label>`).join('');
+  }
+
+  const regions    = [...new Set(attractions.map(a => a.region))].sort();
+  const categories = [...new Set(attractions.map(a => a.category))].sort();
+  const diffs      = [...new Set(attractions.map(a => a.difficulty))].sort();
+  buildCheckboxes('regionFilters',     regions,    'region');
+  buildCheckboxes('categoryFilters',   categories, 'category');
+  buildCheckboxes('difficultyFilters', diffs,      'difficulty');
+
+  // ---- Get current filters ----
+  function getFilters() {
+    return {
+      search:     document.getElementById('searchInput').value,
+      regions:    [...document.querySelectorAll('.region-filter:checked')].map(el => el.value),
+      categories: [...document.querySelectorAll('.category-filter:checked')].map(el => el.value),
+      difficulties: [...document.querySelectorAll('.difficulty-filter:checked')].map(el => el.value),
+      tags:       [...document.querySelectorAll('.tag-filter:checked')].map(el => el.value),
+    };
+  }
+
+  function applyFilters(f) {
+    const q = f.search.toLowerCase().trim();
+    return attractions.filter(a => {
+      if (q && !a.name.toLowerCase().includes(q) &&
+               !a.state.toLowerCase().includes(q) &&
+               !a.tags.join(' ').toLowerCase().includes(q) &&
+               !a.activities.join(' ').toLowerCase().includes(q)) return false;
+      if (f.regions.length    && !f.regions.includes(a.region))    return false;
+      if (f.categories.length && !f.categories.includes(a.category)) return false;
+      if (f.difficulties.length && !f.difficulties.includes(a.difficulty)) return false;
+      if (f.tags.length && !f.tags.some(t => a.tags.includes(t))) return false;
+      return true;
+    });
+  }
+
+  function sortList(list) {
+    const val = document.getElementById('sortSelect').value;
+    return [...list].sort((a, b) => {
+      if (val === 'rating')  return b.rating - a.rating;
+      if (val === 'name')    return a.name.localeCompare(b.name);
+      if (val === 'reviews') return b.reviews - a.reviews;
+      if (val === 'fee-asc') {
+        const free = v => v.fee === 'Free' ? 0 : 1;
+        return free(a) - free(b);
+      }
+      return 0;
+    });
+  }
+
+  // ---- Render ----
+  function render() {
+    const f    = getFilters();
+    const list = sortList(applyFilters(f));
+    activeDetailId = null;
+
+    document.getElementById('resultsCount').textContent =
+      `Showing ${list.length} of ${attractions.length} attractions`;
+
+    // Active filter chips
+    const chips = [];
+    f.regions.forEach(r    => chips.push({ label: r, type: 'region', val: r }));
+    f.categories.forEach(c => chips.push({ label: c, type: 'category', val: c }));
+    f.difficulties.forEach(d => chips.push({ label: d, type: 'difficulty', val: d }));
+    f.tags.forEach(t       => chips.push({ label: t, type: 'tag', val: t }));
+    if (f.search) chips.push({ label: `"${f.search}"`, type: 'search', val: f.search });
+
+    document.getElementById('activeFilters').innerHTML = chips.map(c => `
+      <span class="filter-chip" data-chip-type="${c.type}" data-chip-val="${c.val}">
+        ${c.label} <button class="chip-remove" aria-label="Remove filter">✕</button>
+      </span>`).join('');
+
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="no-results"><p>No attractions match your filters.<br>Try clearing some options.</p></div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(a => App.buildCard(a, { expandDetail: true })).join('');
+    updateItinButtons();
+    updateItinDrawer();
+    updateItinFab();
+  }
+
+  // ---- Inline Detail Panel ----
+  grid.addEventListener('click', e => {
+    const detailBtn = e.target.closest('[data-expand]');
+    if (!detailBtn) return;
+    const id = parseInt(detailBtn.dataset.expand);
+
+    // Remove existing detail row
+    document.querySelectorAll('.detail-row').forEach(el => el.remove());
+    if (activeDetailId === id) { activeDetailId = null; return; }
+    activeDetailId = id;
+
+    const a = attractions.find(x => x.id === id);
+    if (!a) return;
+
+    // Find the card and insert detail row after its row
+    const card = grid.querySelector(`[data-id="${id}"]`);
+    const detailRow = document.createElement('div');
+    detailRow.className = 'detail-row';
+    detailRow.innerHTML = App.buildDetailPanel(a);
+    card.after(detailRow);
+    detailRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    detailRow.querySelector('[data-close]').addEventListener('click', () => {
+      detailRow.remove();
+      activeDetailId = null;
+    });
+  });
+
+  // ---- Favorites ----
+  App.bindFavButtons(grid);
+
+  // ---- Itinerary ----
+  function updateItinButtons() {
+    grid.querySelectorAll('[data-itin]').forEach(btn => {
+      const id = parseInt(btn.dataset.itin);
+      const inTrip = App.isInItinerary(id);
+      btn.textContent = inTrip ? '✓ In Trip' : '+ Add to Trip';
+    });
+  }
+
+  function updateItinDrawer() {
+    const itin = App.getItinerary();
+    const body = document.getElementById('drawerBody');
+    if (itin.length === 0) {
+      body.innerHTML = '<p class="itin-empty">No stops added yet.<br>Click "+ Add to Trip" on any attraction.</p>';
+      return;
+    }
+    body.innerHTML = itin.map((id, i) => {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return '';
+      return `
+        <div class="itin-item">
+          <span style="font-size:0.75rem;color:var(--text-light);min-width:18px">${i + 1}.</span>
+          <img src="${a.image}" alt="${a.name}" onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+          <div class="itin-item-info">
+            <div class="itin-item-name">${a.name}</div>
+            <div class="itin-item-state">📍 ${a.state} · ${a.fee}</div>
+          </div>
+          <button class="itin-remove" data-remove="${a.id}" title="Remove">✕</button>
+        </div>`;
+    }).join('');
+
+    body.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        App.removeFromItinerary(parseInt(btn.dataset.remove));
+        updateItinDrawer();
+        updateItinFab();
+        updateItinButtons();
+      });
+    });
+  }
+
+  function updateItinFab() {
+    document.getElementById('itinCount').textContent = App.getItinerary().length;
+  }
+
+  App.bindItinButtons(grid, () => {
+    updateItinDrawer();
+    updateItinFab();
+  });
+
+  // ---- Drawer open/close ----
+  document.getElementById('itinFab').addEventListener('click', () => {
+    document.getElementById('itinDrawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('open');
+    updateItinDrawer();
+  });
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+  function closeDrawer() {
+    document.getElementById('itinDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('open');
+  }
+  document.getElementById('clearItin').addEventListener('click', () => {
+    App.clearItinerary();
+    updateItinDrawer();
+    updateItinFab();
+    updateItinButtons();
+  });
+
+  // ---- Mobile sidebar ----
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    document.getElementById('sidebarClose').style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+  });
+  document.getElementById('sidebarClose').addEventListener('click', () => {
+    sidebar.classList.remove('open');
+  });
+
+  // ---- Filter chip removal ----
+  document.getElementById('activeFilters').addEventListener('click', e => {
+    const btn = e.target.closest('.chip-remove');
+    if (!btn) return;
+    const chip = btn.closest('[data-chip-type]');
+    const type = chip.dataset.chipType;
+    const val  = chip.dataset.chipVal;
+    if (type === 'search') {
+      document.getElementById('searchInput').value = '';
+    } else {
+      const cb = document.querySelector(`.${type}-filter[value="${val}"]`);
+      if (cb) cb.checked = false;
+    }
+    render();
+  });
+
+  // ---- Clear all ----
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-filter input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.getElementById('searchInput').value = '';
+    render();
+  });
+
+  // ---- Event listeners ----
+  document.addEventListener('change', e => {
+    if (e.target.closest('.sidebar-filter') || e.target.id === 'sortSelect') render();
+  });
+  document.getElementById('searchInput').addEventListener('input', render);
+
+  // ---- Init ----
+  render();
+  updateItinFab();
+</script>
+</body>
+</html>

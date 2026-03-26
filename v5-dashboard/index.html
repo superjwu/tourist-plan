@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>US Attractions — Data Dashboard</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ============================================================
+       V5 DASHBOARD — Slate / Teal Theme Override
+       ============================================================ */
+    :root {
+      --bg:           #F0FDFA;
+      --bg-alt:       #CCFBF1;
+      --primary:      #0D9488;
+      --primary-dark: #0A7A70;
+      --primary-light:#14B8A6;
+      --accent:       #2563EB;
+      --accent-light: #3B82F6;
+      --text:         #134E4A;
+      --text-muted:   #3D7A74;
+      --text-light:   #6B9E9A;
+      --card-bg:      #FFFFFF;
+      --card-border:  rgba(13,148,136,0.15);
+      --shadow-sm:    0 1px 4px rgba(13,148,136,0.10);
+      --shadow-md:    0 4px 16px rgba(13,148,136,0.14);
+      --shadow-lg:    0 8px 32px rgba(13,148,136,0.18);
+      --nav-h:        62px;
+      --filter-h:     56px;
+      --footer-h:     52px;
+      --teal-50:      #F0FDFA;
+      --teal-100:     #CCFBF1;
+      --teal-200:     #99F6E4;
+      --teal-600:     #0D9488;
+      --teal-700:     #0F766E;
+      --teal-800:     #115E59;
+      --teal-900:     #134E4A;
+      --blue-50:      #EFF6FF;
+      --blue-500:     #3B82F6;
+      --blue-600:     #2563EB;
+      --blue-700:     #1D4ED8;
+    }
+
+    /* ====== BODY & LAYOUT ====== */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ====== NAV ====== */
+    .site-nav {
+      background: var(--teal-800);
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      gap: 0.75rem;
+      box-shadow: 0 2px 8px rgba(13,148,136,0.25);
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .nav-logo .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--primary-light);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .nav-logo span { color: var(--teal-200); }
+
+    .nav-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      white-space: nowrap;
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    .nav-back-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    .nav-stats {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .stat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .stat-chip .chip-val {
+      color: var(--teal-200);
+      font-size: 0.8rem;
+    }
+
+    /* ====== FILTER BAR ====== */
+    .filter-bar {
+      background: var(--card-bg);
+      border-bottom: 1.5px solid var(--teal-100);
+      padding: 0 1.25rem;
+      height: var(--filter-h);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 90;
+      box-shadow: 0 2px 6px rgba(13,148,136,0.08);
+    }
+
+    .filter-bar .search-field {
+      flex: 1 1 200px;
+      max-width: 280px;
+      position: relative;
+    }
+    .filter-bar .search-field svg {
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--text-light);
+      pointer-events: none;
+    }
+    .filter-bar .search-field input {
+      width: 100%;
+      padding: 0.38rem 0.75rem 0.38rem 2rem;
+      border: 1.5px solid var(--teal-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .filter-bar .search-field input::placeholder { color: var(--text-light); }
+    .filter-bar .search-field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13,148,136,0.15);
+    }
+
+    .filter-select {
+      padding: 0.38rem 1.8rem 0.38rem 0.65rem;
+      border: 1.5px solid var(--teal-200);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236B9E9A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 10px;
+      cursor: pointer;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      flex-shrink: 0;
+    }
+    .filter-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13,148,136,0.15);
+    }
+
+    .filter-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .filter-bar .filter-divider {
+      width: 1px;
+      height: 22px;
+      background: var(--teal-200);
+      flex-shrink: 0;
+    }
+
+    .filter-bar .result-count {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .filter-bar .result-count strong {
+      color: var(--primary);
+    }
+
+    /* ====== MAIN CONTENT ====== */
+    .main-content {
+      flex: 1;
+      padding: 1.25rem;
+      padding-bottom: calc(var(--footer-h) + 1.5rem);
+    }
+
+    /* ====== TABLE WRAPPER ====== */
+    .table-wrapper {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--card-border);
+      overflow: hidden;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    /* Table head */
+    .data-table thead {
+      background: var(--teal-800);
+      color: #fff;
+    }
+    .data-table thead th {
+      padding: 0.75rem 0.8rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .data-table thead th.sortable {
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .data-table thead th.sortable:hover {
+      background: var(--teal-700);
+    }
+    .data-table thead th.sort-active {
+      background: var(--primary);
+    }
+    .data-table thead th .th-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .sort-arrow {
+      font-size: 0.65rem;
+      opacity: 0.5;
+      transition: opacity var(--transition), transform var(--transition);
+      display: inline-block;
+    }
+    th.sort-active .sort-arrow {
+      opacity: 1;
+    }
+    th.sort-asc .sort-arrow { transform: rotate(0deg); }
+    th.sort-desc .sort-arrow { transform: rotate(180deg); }
+
+    /* Check col */
+    .col-check { width: 36px; padding-left: 0.9rem !important; }
+    .col-num   { width: 36px; color: var(--text-light); font-variant-numeric: tabular-nums; }
+    .col-name  { min-width: 160px; }
+    .col-state { min-width: 120px; }
+    .col-cat   { min-width: 130px; }
+    .col-rating{ width: 90px; }
+    .col-fee   { min-width: 100px; }
+    .col-diff  { min-width: 130px; }
+    .col-dur   { min-width: 90px; }
+    .col-best  { min-width: 130px; }
+    .col-act   { width: 90px; text-align: right !important; padding-right: 0.9rem !important; }
+
+    /* Table rows */
+    .data-table tbody tr.data-row {
+      border-bottom: 1px solid var(--teal-100);
+      transition: background var(--transition);
+    }
+    .data-table tbody tr.data-row:last-child { border-bottom: none; }
+    .data-table tbody tr.data-row:hover {
+      background: var(--teal-50);
+    }
+    .data-table tbody tr.data-row.row-selected {
+      background: #EFF6FF;
+    }
+    .data-table tbody tr.data-row.row-selected:hover {
+      background: #DBEAFE;
+    }
+
+    .data-table tbody td {
+      padding: 0.65rem 0.8rem;
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    /* Checkbox styling */
+    .row-checkbox {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    /* Row number */
+    .row-num {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Name cell */
+    .cell-name {
+      font-weight: 600;
+      color: var(--teal-800);
+      font-size: 0.86rem;
+      line-height: 1.3;
+    }
+
+    /* Category badge */
+    .cat-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.71rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cat-nat-park   { background: #D1FAE5; color: #065F46; }
+    .cat-monument   { background: #FEF3C7; color: #92400E; }
+    .cat-nat-wonder { background: #E0E7FF; color: #3730A3; }
+    .cat-tribal     { background: #FCE7F3; color: #9D174D; }
+    .cat-default    { background: var(--teal-100); color: var(--teal-800); }
+
+    /* Rating cell */
+    .rating-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+    .rating-stars {
+      color: #F59E0B;
+      font-size: 0.7rem;
+      letter-spacing: -1px;
+    }
+    .rating-val {
+      font-weight: 700;
+      font-size: 0.83rem;
+      color: var(--teal-800);
+    }
+
+    /* Difficulty badge */
+    .diff-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.12rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .diff-easy     { background: #D1FAE5; color: #065F46; }
+    .diff-moderate { background: #FEF3C7; color: #92400E; }
+    .diff-strenuous{ background: #FEE2E2; color: #991B1B; }
+    .diff-extreme  { background: #F3E8FF; color: #6B21A8; }
+
+    /* Fee cell */
+    .fee-cell {
+      font-size: 0.81rem;
+      color: var(--text-muted);
+    }
+    .fee-free {
+      color: #065F46;
+      font-weight: 700;
+      background: #D1FAE5;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+    }
+
+    /* Duration / Best Time */
+    .meta-cell {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Row actions */
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      justify-content: flex-end;
+    }
+    .act-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: background var(--transition), transform var(--transition), color var(--transition);
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      background: var(--bg);
+      color: var(--text-muted);
+    }
+    .act-btn:hover { transform: scale(1.1); }
+    .act-btn.fav-btn:hover  { background: #FEE2E2; color: #DC2626; border-color: #FECACA; }
+    .act-btn.fav-btn.active { background: #FEE2E2; color: #DC2626; border-color: #FECACA; }
+    .act-btn.trip-btn:hover { background: var(--teal-100); color: var(--primary); border-color: var(--teal-200); }
+    .act-btn.trip-btn.active{ background: var(--teal-100); color: var(--primary); border-color: var(--teal-200); }
+    .act-btn.expand-btn { background: var(--bg-alt); }
+    .act-btn.expand-btn:hover { background: var(--teal-200); color: var(--teal-800); }
+    .act-btn.expand-btn.expanded { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .act-btn.expand-btn .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      font-style: normal;
+      line-height: 1;
+    }
+    .act-btn.expand-btn.expanded .chevron { transform: rotate(180deg); }
+
+    /* ====== EXPAND ROW ====== */
+    .expand-row { display: none; }
+    .expand-row.open { display: table-row; }
+    .expand-row td { padding: 0; border-bottom: 2px solid var(--teal-200); }
+
+    .expand-panel {
+      background: linear-gradient(135deg, #F0FDFA 0%, #ECFDF5 100%);
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 1.5rem;
+      animation: slideDown 0.2s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .expand-img {
+      width: 260px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      flex-shrink: 0;
+    }
+
+    .expand-info { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .expand-info h3 {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      color: var(--teal-900);
+    }
+
+    .expand-desc {
+      font-size: 0.84rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+    }
+
+    .expand-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .expand-tag {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.71rem;
+      font-weight: 600;
+    }
+    .expand-activity {
+      background: var(--teal-100);
+      color: var(--teal-800);
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.71rem;
+    }
+
+    .expand-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      margin-bottom: 0.3rem;
+    }
+
+    /* ====== FOOTER BAR (SELECTION) ====== */
+    .footer-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 80;
+      height: var(--footer-h);
+      background: var(--teal-800);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      gap: 0.75rem;
+      box-shadow: 0 -2px 10px rgba(13,148,136,0.25);
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .footer-bar.visible {
+      transform: translateY(0);
+    }
+
+    .footer-selected-count {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--teal-200);
+    }
+    .footer-selected-count span { color: #fff; }
+
+    .footer-bar .footer-spacer { flex: 1; }
+
+    .footer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background var(--transition), transform var(--transition);
+    }
+    .footer-btn:active { transform: scale(0.97); }
+    .footer-btn-primary {
+      background: var(--primary-light);
+      color: #fff;
+    }
+    .footer-btn-primary:hover { background: #17C4B5; }
+    .footer-btn-accent {
+      background: var(--accent);
+      color: #fff;
+    }
+    .footer-btn-accent:hover { background: var(--accent-light); }
+    .footer-btn-ghost {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+    }
+    .footer-btn-ghost:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+    /* Compare count badge */
+    .compare-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      color: var(--accent);
+      border-radius: 50%;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    /* ====== COMPARISON MODAL ====== */
+    .compare-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(19,78,74,0.55);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .compare-modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .compare-modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 960px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.96) translateY(10px);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .compare-modal-overlay.open .compare-modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .compare-modal-header {
+      background: var(--teal-800);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .compare-modal-header h2 {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      color: #fff;
+    }
+    .compare-modal-header p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .compare-close-btn {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background var(--transition);
+      border: none;
+      flex-shrink: 0;
+    }
+    .compare-close-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .compare-modal-body {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Compare grid */
+    .compare-grid {
+      display: grid;
+      gap: 0;
+    }
+    .compare-grid.cols-2 { grid-template-columns: 160px repeat(2, 1fr); }
+    .compare-grid.cols-3 { grid-template-columns: 160px repeat(3, 1fr); }
+
+    /* Compare image row */
+    .compare-img-row {
+      display: contents;
+    }
+    .compare-img-row .compare-label-cell {
+      background: var(--teal-50);
+    }
+    .compare-card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-bottom: 2px solid var(--teal-100);
+    }
+    .compare-card-header img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+    }
+    .compare-card-title-block {
+      padding: 0.75rem;
+      background: var(--teal-50);
+    }
+    .compare-card-title-block h3 {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      color: var(--teal-900);
+      line-height: 1.3;
+    }
+    .compare-card-title-block p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Compare field rows */
+    .compare-field-row {
+      display: contents;
+    }
+    .compare-field-row:nth-child(even) .compare-data-cell,
+    .compare-field-row:nth-child(even) .compare-label-cell {
+      background: var(--teal-50);
+    }
+
+    .compare-label-cell {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-right: 1.5px solid var(--teal-100);
+      border-bottom: 1px solid var(--teal-100);
+      display: flex;
+      align-items: center;
+      background: #fff;
+    }
+
+    .compare-data-cell {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.83rem;
+      color: var(--text);
+      border-right: 1px solid var(--teal-100);
+      border-bottom: 1px solid var(--teal-100);
+      background: #fff;
+    }
+    .compare-data-cell:last-child { border-right: none; }
+
+    .compare-best-val {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* ====== ITINERARY DRAWER ====== */
+    .itin-fab {
+      position: fixed;
+      bottom: calc(var(--footer-h) + 1rem);
+      right: 1.25rem;
+      z-index: 150;
+      background: var(--accent);
+      color: #fff;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.35);
+      cursor: pointer;
+      border: none;
+      font-size: 1.2rem;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .itin-fab:hover {
+      background: var(--blue-700);
+      transform: scale(1.08);
+      box-shadow: 0 6px 22px rgba(37,99,235,0.45);
+    }
+    .itin-fab .itin-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 20px;
+      height: 20px;
+      background: #EF4444;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      border: 2px solid #fff;
+    }
+    .itin-fab .itin-count.hidden { display: none; }
+
+    .itin-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 160;
+      background: rgba(19,78,74,0.4);
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .itin-drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    .itin-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 170;
+      width: 360px;
+      max-width: 95vw;
+      background: var(--card-bg);
+      box-shadow: -4px 0 24px rgba(13,148,136,0.2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .itin-drawer.open { transform: translateX(0); }
+
+    .itin-drawer-header {
+      background: var(--teal-800);
+      color: #fff;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .itin-drawer-header h2 {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: #fff;
+    }
+    .itin-close-btn {
+      margin-left: auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      font-size: 0.9rem;
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    .itin-close-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .itin-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .itin-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      gap: 0.5rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    .itin-empty .itin-empty-icon { font-size: 2.5rem; opacity: 0.4; }
+
+    .itin-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--teal-100);
+    }
+    .itin-item:last-child { border-bottom: none; }
+    .itin-item-num {
+      width: 22px;
+      height: 22px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .itin-item-thumb {
+      width: 48px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .itin-item-info { flex: 1; min-width: 0; }
+    .itin-item-name {
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--teal-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .itin-item-sub {
+      font-size: 0.72rem;
+      color: var(--text-light);
+    }
+    .itin-remove-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #FEE2E2;
+      color: #DC2626;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: none;
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    .itin-remove-btn:hover { background: #FECACA; }
+
+    .itin-drawer-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--teal-100);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .itin-footer-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .itin-footer-stat strong { color: var(--text); }
+
+    .itin-clear-btn {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      background: #FEE2E2;
+      color: #991B1B;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .itin-clear-btn:hover { background: #FECACA; }
+
+    /* ====== EMPTY STATE ====== */
+    .table-empty {
+      padding: 3.5rem 2rem;
+      text-align: center;
+    }
+    .table-empty .empty-icon { font-size: 3rem; opacity: 0.3; }
+    .table-empty p { font-size: 1rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .table-empty button {
+      margin-top: 1rem;
+      padding: 0.5rem 1.2rem;
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* ====== TOAST NOTIFICATION ====== */
+    .toast-container {
+      position: fixed;
+      bottom: calc(var(--footer-h) + 4.5rem);
+      right: 1.25rem;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--teal-800);
+      color: #fff;
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      box-shadow: var(--shadow-md);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.4s forwards;
+      pointer-events: all;
+      max-width: 260px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    @keyframes toastIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(20px); } }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 900px) {
+      .col-diff, .col-best, .col-dur { display: none; }
+      .filter-bar { flex-wrap: wrap; height: auto; padding: 0.5rem 1rem; gap: 0.4rem; }
+      .filter-bar .result-count { margin-left: 0; }
+      .main-content { padding: 0.75rem; }
+    }
+    @media (max-width: 640px) {
+      .col-state, .col-cat { display: none; }
+      .expand-panel { grid-template-columns: 1fr; }
+      .expand-img { width: 100%; }
+      .nav-stats { display: none; }
+      .compare-grid.cols-2, .compare-grid.cols-3 { grid-template-columns: 110px repeat(var(--cols), 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== STICKY NAV ====== -->
+  <nav class="site-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <div class="logo-icon">&#x1F5FA;</div>
+      US <span>Attractions</span>
+    </div>
+    <a href="../gallery.html" class="nav-back-btn">&#8592; All Versions</a>
+    <div class="nav-stats" id="navStats">
+      <!-- populated by JS -->
+    </div>
+  </nav>
+
+  <!-- ====== FILTER BAR ====== -->
+  <div class="filter-bar" role="search" aria-label="Filter attractions">
+    <div class="search-field">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="7" cy="7" r="5"/><path d="M12 12l2.5 2.5"/>
+      </svg>
+      <input type="search" id="searchInput" placeholder="Search name, state, tag…" autocomplete="off" aria-label="Search attractions">
+    </div>
+    <div class="filter-divider"></div>
+    <span class="filter-label">Region</span>
+    <select id="regionFilter" class="filter-select" aria-label="Filter by region"></select>
+    <span class="filter-label">Category</span>
+    <select id="categoryFilter" class="filter-select" aria-label="Filter by category"></select>
+    <span class="filter-label">Difficulty</span>
+    <select id="difficultyFilter" class="filter-select" aria-label="Filter by difficulty"></select>
+    <div class="result-count" id="resultCount" aria-live="polite"></div>
+  </div>
+
+  <!-- ====== MAIN TABLE ====== -->
+  <main class="main-content" role="main">
+    <div class="table-wrapper">
+      <table class="data-table" aria-label="Attractions data table">
+        <thead>
+          <tr>
+            <th class="col-check">
+              <input type="checkbox" id="selectAllChk" class="row-checkbox" aria-label="Select all">
+            </th>
+            <th class="col-num">#</th>
+            <th class="col-name sortable" data-col="name">
+              <div class="th-inner">Name <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-state sortable" data-col="state">
+              <div class="th-inner">State <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-cat sortable" data-col="category">
+              <div class="th-inner">Category <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-rating sortable sort-active sort-desc" data-col="rating">
+              <div class="th-inner">Rating <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-fee sortable" data-col="fee">
+              <div class="th-inner">Fee <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-diff sortable" data-col="difficulty">
+              <div class="th-inner">Difficulty <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-dur sortable" data-col="duration">
+              <div class="th-inner">Duration <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-best sortable" data-col="bestTime">
+              <div class="th-inner">Best Time <i class="sort-arrow">&#9650;</i></div>
+            </th>
+            <th class="col-act">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- ====== FOOTER BAR ====== -->
+  <div class="footer-bar" id="footerBar" role="toolbar" aria-label="Selection actions">
+    <span class="footer-selected-count" id="footerSelectedCount"></span>
+    <div class="footer-spacer"></div>
+    <button class="footer-btn footer-btn-ghost" id="footerClearBtn" aria-label="Clear selection">
+      Clear
+    </button>
+    <button class="footer-btn footer-btn-primary" id="footerAddTripBtn" aria-label="Add selected to trip">
+      + Add to Trip
+    </button>
+    <button class="footer-btn footer-btn-accent" id="footerCompareBtn" aria-label="Compare selected">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M2 8h12M9 4l4 4-4 4"/>
+      </svg>
+      Compare
+      <span class="compare-count-badge" id="footerCompareBadge">0</span>
+    </button>
+  </div>
+
+  <!-- ====== COMPARE MODAL ====== -->
+  <div class="compare-modal-overlay" id="compareModal" role="dialog" aria-modal="true" aria-label="Compare attractions">
+    <div class="compare-modal">
+      <div class="compare-modal-header">
+        <div>
+          <h2>Side-by-Side Comparison</h2>
+          <p id="compareModalSub">Comparing selected attractions</p>
+        </div>
+        <button class="compare-close-btn" id="compareCloseBtn" aria-label="Close comparison">&#10005;</button>
+      </div>
+      <div class="compare-modal-body" id="compareModalBody">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ITINERARY FAB ====== -->
+  <button class="itin-fab" id="itinFab" aria-label="Open itinerary">
+    &#x1F5FA;
+    <span class="itin-count hidden" id="itinFabCount">0</span>
+  </button>
+
+  <!-- ====== ITINERARY DRAWER ====== -->
+  <div class="itin-drawer-overlay" id="itinOverlay" aria-hidden="true"></div>
+  <aside class="itin-drawer" id="itinDrawer" role="complementary" aria-label="Your itinerary">
+    <div class="itin-drawer-header">
+      <span style="font-size:1.3rem">&#x1F5FA;</span>
+      <h2>My Itinerary</h2>
+      <button class="itin-close-btn" id="itinCloseBtn" aria-label="Close itinerary">&#10005;</button>
+    </div>
+    <div class="itin-drawer-body" id="itinDrawerBody"></div>
+    <div class="itin-drawer-footer" id="itinDrawerFooter" style="display:none">
+      <div class="itin-footer-stat">
+        <span>Destinations</span>
+        <strong id="itinStatCount">0</strong>
+      </div>
+      <div class="itin-footer-stat">
+        <span>Avg. Rating</span>
+        <strong id="itinStatRating">—</strong>
+      </div>
+      <button class="itin-clear-btn" id="itinClearBtn">&#128465; Clear Itinerary</button>
+    </div>
+  </aside>
+
+  <!-- ====== TOAST CONTAINER ====== -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- ====== SCRIPTS ====== -->
+  <script src="../shared/data.js"></script>
+  <script src="../shared/app.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* ------------------------------------------------------------------
+       STATE
+    ------------------------------------------------------------------ */
+    let filteredData  = [...attractions];
+    let sortCol       = 'rating';
+    let sortDir       = 'desc';           // 'asc' | 'desc'
+    let expandedRows  = new Set();        // attraction IDs with open detail
+    let selectedRows  = new Set();        // attraction IDs checked
+
+    const filters = { search: '', region: '', category: '', difficulty: '' };
+
+    /* ------------------------------------------------------------------
+       DOM REFS
+    ------------------------------------------------------------------ */
+    const tableBody        = document.getElementById('tableBody');
+    const searchInput      = document.getElementById('searchInput');
+    const regionFilter     = document.getElementById('regionFilter');
+    const categoryFilter   = document.getElementById('categoryFilter');
+    const difficultyFilter = document.getElementById('difficultyFilter');
+    const resultCount      = document.getElementById('resultCount');
+    const selectAllChk     = document.getElementById('selectAllChk');
+    const navStats         = document.getElementById('navStats');
+
+    const footerBar           = document.getElementById('footerBar');
+    const footerSelectedCount = document.getElementById('footerSelectedCount');
+    const footerClearBtn      = document.getElementById('footerClearBtn');
+    const footerAddTripBtn    = document.getElementById('footerAddTripBtn');
+    const footerCompareBtn    = document.getElementById('footerCompareBtn');
+    const footerCompareBadge  = document.getElementById('footerCompareBadge');
+
+    const compareModal      = document.getElementById('compareModal');
+    const compareCloseBtn   = document.getElementById('compareCloseBtn');
+    const compareModalBody  = document.getElementById('compareModalBody');
+    const compareModalSub   = document.getElementById('compareModalSub');
+
+    const itinFab         = document.getElementById('itinFab');
+    const itinFabCount    = document.getElementById('itinFabCount');
+    const itinOverlay     = document.getElementById('itinOverlay');
+    const itinDrawer      = document.getElementById('itinDrawer');
+    const itinCloseBtn    = document.getElementById('itinCloseBtn');
+    const itinDrawerBody  = document.getElementById('itinDrawerBody');
+    const itinDrawerFooter= document.getElementById('itinDrawerFooter');
+    const itinClearBtn    = document.getElementById('itinClearBtn');
+    const itinStatCount   = document.getElementById('itinStatCount');
+    const itinStatRating  = document.getElementById('itinStatRating');
+
+    const toastContainer  = document.getElementById('toastContainer');
+
+    /* ------------------------------------------------------------------
+       HELPERS
+    ------------------------------------------------------------------ */
+    function showToast(msg, icon = '✓') {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+      toastContainer.appendChild(t);
+      setTimeout(() => t.remove(), 2800);
+    }
+
+    function getCatClass(cat) {
+      if (cat === 'National Park')     return 'cat-nat-park';
+      if (cat === 'National Monument') return 'cat-monument';
+      if (cat === 'Natural Wonder')    return 'cat-nat-wonder';
+      if (cat === 'Tribal Park')       return 'cat-tribal';
+      return 'cat-default';
+    }
+
+    function getDiffClass(d) {
+      const l = d.toLowerCase();
+      if (l.includes('extreme'))   return 'diff-extreme';
+      if (l.includes('strenuous')) return 'diff-strenuous';
+      if (l.includes('moderate'))  return 'diff-moderate';
+      return 'diff-easy';
+    }
+
+    function renderStars(rating) {
+      const full  = Math.round(rating);
+      const empty = 5 - full;
+      return '<span class="rating-stars">' + '★'.repeat(full) + '<span style="opacity:0.3">' + '★'.repeat(empty) + '</span></span>';
+    }
+
+    function feeHTML(fee) {
+      if (fee.toLowerCase() === 'free')
+        return `<span class="fee-free">FREE</span>`;
+      return `<span class="fee-cell">${fee}</span>`;
+    }
+
+    /* ------------------------------------------------------------------
+       POPULATE FILTER DROPDOWNS
+    ------------------------------------------------------------------ */
+    function populateFilters() {
+      regionFilter.innerHTML   = App.buildRegionOptions(attractions);
+      categoryFilter.innerHTML = App.buildCategoryOptions(attractions);
+
+      const diffs = [...new Set(attractions.map(a => a.difficulty))].sort();
+      difficultyFilter.innerHTML = '<option value="">All Difficulty</option>' +
+        diffs.map(d => `<option value="${d}">${d}</option>`).join('');
+    }
+
+    /* ------------------------------------------------------------------
+       NAV STATS
+    ------------------------------------------------------------------ */
+    function renderNavStats() {
+      const total   = attractions.length;
+      const avgRating = (attractions.reduce((s, a) => s + a.rating, 0) / total).toFixed(2);
+      const freeCount = attractions.filter(a => a.fee.toLowerCase() === 'free').length;
+      const regions   = new Set(attractions.map(a => a.region)).size;
+
+      navStats.innerHTML = `
+        <div class="stat-chip">Total <span class="chip-val">${total}</span></div>
+        <div class="stat-chip">Avg Rating <span class="chip-val">${avgRating}</span></div>
+        <div class="stat-chip">Free Entry <span class="chip-val">${freeCount}</span></div>
+        <div class="stat-chip">Regions <span class="chip-val">${regions}</span></div>
+      `;
+    }
+
+    /* ------------------------------------------------------------------
+       SORT
+    ------------------------------------------------------------------ */
+    function sortData(data) {
+      return [...data].sort((a, b) => {
+        let va = a[sortCol], vb = b[sortCol];
+        if (typeof va === 'string') va = va.toLowerCase();
+        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (va < vb) return sortDir === 'asc' ? -1 : 1;
+        if (va > vb) return sortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function updateSortHeaders() {
+      document.querySelectorAll('.data-table thead th.sortable').forEach(th => {
+        const col = th.dataset.col;
+        th.classList.toggle('sort-active', col === sortCol);
+        th.classList.toggle('sort-asc',  col === sortCol && sortDir === 'asc');
+        th.classList.toggle('sort-desc', col === sortCol && sortDir === 'desc');
+      });
+    }
+
+    /* ------------------------------------------------------------------
+       RENDER TABLE
+    ------------------------------------------------------------------ */
+    function renderTable() {
+      const sorted = sortData(filteredData);
+      updateSortHeaders();
+      resultCount.innerHTML = `<strong>${sorted.length}</strong> of ${attractions.length} results`;
+      updateSelectAllState();
+
+      if (sorted.length === 0) {
+        tableBody.innerHTML = `
+          <tr><td colspan="11">
+            <div class="table-empty">
+              <div class="empty-icon">&#128269;</div>
+              <p>No attractions match your filters.</p>
+              <button onclick="clearAllFilters()">Clear Filters</button>
+            </div>
+          </td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = sorted.map((a, idx) => {
+        const isSelected = selectedRows.has(a.id);
+        const isExpanded = expandedRows.has(a.id);
+        const isFav      = App.isFavorite(a.id);
+        const inTrip     = App.isInItinerary(a.id);
+
+        const rowHtml = `
+          <tr class="data-row${isSelected ? ' row-selected' : ''}" data-id="${a.id}">
+            <td class="col-check">
+              <input type="checkbox" class="row-checkbox" data-chk="${a.id}"
+                ${isSelected ? 'checked' : ''} aria-label="Select ${a.name}">
+            </td>
+            <td class="col-num"><span class="row-num">${idx + 1}</span></td>
+            <td class="col-name"><span class="cell-name">${a.name}</span></td>
+            <td class="col-state" style="font-size:0.82rem;color:var(--text-muted)">${a.state}</td>
+            <td class="col-cat">
+              <span class="cat-badge ${getCatClass(a.category)}">${a.category}</span>
+            </td>
+            <td class="col-rating">
+              <div class="rating-cell">
+                ${renderStars(a.rating)}
+                <span class="rating-val">${a.rating}</span>
+              </div>
+            </td>
+            <td class="col-fee">${feeHTML(a.fee)}</td>
+            <td class="col-diff">
+              <span class="diff-badge ${getDiffClass(a.difficulty)}">${a.difficulty}</span>
+            </td>
+            <td class="col-dur"><span class="meta-cell">${a.duration}</span></td>
+            <td class="col-best"><span class="meta-cell">${a.bestTime}</span></td>
+            <td class="col-act">
+              <div class="row-actions">
+                <button class="act-btn fav-btn${isFav ? ' active' : ''}"
+                  data-fav="${a.id}" title="${isFav ? 'Remove favorite' : 'Add to favorites'}"
+                  aria-label="Favorite ${a.name}" aria-pressed="${isFav}">
+                  ${isFav ? '&#9829;' : '&#9825;'}
+                </button>
+                <button class="act-btn trip-btn${inTrip ? ' active' : ''}"
+                  data-itin="${a.id}" title="${inTrip ? 'Remove from trip' : 'Add to trip'}"
+                  aria-label="${inTrip ? 'Remove from trip' : 'Add to trip'}: ${a.name}" aria-pressed="${inTrip}">
+                  ${inTrip ? '&#10003;' : '+'}
+                </button>
+                <button class="act-btn expand-btn${isExpanded ? ' expanded' : ''}"
+                  data-expand="${a.id}" title="${isExpanded ? 'Collapse details' : 'Expand details'}"
+                  aria-label="Toggle details for ${a.name}" aria-expanded="${isExpanded}">
+                  <i class="chevron">&#8964;</i>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+
+        const expandHtml = `
+          <tr class="expand-row${isExpanded ? ' open' : ''}" data-expand-for="${a.id}">
+            <td colspan="11">
+              <div class="expand-panel">
+                <img class="expand-img"
+                  src="${a.image}" alt="${a.name}" loading="lazy"
+                  onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+                <div class="expand-info">
+                  <h3>${a.name}</h3>
+                  <p class="expand-desc">${a.description}</p>
+                  <div>
+                    <div class="expand-section-label">Activities</div>
+                    <div class="expand-tags">
+                      ${a.activities.map(act => `<span class="expand-activity">${act}</span>`).join('')}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="expand-section-label">Tags</div>
+                    <div class="expand-tags">
+                      ${a.tags.map(t => `<span class="expand-tag">${t}</span>`).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>`;
+
+        return rowHtml + expandHtml;
+      }).join('');
+    }
+
+    /* ------------------------------------------------------------------
+       TABLE INTERACTIONS (delegated)
+    ------------------------------------------------------------------ */
+    tableBody.addEventListener('click', e => {
+      // Favorite toggle
+      const favBtn = e.target.closest('[data-fav]');
+      if (favBtn) {
+        const id  = parseInt(favBtn.dataset.fav);
+        const now = App.toggleFavorite(id);
+        favBtn.innerHTML     = now ? '&#9829;' : '&#9825;';
+        favBtn.classList.toggle('active', now);
+        favBtn.setAttribute('aria-pressed', now);
+        favBtn.title = now ? 'Remove favorite' : 'Add to favorites';
+        showToast(now ? 'Added to favorites' : 'Removed from favorites', now ? '♥' : '♡');
+        return;
+      }
+
+      // Itinerary toggle
+      const itinBtn = e.target.closest('[data-itin]');
+      if (itinBtn) {
+        const id = parseInt(itinBtn.dataset.itin);
+        if (App.isInItinerary(id)) {
+          App.removeFromItinerary(id);
+          itinBtn.innerHTML = '+';
+          itinBtn.classList.remove('active');
+          itinBtn.setAttribute('aria-pressed', false);
+          itinBtn.title = 'Add to trip';
+          showToast('Removed from itinerary', '−');
+        } else {
+          App.addToItinerary(id);
+          itinBtn.innerHTML = '&#10003;';
+          itinBtn.classList.add('active');
+          itinBtn.setAttribute('aria-pressed', true);
+          itinBtn.title = 'Remove from trip';
+          showToast('Added to itinerary', '✓');
+        }
+        updateItinFab();
+        return;
+      }
+
+      // Expand toggle
+      const expandBtn = e.target.closest('[data-expand]');
+      if (expandBtn) {
+        const id = parseInt(expandBtn.dataset.expand);
+        if (expandedRows.has(id)) {
+          expandedRows.delete(id);
+        } else {
+          expandedRows.add(id);
+        }
+        // Toggle expand row visibility without full re-render
+        const expandRow = tableBody.querySelector(`tr[data-expand-for="${id}"]`);
+        const isNowOpen = expandedRows.has(id);
+        if (expandRow) expandRow.classList.toggle('open', isNowOpen);
+        expandBtn.classList.toggle('expanded', isNowOpen);
+        expandBtn.setAttribute('aria-expanded', isNowOpen);
+        expandBtn.title = isNowOpen ? 'Collapse details' : 'Expand details';
+        return;
+      }
+
+      // Checkbox
+      const chk = e.target.closest('[data-chk]');
+      if (chk) {
+        const id = parseInt(chk.dataset.chk);
+        if (chk.checked) {
+          if (selectedRows.size >= 3) {
+            chk.checked = false;
+            showToast('Max 3 rows can be compared at once', '⚠');
+            return;
+          }
+          selectedRows.add(id);
+        } else {
+          selectedRows.delete(id);
+        }
+        const dataRow = tableBody.querySelector(`tr.data-row[data-id="${id}"]`);
+        if (dataRow) dataRow.classList.toggle('row-selected', chk.checked);
+        updateFooterBar();
+        updateSelectAllState();
+        return;
+      }
+    });
+
+    /* ------------------------------------------------------------------
+       SELECT ALL
+    ------------------------------------------------------------------ */
+    selectAllChk.addEventListener('change', () => {
+      const visibleIds = filteredData.map(a => a.id);
+      if (selectAllChk.checked) {
+        // Only select up to 3
+        const toSelect = visibleIds.slice(0, 3);
+        selectedRows = new Set(toSelect);
+        if (visibleIds.length > 3) showToast('Max 3 rows selected for comparison', '⚠');
+      } else {
+        selectedRows = new Set();
+      }
+      renderTable();
+      updateFooterBar();
+    });
+
+    function updateSelectAllState() {
+      const visIds = filteredData.map(a => a.id);
+      const selInView = visIds.filter(id => selectedRows.has(id));
+      selectAllChk.indeterminate = selInView.length > 0 && selInView.length < visIds.length;
+      selectAllChk.checked       = selInView.length === visIds.length && visIds.length > 0;
+    }
+
+    /* ------------------------------------------------------------------
+       FOOTER BAR
+    ------------------------------------------------------------------ */
+    function updateFooterBar() {
+      const count = selectedRows.size;
+      if (count > 0) {
+        footerBar.classList.add('visible');
+        footerSelectedCount.innerHTML = `<span>${count}</span> row${count > 1 ? 's' : ''} selected`;
+        footerCompareBadge.textContent = count;
+        footerCompareBtn.disabled = count < 2;
+        footerCompareBtn.style.opacity = count < 2 ? '0.55' : '1';
+      } else {
+        footerBar.classList.remove('visible');
+      }
+    }
+
+    footerClearBtn.addEventListener('click', () => {
+      selectedRows.clear();
+      renderTable();
+      updateFooterBar();
+    });
+
+    footerAddTripBtn.addEventListener('click', () => {
+      let added = 0;
+      selectedRows.forEach(id => {
+        if (!App.isInItinerary(id)) { App.addToItinerary(id); added++; }
+      });
+      showToast(`${added} attraction${added !== 1 ? 's' : ''} added to trip`, '✓');
+      updateItinFab();
+      renderTable();
+    });
+
+    footerCompareBtn.addEventListener('click', () => {
+      if (selectedRows.size >= 2) openCompareModal();
+    });
+
+    /* ------------------------------------------------------------------
+       SORT HEADERS
+    ------------------------------------------------------------------ */
+    document.querySelectorAll('.data-table thead th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) {
+          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortCol = col;
+          sortDir = col === 'rating' ? 'desc' : 'asc';
+        }
+        renderTable();
+      });
+    });
+
+    /* ------------------------------------------------------------------
+       FILTERS
+    ------------------------------------------------------------------ */
+    function applyFilters() {
+      filteredData = App.filterAttractions(attractions, filters);
+      // Keep selected rows even if filtered out (so compare works)
+      renderTable();
+      updateFooterBar();
+    }
+
+    window.clearAllFilters = function() {
+      filters.search = filters.region = filters.category = filters.difficulty = '';
+      searchInput.value = '';
+      regionFilter.value = '';
+      categoryFilter.value = '';
+      difficultyFilter.value = '';
+      applyFilters();
+    };
+
+    searchInput.addEventListener('input', e => {
+      filters.search = e.target.value;
+      applyFilters();
+    });
+
+    regionFilter.addEventListener('change', e => {
+      filters.region = e.target.value;
+      applyFilters();
+    });
+
+    categoryFilter.addEventListener('change', e => {
+      filters.category = e.target.value;
+      applyFilters();
+    });
+
+    difficultyFilter.addEventListener('change', e => {
+      filters.difficulty = e.target.value;
+      applyFilters();
+    });
+
+    /* ------------------------------------------------------------------
+       COMPARISON MODAL
+    ------------------------------------------------------------------ */
+    function openCompareModal() {
+      const ids  = [...selectedRows];
+      const items = ids.map(id => attractions.find(a => a.id === id)).filter(Boolean);
+      if (items.length < 2) return;
+
+      compareModalSub.textContent = `Comparing ${items.length} attractions`;
+
+      const cols = items.length;
+      const colStyle = `--cols:${cols}`;
+
+      // Find best values for highlighting
+      const bestRating = Math.max(...items.map(a => a.rating));
+
+      const fields = [
+        { label: 'State / Location', key: 'state' },
+        { label: 'Region',           key: 'region' },
+        { label: 'Category',         key: 'category' },
+        { label: 'Rating',           key: 'rating',     isBest: true, bestVal: bestRating },
+        { label: 'Entry Fee',        key: 'fee' },
+        { label: 'Difficulty',       key: 'difficulty' },
+        { label: 'Duration',         key: 'duration' },
+        { label: 'Best Time',        key: 'bestTime' },
+        { label: 'Accessibility',    key: 'accessibility', render: v => v ? '✓ Accessible' : '✗ Limited' },
+        { label: 'Reviews',          key: 'reviews', render: v => App.formatReviews(v) + ' reviews' },
+        { label: 'Activities',       key: 'activities', render: v => v.join(', ') },
+        { label: 'Tags',             key: 'tags',       render: v => v.join(', ') },
+      ];
+
+      // Header row (image + title)
+      const headerCells = `
+        <div class="compare-label-cell" style="border-bottom:2px solid var(--teal-100)"></div>
+        ${items.map(a => `
+          <div class="compare-card-header">
+            <img src="${a.image}" alt="${a.name}"
+              onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+            <div class="compare-card-title-block">
+              <h3>${a.name}</h3>
+              <p>&#128205; ${a.state}</p>
+            </div>
+          </div>
+        `).join('')}
+      `;
+
+      // Data rows
+      const dataRows = fields.map((f, fi) => {
+        const cells = items.map(a => {
+          let val = a[f.key];
+          if (f.render) val = f.render(val);
+          const isBestCell = f.isBest && a[f.key] === f.bestVal;
+          return `<div class="compare-data-cell${isBestCell ? ' compare-best-val' : ''}">${val}</div>`;
+        }).join('');
+        return `
+          <div class="compare-label-cell">${f.label}</div>
+          ${cells}
+        `;
+      }).join('');
+
+      compareModalBody.innerHTML = `
+        <div class="compare-grid cols-${cols}" style="${colStyle}" role="table">
+          ${headerCells}
+          ${dataRows}
+        </div>
+      `;
+
+      compareModal.classList.add('open');
+      compareModal.focus();
+      document.body.style.overflow = 'hidden';
+    }
+
+    compareCloseBtn.addEventListener('click', closeCompareModal);
+    compareModal.addEventListener('click', e => {
+      if (e.target === compareModal) closeCompareModal();
+    });
+
+    function closeCompareModal() {
+      compareModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* ------------------------------------------------------------------
+       ITINERARY DRAWER
+    ------------------------------------------------------------------ */
+    function updateItinFab() {
+      const count = App.getItinerary().length;
+      if (count > 0) {
+        itinFabCount.textContent = count;
+        itinFabCount.classList.remove('hidden');
+      } else {
+        itinFabCount.classList.add('hidden');
+      }
+    }
+
+    function renderItinDrawer() {
+      const ids   = App.getItinerary();
+      const items = ids.map(id => attractions.find(a => a.id === id)).filter(Boolean);
+
+      if (items.length === 0) {
+        itinDrawerBody.innerHTML = `
+          <div class="itin-empty">
+            <span class="itin-empty-icon">&#128506;</span>
+            <p>No attractions in your trip yet.</p>
+            <p style="font-size:0.78rem;margin-top:0.25rem">Use the + button on any row.</p>
+          </div>`;
+        itinDrawerFooter.style.display = 'none';
+        return;
+      }
+
+      itinDrawerBody.innerHTML = items.map((a, idx) => `
+        <div class="itin-item">
+          <div class="itin-item-num">${idx + 1}</div>
+          <img class="itin-item-thumb" src="${a.image}" alt="${a.name}" loading="lazy"
+            onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+          <div class="itin-item-info">
+            <div class="itin-item-name">${a.name}</div>
+            <div class="itin-item-sub">${a.state} · ${a.duration}</div>
+          </div>
+          <button class="itin-remove-btn" data-itin-remove="${a.id}" aria-label="Remove ${a.name} from itinerary">&#10005;</button>
+        </div>
+      `).join('');
+
+      const avgRating = (items.reduce((s, a) => s + a.rating, 0) / items.length).toFixed(2);
+      itinStatCount.textContent  = items.length;
+      itinStatRating.textContent = avgRating;
+      itinDrawerFooter.style.display = 'flex';
+    }
+
+    function openItinDrawer() {
+      renderItinDrawer();
+      itinDrawer.classList.add('open');
+      itinOverlay.classList.add('open');
+      itinOverlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeItinDrawer() {
+      itinDrawer.classList.remove('open');
+      itinOverlay.classList.remove('open');
+      itinOverlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    itinFab.addEventListener('click', openItinDrawer);
+    itinCloseBtn.addEventListener('click', closeItinDrawer);
+    itinOverlay.addEventListener('click', closeItinDrawer);
+
+    itinDrawerBody.addEventListener('click', e => {
+      const btn = e.target.closest('[data-itin-remove]');
+      if (!btn) return;
+      const id = parseInt(btn.dataset.itinRemove);
+      App.removeFromItinerary(id);
+      // Update trip btn in table
+      const tripBtn = tableBody.querySelector(`.trip-btn[data-itin="${id}"]`);
+      if (tripBtn) {
+        tripBtn.innerHTML = '+';
+        tripBtn.classList.remove('active');
+        tripBtn.setAttribute('aria-pressed', false);
+        tripBtn.title = 'Add to trip';
+      }
+      updateItinFab();
+      renderItinDrawer();
+      showToast('Removed from itinerary', '−');
+    });
+
+    itinClearBtn.addEventListener('click', () => {
+      App.clearItinerary();
+      // Reset all trip buttons in table
+      tableBody.querySelectorAll('.trip-btn.active').forEach(btn => {
+        btn.innerHTML = '+';
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', false);
+        btn.title = 'Add to trip';
+      });
+      updateItinFab();
+      renderItinDrawer();
+      showToast('Itinerary cleared', '🗑');
+    });
+
+    /* ------------------------------------------------------------------
+       KEYBOARD
+    ------------------------------------------------------------------ */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (compareModal.classList.contains('open')) { closeCompareModal(); return; }
+        if (itinDrawer.classList.contains('open'))   { closeItinDrawer();   return; }
+      }
+    });
+
+    /* ------------------------------------------------------------------
+       INIT
+    ------------------------------------------------------------------ */
+    function init() {
+      populateFilters();
+      renderNavStats();
+      applyFilters();
+      updateItinFab();
+    }
+
+    init();
+
+  })();
+  </script>
+</body>
+</html>

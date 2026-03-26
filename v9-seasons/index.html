@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Season Planner — U.S. Tourist Attractions</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    /* ============================================================
+       SEASON PLANNER — Theme Variables & Page-Level Transitions
+       ============================================================ */
+    :root {
+      /* Default: All Year */
+      --bg:           #F8FAFC;
+      --bg-alt:       #EEF2F7;
+      --primary:      #374151;
+      --primary-dark: #1F2937;
+      --primary-light:#4B5563;
+      --accent:       #6366F1;
+      --accent-light: #818CF8;
+      --text:         #1A1A1A;
+      --text-muted:   #555;
+      --text-light:   #888;
+      --card-bg:      #FFFFFF;
+      --card-border:  rgba(0,0,0,0.07);
+      --shadow-sm:    0 1px 4px rgba(0,0,0,0.07);
+      --shadow-md:    0 4px 18px rgba(0,0,0,0.11);
+      --shadow-lg:    0 8px 36px rgba(0,0,0,0.16);
+      --hero-from:    #C7D2E8;
+      --hero-to:      #E8EEF7;
+      --season-emoji: "🗓";
+    }
+
+    /* ---- Season theme classes applied to <body> ---- */
+    body.season-spring {
+      --bg:           #F0FDF4;
+      --bg-alt:       #DCFCE7;
+      --primary:      #16A34A;
+      --primary-dark: #15803D;
+      --primary-light:#22C55E;
+      --accent:       #84CC16;
+      --accent-light: #A3E635;
+      --hero-from:    #BBF7D0;
+      --hero-to:      #D1FAE5;
+      --season-emoji: "🌸";
+    }
+    body.season-summer {
+      --bg:           #EFF6FF;
+      --bg-alt:       #DBEAFE;
+      --primary:      #1D4ED8;
+      --primary-dark: #1E40AF;
+      --primary-light:#3B82F6;
+      --accent:       #F59E0B;
+      --accent-light: #FBBF24;
+      --hero-from:    #BFDBFE;
+      --hero-to:      #DBEAFE;
+      --season-emoji: "☀️";
+    }
+    body.season-fall {
+      --bg:           #FFF7ED;
+      --bg-alt:       #FED7AA;
+      --primary:      #C2410C;
+      --primary-dark: #9A3412;
+      --primary-light:#EA580C;
+      --accent:       #D97706;
+      --accent-light: #F59E0B;
+      --hero-from:    #FED7AA;
+      --hero-to:      #FEF3C7;
+      --season-emoji: "🍂";
+    }
+    body.season-winter {
+      --bg:           #F8FAFC;
+      --bg-alt:       #E2EAF4;
+      --primary:      #1E3A5F;
+      --primary-dark: #162D4A;
+      --primary-light:#2563A8;
+      --accent:       #60A5FA;
+      --accent-light: #93C5FD;
+      --hero-from:    #BFDBFE;
+      --hero-to:      #E0F2FE;
+      --season-emoji: "❄️";
+    }
+
+    /* ---- Page-level transitions for theme shifts ---- */
+    body {
+      background: var(--bg);
+      transition:
+        background-color 0.55s ease,
+        color 0.3s ease;
+    }
+
+    /* ============================================================
+       NAV
+       ============================================================ */
+    .site-nav { background: var(--primary); transition: background 0.55s ease; }
+    .nav-logo { font-size: 1.15rem; }
+    .nav-logo .logo-leaf { font-style: normal; }
+
+    /* ============================================================
+       SEASON TABS
+       ============================================================ */
+    .season-tabs-section {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: var(--nav-h);
+      z-index: 90;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: background 0.45s ease;
+    }
+
+    .season-tabs-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .season-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .season-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      border: 2px solid transparent;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease,
+        transform 0.15s ease,
+        box-shadow 0.25s ease;
+      background: var(--bg-alt);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .season-tab:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .season-tab.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      transform: translateY(-1px);
+    }
+
+    .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(255,255,255,0.25);
+      color: inherit;
+      transition: background 0.25s ease;
+    }
+
+    .season-tab:not(.active) .tab-badge {
+      background: rgba(0,0,0,0.1);
+      color: var(--text-muted);
+    }
+
+    /* Region quick filters row */
+    .region-filters {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      padding-bottom: 0.7rem;
+      align-items: center;
+    }
+
+    .region-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-right: 0.2rem;
+    }
+
+    .region-pill {
+      padding: 0.22rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .region-pill:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .region-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* ============================================================
+       HERO BANNER
+       ============================================================ */
+    .season-hero {
+      background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+      transition: background 0.55s ease;
+      padding: 2.5rem 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .season-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-text { flex: 1; min-width: 220px; }
+
+    .hero-season-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 0.3rem 1rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+      transition: background 0.45s ease;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+      color: var(--primary-dark);
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      transition: color 0.45s ease;
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 480px;
+    }
+
+    /* Season illustration — pure CSS + emoji */
+    .hero-illustration {
+      flex-shrink: 0;
+      width: 180px;
+      height: 140px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .illus-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.45);
+      backdrop-filter: blur(4px);
+    }
+
+    .illus-main-emoji {
+      font-size: 3.5rem;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .illus-deco {
+      position: absolute;
+      font-size: 1.4rem;
+      opacity: 0.7;
+      animation: float 3s ease-in-out infinite;
+    }
+    .illus-deco:nth-child(1) { top: 12px; left: 14px; animation-delay: 0.3s; }
+    .illus-deco:nth-child(2) { top: 10px; right: 16px; animation-delay: 0.7s; }
+    .illus-deco:nth-child(3) { bottom: 12px; left: 20px; animation-delay: 1s; }
+    .illus-deco:nth-child(4) { bottom: 14px; right: 14px; animation-delay: 0.5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    /* Floating seasonal particles */
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      font-size: 1.2rem;
+      opacity: 0;
+      animation: drift 6s ease-in infinite;
+    }
+
+    @keyframes drift {
+      0%   { opacity: 0; transform: translateY(100%) translateX(0) rotate(0deg); }
+      20%  { opacity: 0.6; }
+      80%  { opacity: 0.4; }
+      100% { opacity: 0; transform: translateY(-60px) translateX(40px) rotate(180deg); }
+    }
+
+    /* ============================================================
+       MONTH CALENDAR STRIP
+       ============================================================ */
+    .calendar-section {
+      background: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1.25rem 1.5rem;
+      transition: background 0.45s ease;
+    }
+
+    .calendar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .calendar-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-light);
+      margin-bottom: 0.8rem;
+    }
+
+    .month-strip {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.3rem;
+    }
+
+    .month-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.2rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+      border: 2px solid transparent;
+    }
+
+    .month-cell:hover { background: var(--bg-alt); transform: translateY(-1px); }
+
+    .month-cell.active-month {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .month-name {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .month-cell.active-month .month-name { color: rgba(255,255,255,0.9); }
+
+    .month-count {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .month-cell.active-month .month-count { color: #fff; }
+
+    .month-bar-wrap {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-alt);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .month-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.4s ease, background 0.45s ease;
+    }
+
+    .month-cell.active-month .month-bar { background: rgba(255,255,255,0.7); }
+
+    .month-season-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       MAIN CONTENT AREA
+       ============================================================ */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .results-info {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .results-count {
+      font-weight: 700;
+      color: var(--primary);
+      transition: color 0.45s ease;
+    }
+
+    .sort-select {
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.83rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .sort-select:focus { border-color: var(--primary); }
+
+    /* ============================================================
+       ATTRACTION GRID
+       ============================================================ */
+    .attractions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Season badge overlaid on card */
+    .season-badge-card {
+      position: absolute;
+      bottom: 0.6rem;
+      left: 0.6rem;
+      background: rgba(0,0,0,0.62);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Best-match glow for exact season match */
+    .attraction-card.best-match {
+      box-shadow: 0 0 0 2px var(--accent), var(--shadow-md);
+    }
+
+    .attraction-card.best-match:hover {
+      box-shadow: 0 0 0 2px var(--accent), var(--shadow-lg);
+    }
+
+    /* "Best match" crown badge on image */
+    .best-match-badge {
+      position: absolute;
+      top: 2.4rem;
+      left: 0.6rem;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    /* No results */
+    .no-results-wrap {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .no-results-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+    .no-results-title {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .no-results-sub { font-size: 0.9rem; color: var(--text-light); }
+
+    /* ============================================================
+       DETAIL MODAL
+       ============================================================ */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      max-width: 680px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(24px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-backdrop.open .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-hero {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .modal-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.25rem;
+      color: #fff;
+    }
+
+    .modal-hero-overlay h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      margin-bottom: 0.25rem;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s ease;
+      z-index: 2;
+    }
+
+    .modal-close-btn:hover { background: rgba(0,0,0,0.75); }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-stat {
+      background: var(--bg-alt);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem;
+      text-align: center;
+    }
+
+    .modal-stat-val {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--primary);
+      display: block;
+      transition: color 0.45s ease;
+    }
+
+    .modal-stat-label {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    .modal-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .modal-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tag-pill {
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .activity-pill {
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--bg-alt);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* ============================================================
+       TOAST NOTIFICATION
+       ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--primary);
+      color: #fff;
+      padding: 0.65rem 1.4rem;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.45s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ============================================================
+       PLAN SIDEBAR STRIP
+       ============================================================ */
+    .plan-strip {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      transition: background 0.55s ease;
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 2rem;
+      color: #fff;
+    }
+
+    .plan-strip-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .plan-strip-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .plan-strip-title { font-family: var(--font-serif); font-size: 1.15rem; }
+    .plan-strip-sub { font-size: 0.8rem; opacity: 0.75; }
+
+    .peak-months-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .peak-month-chip {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .peak-month-chip:hover { background: rgba(255,255,255,0.3); transform: translateY(-1px); }
+    .peak-month-chip.highlighted { background: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.7); }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 768px) {
+      .season-tabs { gap: 0.35rem; }
+      .season-tab  { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
+      .hero-illustration { display: none; }
+      .month-strip { grid-template-columns: repeat(6, 1fr); }
+      .modal-backdrop { padding: 0; align-items: flex-end; }
+      .modal-box { border-radius: var(--radius-lg) var(--radius-lg) 0 0; max-height: 92vh; }
+    }
+
+    @media (max-width: 480px) {
+      .season-tab  { padding: 0.4rem 0.7rem; font-size: 0.75rem; }
+      .month-strip { grid-template-columns: repeat(4, 1fr); }
+      .plan-strip  { border-radius: var(--radius-md); }
+    }
+
+    /* ============================================================
+       LOADING SKELETON
+       ============================================================ */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-alt) 25%, var(--card-bg) 50%, var(--bg-alt) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+
+    /* ============================================================
+       SEARCH HIGHLIGHT
+       ============================================================ */
+    mark {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    /* ============================================================
+       ACCESSIBILITY — focus ring
+       ============================================================ */
+    *:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="season-all">
+
+  <!-- ===================== NAV ===================== -->
+  <nav class="site-nav" role="navigation" aria-label="Main navigation">
+    <a href="../gallery.html" class="nav-logo">
+      <span class="logo-leaf">🍃</span> U.S. <span>Attractions</span>
+    </a>
+    <a href="../gallery.html" class="nav-back-btn" aria-label="Back to gallery">
+      ← Gallery
+    </a>
+    <div class="search-wrap">
+      <input
+        type="search"
+        class="search-input"
+        id="searchInput"
+        placeholder="Search parks, states, activities…"
+        aria-label="Search attractions"
+        autocomplete="off"
+      >
+    </div>
+  </nav>
+
+  <!-- ===================== SEASON TABS ===================== -->
+  <section class="season-tabs-section" aria-label="Season selector">
+    <div class="season-tabs-inner">
+      <div class="season-tabs" role="tablist" aria-label="Filter by season">
+        <button class="season-tab" role="tab" aria-selected="true"  data-season="all"    aria-controls="attractionsGrid">🗓 All Year   <span class="tab-badge" id="badge-all">0</span></button>
+        <button class="season-tab" role="tab" aria-selected="false" data-season="spring" aria-controls="attractionsGrid">🌸 Spring     <span class="tab-badge" id="badge-spring">0</span></button>
+        <button class="season-tab" role="tab" aria-selected="false" data-season="summer" aria-controls="attractionsGrid">☀️ Summer     <span class="tab-badge" id="badge-summer">0</span></button>
+        <button class="season-tab" role="tab" aria-selected="false" data-season="fall"   aria-controls="attractionsGrid">🍂 Fall       <span class="tab-badge" id="badge-fall">0</span></button>
+        <button class="season-tab" role="tab" aria-selected="false" data-season="winter" aria-controls="attractionsGrid">❄️ Winter     <span class="tab-badge" id="badge-winter">0</span></button>
+      </div>
+      <div class="region-filters" id="regionFilters" role="group" aria-label="Filter by region">
+        <span class="region-label">Region:</span>
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HERO BANNER ===================== -->
+  <section class="season-hero" id="seasonHero" aria-label="Season information">
+    <!-- floating particles -->
+    <div class="hero-particles" id="heroParticles" aria-hidden="true"></div>
+
+    <div class="season-hero-inner">
+      <div class="hero-text">
+        <div class="hero-season-label" id="heroLabel">🗓 All Seasons</div>
+        <h1 class="hero-title" id="heroTitle">Plan Your Perfect U.S. Adventure</h1>
+        <p class="hero-subtitle" id="heroSubtitle">
+          Explore all <strong id="heroCount">25</strong> U.S. attractions — filter by season to find the best time to visit each park.
+        </p>
+      </div>
+      <div class="hero-illustration" aria-hidden="true">
+        <div class="illus-bg"></div>
+        <span class="illus-deco" id="illusDeco1">🌲</span>
+        <span class="illus-deco" id="illusDeco2">🦅</span>
+        <span class="illus-deco" id="illusDeco3">🏔️</span>
+        <span class="illus-deco" id="illusDeco4">🌊</span>
+        <span class="illus-main-emoji" id="illusMain">🗓️</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MONTH CALENDAR STRIP ===================== -->
+  <section class="calendar-section" aria-label="Monthly peak calendar">
+    <div class="calendar-inner">
+      <div class="calendar-title">Peak Visit Months — Click to Highlight</div>
+      <div class="month-strip" id="monthStrip" role="list" aria-label="Months of the year">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MAIN GRID ===================== -->
+  <main class="main-content" id="mainContent">
+    <!-- Plan strip -->
+    <div class="plan-strip" id="planStrip">
+      <div class="plan-strip-header">
+        <div class="plan-strip-icon" id="planIcon">🗓</div>
+        <div>
+          <div class="plan-strip-title" id="planTitle">Season Trip Planner</div>
+          <div class="plan-strip-sub" id="planSub">Select a season to see peak visit windows</div>
+        </div>
+      </div>
+      <div class="peak-months-row" id="peakMonthsRow" aria-label="Peak months">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Results header -->
+    <div class="content-header">
+      <p class="results-info">
+        Showing <span class="results-count" id="resultsCount">25</span> attractions
+        <span id="resultsContext"></span>
+      </p>
+      <select class="sort-select" id="sortSelect" aria-label="Sort attractions">
+        <option value="rating">Sort: Top Rated</option>
+        <option value="reviews">Sort: Most Reviewed</option>
+        <option value="name">Sort: A–Z</option>
+        <option value="fee">Sort: Free First</option>
+      </select>
+    </div>
+
+    <!-- Attraction cards -->
+    <div class="attractions-grid" id="attractionsGrid" role="list" aria-label="Attractions">
+      <!-- populated by JS -->
+    </div>
+  </main>
+
+  <!-- ===================== DETAIL MODAL ===================== -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalAttrName">
+    <div class="modal-box" id="modalBox">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- ===================== TOAST ===================== -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ===================== DATA + APP SCRIPTS ===================== -->
+  <script src="../shared/data.js"></script>
+  <script src="../shared/app.js"></script>
+
+  <script>
+    /* ============================================================
+       SEASON PLANNER — Core Logic
+       ============================================================ */
+
+    // ---- Season configuration ---------------------------------
+    const SEASONS = {
+      all:    {
+        name: 'All Year',
+        label: '🗓 All Seasons',
+        title: 'Plan Your Perfect U.S. Adventure',
+        subtitle: 'Explore all #COUNT# U.S. attractions — filter by season to find the best time to visit each park.',
+        bodyClass: 'season-all',
+        mainEmoji: '🗓️',
+        decos: ['🌲', '🦅', '🏔️', '🌊'],
+        particles: ['🌲', '🦅', '🏞️', '⭐'],
+        planIcon: '🗓',
+        planTitle: 'Season Trip Planner',
+        planSub: 'Select a season to see peak visit windows',
+        peakMonths: [0,1,2,3,4,5,6,7,8,9,10,11],
+        monthDots: '#6366F1',
+      },
+      spring: {
+        name: 'Spring',
+        label: '🌸 Spring Season',
+        title: 'Spring Blooms & Wildflower Hikes',
+        subtitle: '#COUNT# parks shine in Spring — enjoy wildflowers, waterfalls, and mild temperatures from March to May.',
+        bodyClass: 'season-spring',
+        mainEmoji: '🌸',
+        decos: ['🌺', '🦋', '🌼', '🐦'],
+        particles: ['🌸', '🌺', '🌼', '🌷'],
+        planIcon: '🌸',
+        planTitle: 'Spring Adventure Planner',
+        planSub: 'Best months: March · April · May — wildflowers peak mid-April',
+        peakMonths: [2,3,4],
+        monthDots: '#22C55E',
+      },
+      summer: {
+        name: 'Summer',
+        label: '☀️ Summer Season',
+        title: 'Sun-Soaked Parks & Mountain Escapes',
+        subtitle: '#COUNT# attractions peak in Summer — long days, open trails, and iconic road trips await from June to August.',
+        bodyClass: 'season-summer',
+        mainEmoji: '☀️',
+        decos: ['🏖️', '🌊', '🦜', '⛵'],
+        particles: ['☀️', '🌊', '🏄', '🦋'],
+        planIcon: '☀️',
+        planTitle: 'Summer Road Trip Planner',
+        planSub: 'Best months: June · July · August — peak wildflower season in alpine parks',
+        peakMonths: [5,6,7],
+        monthDots: '#F59E0B',
+      },
+      fall: {
+        name: 'Fall',
+        label: '🍂 Fall Season',
+        title: 'Golden Leaves & Crisp Canyon Views',
+        subtitle: '#COUNT# parks dazzle in Fall — fiery foliage, cooler hikes, and fewer crowds from September to November.',
+        bodyClass: 'season-fall',
+        mainEmoji: '🍂',
+        decos: ['🍁', '🦊', '🌰', '🍄'],
+        particles: ['🍂', '🍁', '🌾', '🍄'],
+        planIcon: '🍂',
+        planTitle: 'Fall Foliage Planner',
+        planSub: 'Best months: Sept · Oct · Nov — peak foliage mid-October',
+        peakMonths: [8,9,10],
+        monthDots: '#EA580C',
+      },
+      winter: {
+        name: 'Winter',
+        label: '❄️ Winter Season',
+        title: 'Snow-Capped Peaks & Desert Escapes',
+        subtitle: '#COUNT# destinations welcome Winter visitors — stargazing, snowshoeing, and warm desert climates from December to February.',
+        bodyClass: 'season-winter',
+        mainEmoji: '❄️',
+        decos: ['🌨️', '🦊', '🏔️', '🌟'],
+        particles: ['❄️', '🌨️', '⛄', '🌟'],
+        planIcon: '❄️',
+        planTitle: 'Winter Wonderland Planner',
+        planSub: 'Best months: Dec · Jan · Feb — desert parks are ideal, alpine parks for snow sports',
+        peakMonths: [11,0,1],
+        monthDots: '#60A5FA',
+      },
+    };
+
+    const MONTHS = [
+      { abbr: 'Jan', full: 'January',   season: 'winter' },
+      { abbr: 'Feb', full: 'February',  season: 'winter' },
+      { abbr: 'Mar', full: 'March',     season: 'spring' },
+      { abbr: 'Apr', full: 'April',     season: 'spring' },
+      { abbr: 'May', full: 'May',       season: 'spring' },
+      { abbr: 'Jun', full: 'June',      season: 'summer' },
+      { abbr: 'Jul', full: 'July',      season: 'summer' },
+      { abbr: 'Aug', full: 'August',    season: 'summer' },
+      { abbr: 'Sep', full: 'September', season: 'fall'   },
+      { abbr: 'Oct', full: 'October',   season: 'fall'   },
+      { abbr: 'Nov', full: 'November',  season: 'fall'   },
+      { abbr: 'Dec', full: 'December',  season: 'winter' },
+    ];
+
+    const SEASON_MONTH_RANGES = {
+      spring: [2,3,4],
+      summer: [5,6,7],
+      fall:   [8,9,10],
+      winter: [11,0,1],
+    };
+
+    // Month → season name map (0-indexed)
+    const MONTH_TO_SEASON = {};
+    for (const [s, idxs] of Object.entries(SEASON_MONTH_RANGES)) {
+      idxs.forEach(i => { MONTH_TO_SEASON[i] = s; });
+    }
+
+    // ---- Month name → index map --------------------------------
+    const MONTH_NAME_MAP = {
+      january:0, jan:0, february:1, feb:1, march:2, mar:2,
+      april:3, apr:3, may:4, june:5, jun:5, july:6, jul:6,
+      august:7, aug:7, september:8, sep:8, sept:8,
+      october:9, oct:9, november:10, nov:10, december:11, dec:11
+    };
+
+    /* ============================================================
+       seasonMatch(bestTime, season)
+       Returns true if an attraction is good in that season.
+       ============================================================ */
+    function seasonMatch(bestTime, season) {
+      if (!bestTime) return season === 'all';
+      if (season === 'all') return true;
+
+      const raw = bestTime.toLowerCase().trim();
+
+      // Explicit year-round
+      if (raw.includes('year-round') || raw === 'year round') return true;
+
+      const targetMonths = SEASON_MONTH_RANGES[season]; // e.g. [2,3,4]
+
+      // Collect all month indices mentioned in bestTime
+      // Handle both ranges (e.g. "June–August", "April-June")
+      // and lists (e.g. "March–May, Sept–Nov")
+      const segments = raw.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+
+      for (const seg of segments) {
+        // Try to parse as a range: "MonthA–MonthB" or "MonthA - MonthB"
+        const rangeParts = seg.split(/[–—\-\/]/).map(s => s.trim()).filter(Boolean);
+
+        if (rangeParts.length === 2) {
+          const startIdx = resolveMonthName(rangeParts[0]);
+          const endIdx   = resolveMonthName(rangeParts[1]);
+          if (startIdx !== -1 && endIdx !== -1) {
+            // Handle wrap-around (e.g. "November–February")
+            const rangeMonths = getMonthRange(startIdx, endIdx);
+            if (targetMonths.some(m => rangeMonths.includes(m))) return true;
+          }
+        } else if (rangeParts.length === 1) {
+          // Single month
+          const idx = resolveMonthName(rangeParts[0]);
+          if (idx !== -1 && targetMonths.includes(idx)) return true;
+
+          // Try keyword check e.g. "midday" or "October (fall foliage)"
+          // Fallback: look for any month name in the segment
+          for (const [name, mIdx] of Object.entries(MONTH_NAME_MAP)) {
+            if (seg.includes(name) && targetMonths.includes(mIdx)) return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    // Resolve partial month name to 0-indexed month
+    function resolveMonthName(str) {
+      str = str.trim().toLowerCase().replace(/[^a-z]/g, '');
+      // Exact and prefix matches
+      for (const [key, idx] of Object.entries(MONTH_NAME_MAP)) {
+        if (str === key || key.startsWith(str) || str.startsWith(key)) return idx;
+      }
+      return -1;
+    }
+
+    // Returns array of month indices from start to end (inclusive), wrapping Dec→Jan
+    function getMonthRange(start, end) {
+      const result = [];
+      if (start <= end) {
+        for (let i = start; i <= end; i++) result.push(i);
+      } else {
+        // Wrap around: e.g. November(10) → February(1)
+        for (let i = start; i <= 11; i++) result.push(i);
+        for (let i = 0; i <= end; i++) result.push(i);
+      }
+      return result;
+    }
+
+    /* ============================================================
+       Get all seasons an attraction is good for
+       ============================================================ */
+    function getAttractionSeasons(bestTime) {
+      if (!bestTime) return ['all'];
+      if (bestTime.toLowerCase().includes('year-round')) return ['spring','summer','fall','winter'];
+      return ['spring','summer','fall','winter'].filter(s => seasonMatch(bestTime, s));
+    }
+
+    /* ============================================================
+       Compute count badges for each season tab
+       ============================================================ */
+    function computeBadgeCounts() {
+      const counts = { all: attractions.length, spring:0, summer:0, fall:0, winter:0 };
+      for (const a of attractions) {
+        for (const s of ['spring','summer','fall','winter']) {
+          if (seasonMatch(a.bestTime, s)) counts[s]++;
+        }
+      }
+      return counts;
+    }
+
+    /* ============================================================
+       Compute per-month counts for the calendar strip
+       ============================================================ */
+    function computeMonthCounts() {
+      const counts = new Array(12).fill(0);
+      for (const a of attractions) {
+        const raw = (a.bestTime || '').toLowerCase().trim();
+        if (raw.includes('year-round')) {
+          for (let i = 0; i < 12; i++) counts[i]++;
+          continue;
+        }
+        const segments = raw.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+        for (const seg of segments) {
+          const rangeParts = seg.split(/[–—\-\/]/).map(s => s.trim()).filter(Boolean);
+          if (rangeParts.length === 2) {
+            const s = resolveMonthName(rangeParts[0]);
+            const e = resolveMonthName(rangeParts[1]);
+            if (s !== -1 && e !== -1) {
+              getMonthRange(s, e).forEach(i => counts[i]++);
+            }
+          } else {
+            const idx = resolveMonthName(rangeParts[0]);
+            if (idx !== -1) counts[idx]++;
+            else {
+              for (const [name, mIdx] of Object.entries(MONTH_NAME_MAP)) {
+                if (seg.includes(name)) counts[mIdx]++;
+              }
+            }
+          }
+        }
+      }
+      return counts;
+    }
+
+    /* ============================================================
+       State
+       ============================================================ */
+    let currentSeason  = 'all';
+    let currentRegion  = '';
+    let currentSearch  = '';
+    let currentSort    = 'rating';
+    let activeMonthFilter = null; // 0-11 or null
+    let openModalId    = null;
+
+    /* ============================================================
+       INIT
+       ============================================================ */
+    document.addEventListener('DOMContentLoaded', () => {
+      initBadges();
+      initRegionFilters();
+      initMonthStrip();
+      renderPlanStrip();
+      renderHero();
+      renderGrid();
+      initTabs();
+      initSearch();
+      initSort();
+      initModalClose();
+      bindCards();
+    });
+
+    /* ============================================================
+       Badges
+       ============================================================ */
+    function initBadges() {
+      const counts = computeBadgeCounts();
+      for (const [s, n] of Object.entries(counts)) {
+        const el = document.getElementById(`badge-${s}`);
+        if (el) el.textContent = n;
+      }
+    }
+
+    /* ============================================================
+       Region filters
+       ============================================================ */
+    function initRegionFilters() {
+      const regions = [...new Set(attractions.map(a => a.region))].sort();
+      const container = document.getElementById('regionFilters');
+      // "All" pill
+      let html = `<button class="region-pill active" data-region="">All</button>`;
+      regions.forEach(r => {
+        html += `<button class="region-pill" data-region="${r}">${r}</button>`;
+      });
+      container.insertAdjacentHTML('beforeend', html);
+
+      container.addEventListener('click', e => {
+        const btn = e.target.closest('.region-pill');
+        if (!btn) return;
+        currentRegion = btn.dataset.region;
+        container.querySelectorAll('.region-pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        renderGrid();
+      });
+    }
+
+    /* ============================================================
+       Month Strip
+       ============================================================ */
+    function initMonthStrip() {
+      const counts = computeMonthCounts();
+      const maxCount = Math.max(...counts);
+      const container = document.getElementById('monthStrip');
+
+      const seasonColors = {
+        spring: '#22C55E', summer: '#F59E0B', fall: '#EA580C', winter: '#60A5FA'
+      };
+
+      container.innerHTML = MONTHS.map((m, i) => {
+        const pct = maxCount ? Math.round((counts[i] / maxCount) * 100) : 0;
+        const dotColor = seasonColors[m.season];
+        return `
+          <div class="month-cell" role="listitem" data-month="${i}"
+               title="${m.full}: ${counts[i]} attractions">
+            <div class="month-bar-wrap">
+              <div class="month-bar" style="width:${pct}%"></div>
+            </div>
+            <span class="month-count">${counts[i]}</span>
+            <span class="month-name">${m.abbr}</span>
+            <div class="month-season-dot" style="background:${dotColor}"></div>
+          </div>`;
+      }).join('');
+
+      container.addEventListener('click', e => {
+        const cell = e.target.closest('.month-cell');
+        if (!cell) return;
+        const idx = parseInt(cell.dataset.month);
+        if (activeMonthFilter === idx) {
+          // deselect
+          activeMonthFilter = null;
+          container.querySelectorAll('.month-cell').forEach(c => c.classList.remove('active-month'));
+          currentSeason = 'all';
+          setActiveSeason('all');
+          renderGrid();
+        } else {
+          activeMonthFilter = idx;
+          container.querySelectorAll('.month-cell').forEach(c => c.classList.remove('active-month'));
+          cell.classList.add('active-month');
+          // Switch to the season that owns this month
+          const newSeason = MONTH_TO_SEASON[idx];
+          currentSeason = newSeason;
+          setActiveSeason(newSeason);
+          renderGrid();
+        }
+      });
+    }
+
+    function updateMonthStripHighlight() {
+      const cells = document.querySelectorAll('#monthStrip .month-cell');
+      cells.forEach((cell, i) => {
+        const inSeason = currentSeason === 'all'
+          ? true
+          : (SEASON_MONTH_RANGES[currentSeason] || []).includes(i);
+        cell.style.opacity = inSeason ? '1' : '0.45';
+      });
+    }
+
+    /* ============================================================
+       Season Tabs
+       ============================================================ */
+    function initTabs() {
+      const tabs = document.querySelectorAll('.season-tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const s = tab.dataset.season;
+          activeMonthFilter = null;
+          document.querySelectorAll('#monthStrip .month-cell').forEach(c => {
+            c.classList.remove('active-month');
+            c.style.opacity = '1';
+          });
+          currentSeason = s;
+          setActiveSeason(s);
+          renderGrid();
+        });
+      });
+      // Mark "all" as active initially
+      tabs[0].classList.add('active');
+      tabs[0].setAttribute('aria-selected', 'true');
+    }
+
+    function setActiveSeason(season) {
+      // Update body class
+      document.body.className = 'season-' + season;
+
+      // Update tab states
+      document.querySelectorAll('.season-tab').forEach(t => {
+        const isActive = t.dataset.season === season;
+        t.classList.toggle('active', isActive);
+        t.setAttribute('aria-selected', isActive);
+      });
+
+      renderHero();
+      renderPlanStrip();
+      updateMonthStripHighlight();
+      startParticles();
+    }
+
+    /* ============================================================
+       Hero Banner
+       ============================================================ */
+    function renderHero() {
+      const cfg = SEASONS[currentSeason];
+      const filtered = getFilteredAttractions();
+
+      document.getElementById('heroLabel').textContent    = cfg.label;
+      document.getElementById('heroTitle').textContent    = cfg.title;
+      document.getElementById('heroSubtitle').innerHTML   = cfg.subtitle.replace('#COUNT#',
+        `<strong id="heroCount">${filtered.length}</strong>`);
+      document.getElementById('illusMain').textContent    = cfg.mainEmoji;
+      document.getElementById('illusDeco1').textContent   = cfg.decos[0];
+      document.getElementById('illusDeco2').textContent   = cfg.decos[1];
+      document.getElementById('illusDeco3').textContent   = cfg.decos[2];
+      document.getElementById('illusDeco4').textContent   = cfg.decos[3];
+    }
+
+    /* ============================================================
+       Particles
+       ============================================================ */
+    let particleTimer = null;
+    function startParticles() {
+      const container = document.getElementById('heroParticles');
+      container.innerHTML = '';
+      if (particleTimer) clearInterval(particleTimer);
+      const cfg = SEASONS[currentSeason];
+      let count = 0;
+      particleTimer = setInterval(() => {
+        if (count++ > 12) { clearInterval(particleTimer); return; }
+        const el = document.createElement('span');
+        el.className = 'particle';
+        el.textContent = cfg.particles[Math.floor(Math.random() * cfg.particles.length)];
+        el.style.left   = Math.random() * 90 + '%';
+        el.style.bottom = '0';
+        el.style.animationDuration = (4 + Math.random() * 4) + 's';
+        el.style.animationDelay   = (Math.random() * 0.5) + 's';
+        el.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 8000);
+      }, 300);
+    }
+
+    /* ============================================================
+       Plan Strip
+       ============================================================ */
+    function renderPlanStrip() {
+      const cfg = SEASONS[currentSeason];
+      document.getElementById('planIcon').textContent  = cfg.planIcon;
+      document.getElementById('planTitle').textContent = cfg.planTitle;
+      document.getElementById('planSub').textContent   = cfg.planSub;
+
+      const row = document.getElementById('peakMonthsRow');
+      row.innerHTML = cfg.peakMonths.map(mIdx => {
+        const m = MONTHS[mIdx];
+        // How many attractions peak in this month?
+        const counts = computeMonthCounts();
+        return `
+          <button class="peak-month-chip${activeMonthFilter === mIdx ? ' highlighted' : ''}"
+                  data-month="${mIdx}" aria-label="${m.full}: ${counts[mIdx]} attractions">
+            ${m.full} <span style="opacity:0.7;font-size:0.7rem">${counts[mIdx]}</span>
+          </button>`;
+      }).join('');
+
+      row.addEventListener('click', e => {
+        const btn = e.target.closest('.peak-month-chip');
+        if (!btn) return;
+        const mIdx = parseInt(btn.dataset.month);
+        if (activeMonthFilter === mIdx) {
+          activeMonthFilter = null;
+          document.querySelectorAll('.peak-month-chip').forEach(b => b.classList.remove('highlighted'));
+          document.querySelectorAll('#monthStrip .month-cell').forEach(c => {
+            c.classList.remove('active-month'); c.style.opacity = '1';
+          });
+        } else {
+          activeMonthFilter = mIdx;
+          document.querySelectorAll('.peak-month-chip').forEach(b => b.classList.remove('highlighted'));
+          btn.classList.add('highlighted');
+          // Highlight in month strip
+          document.querySelectorAll('#monthStrip .month-cell').forEach((c, i) => {
+            c.classList.toggle('active-month', i === mIdx);
+          });
+          updateMonthStripHighlight();
+        }
+        renderGrid();
+      });
+    }
+
+    /* ============================================================
+       Search & Sort
+       ============================================================ */
+    function initSearch() {
+      const inp = document.getElementById('searchInput');
+      let debounce;
+      inp.addEventListener('input', () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+          currentSearch = inp.value.trim();
+          renderGrid();
+        }, 220);
+      });
+    }
+
+    function initSort() {
+      document.getElementById('sortSelect').addEventListener('change', e => {
+        currentSort = e.target.value;
+        renderGrid();
+      });
+    }
+
+    /* ============================================================
+       Filtering
+       ============================================================ */
+    function getFilteredAttractions() {
+      let list = attractions.slice();
+
+      // Season filter
+      if (currentSeason !== 'all') {
+        list = list.filter(a => seasonMatch(a.bestTime, currentSeason));
+      }
+
+      // Month filter (more specific)
+      if (activeMonthFilter !== null) {
+        const mSeason = MONTH_TO_SEASON[activeMonthFilter];
+        list = list.filter(a => {
+          // Check raw bestTime for the month
+          const raw = (a.bestTime || '').toLowerCase();
+          if (raw.includes('year-round')) return true;
+          const mName = MONTHS[activeMonthFilter].abbr.toLowerCase();
+          const mFull = MONTHS[activeMonthFilter].full.toLowerCase();
+          // Quick check: does the month (or its range) appear?
+          return seasonMatch(a.bestTime, mSeason);
+        });
+      }
+
+      // Region filter
+      if (currentRegion) {
+        list = list.filter(a => a.region === currentRegion);
+      }
+
+      // Search filter
+      if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        list = list.filter(a =>
+          a.name.toLowerCase().includes(q) ||
+          a.state.toLowerCase().includes(q) ||
+          a.region.toLowerCase().includes(q) ||
+          a.category.toLowerCase().includes(q) ||
+          a.tags.join(' ').toLowerCase().includes(q) ||
+          a.activities.join(' ').toLowerCase().includes(q)
+        );
+      }
+
+      // Sort
+      list.sort((a, b) => {
+        if (currentSort === 'rating')  return b.rating - a.rating;
+        if (currentSort === 'reviews') return b.reviews - a.reviews;
+        if (currentSort === 'name')    return a.name.localeCompare(b.name);
+        if (currentSort === 'fee')     return (a.fee === 'Free' ? -1 : 1) - (b.fee === 'Free' ? -1 : 1);
+        return 0;
+      });
+
+      return list;
+    }
+
+    /* ============================================================
+       Render Grid
+       ============================================================ */
+    function renderGrid() {
+      const list = getFilteredAttractions();
+      const grid = document.getElementById('attractionsGrid');
+      const resultsCount = document.getElementById('resultsCount');
+      const resultsContext = document.getElementById('resultsContext');
+
+      resultsCount.textContent = list.length;
+
+      if (currentSeason !== 'all') {
+        resultsContext.textContent = `best in ${SEASONS[currentSeason].name}`;
+      } else {
+        resultsContext.textContent = '';
+      }
+
+      // Update hero count
+      const heroCount = document.getElementById('heroCount');
+      if (heroCount) heroCount.textContent = list.length;
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="no-results-wrap">
+            <div class="no-results-emoji">🔍</div>
+            <h3 class="no-results-title">No attractions found</h3>
+            <p class="no-results-sub">Try a different season, region, or search term.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(a => buildSeasonCard(a)).join('');
+      bindCards();
+    }
+
+    /* ============================================================
+       Season Card Builder
+       ============================================================ */
+    function buildSeasonCard(a) {
+      const isFav  = App.isFavorite(a.id);
+      const isItin = App.isInItinerary(a.id);
+      const seasons = getAttractionSeasons(a.bestTime);
+      const isBestMatch = currentSeason !== 'all' && seasons.includes(currentSeason);
+
+      const seasonBadgeLabel = isBestMatch
+        ? `Best in ${SEASONS[currentSeason].name}`
+        : seasons.length === 4 ? 'Year-round'
+        : seasons.map(s => SEASONS[s]?.name || s).join(' & ');
+
+      const seasonEmoji = isBestMatch
+        ? SEASONS[currentSeason].mainEmoji
+        : seasons.length === 4 ? '🗓'
+        : (SEASONS[seasons[0]]?.mainEmoji || '📍');
+
+      return `
+        <article class="attraction-card${isBestMatch ? ' best-match' : ''}"
+                 data-id="${a.id}" role="listitem"
+                 style="cursor:default">
+          <div class="card-image-wrap">
+            <img src="${a.image}" alt="${a.name}" loading="lazy"
+                 onerror="this.src='https://picsum.photos/seed/fallback${a.id}/800/450'">
+            <span class="card-category-badge">${a.category}</span>
+            ${isBestMatch ? `<span class="best-match-badge">⭐ Best Match</span>` : ''}
+            <button class="card-fav-btn ${isFav ? 'active' : ''}"
+                    data-fav="${a.id}" title="${isFav ? 'Remove from Favorites' : 'Add to Favorites'}"
+                    aria-label="${isFav ? 'Remove from Favorites' : 'Add to Favorites'}">
+              ${isFav ? '♥' : '♡'}
+            </button>
+            <span class="season-badge-card">${seasonEmoji} ${seasonBadgeLabel}</span>
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">${highlightText(a.name, currentSearch)}</h3>
+            <div class="card-location">📍 ${a.state}
+              <span style="margin-left:0.3rem;color:var(--text-light)">· ${a.region}</span>
+            </div>
+            <div class="card-rating">
+              <span class="stars">${App.starsHTML(a.rating)}</span>
+              <span style="font-weight:600">${a.rating}</span>
+              <span style="color:var(--text-light)">(${App.formatReviews(a.reviews)})</span>
+            </div>
+            <div class="card-meta">
+              <span class="meta-chip">💰 ${a.fee}</span>
+              <span class="meta-chip">⏱ ${a.duration}</span>
+              <span class="meta-chip">🗓 ${a.bestTime}</span>
+            </div>
+            <p class="card-desc">${a.description}</p>
+            <div class="card-actions">
+              <button class="btn-secondary" data-itin="${a.id}">
+                ${isItin ? '✓ In Trip' : '+ Add to Trip'}
+              </button>
+              <button class="btn-primary" data-detail="${a.id}">Details</button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    // Simple search highlight
+    function highlightText(text, query) {
+      if (!query) return text;
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+    }
+
+    /* ============================================================
+       Card event delegation
+       ============================================================ */
+    function bindCards() {
+      const grid = document.getElementById('attractionsGrid');
+
+      // Remove existing listeners via clone
+      const newGrid = grid.cloneNode(true);
+      grid.parentNode.replaceChild(newGrid, grid);
+
+      newGrid.addEventListener('click', e => {
+        // Favorite button
+        const favBtn = e.target.closest('[data-fav]');
+        if (favBtn) {
+          const id = parseInt(favBtn.dataset.fav);
+          const isNow = App.toggleFavorite(id);
+          favBtn.classList.toggle('active', isNow);
+          favBtn.textContent = isNow ? '♥' : '♡';
+          favBtn.title = isNow ? 'Remove from Favorites' : 'Add to Favorites';
+          showToast(isNow ? '♥ Added to Favorites' : '♡ Removed from Favorites');
+          return;
+        }
+
+        // Itinerary button
+        const itinBtn = e.target.closest('[data-itin]');
+        if (itinBtn) {
+          const id = parseInt(itinBtn.dataset.itin);
+          if (App.isInItinerary(id)) {
+            App.removeFromItinerary(id);
+            itinBtn.textContent = '+ Add to Trip';
+            itinBtn.classList.remove('in-trip');
+            showToast('Removed from your trip');
+          } else {
+            App.addToItinerary(id);
+            itinBtn.textContent = '✓ In Trip';
+            itinBtn.classList.add('in-trip');
+            showToast('✓ Added to your trip!');
+          }
+          return;
+        }
+
+        // Detail button
+        const detailBtn = e.target.closest('[data-detail]');
+        if (detailBtn) {
+          openModal(parseInt(detailBtn.dataset.detail));
+          return;
+        }
+      });
+    }
+
+    /* ============================================================
+       Modal
+       ============================================================ */
+    function openModal(id) {
+      const a = attractions.find(x => x.id === id);
+      if (!a) return;
+      openModalId = id;
+      const seasons = getAttractionSeasons(a.bestTime);
+      const seasonLabel = seasons.length === 4
+        ? '🗓 Year-round'
+        : seasons.map(s => SEASONS[s]?.mainEmoji + ' ' + SEASONS[s]?.name).join(', ');
+      const isFav  = App.isFavorite(id);
+      const isItin = App.isInItinerary(id);
+
+      document.getElementById('modalBox').innerHTML = `
+        <div class="modal-hero">
+          <img src="${a.image.replace('800/450','1200/500')}" alt="${a.name}"
+               onerror="this.src='https://picsum.photos/seed/fallback${id}/1200/500'">
+          <div class="modal-hero-overlay">
+            <h2 id="modalAttrName">${a.name}</h2>
+            <p>📍 ${a.state} · ${a.region}</p>
+          </div>
+          <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom:0.85rem">
+            <span style="font-size:0.8rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.06em">
+              ${seasonLabel}
+            </span>
+          </div>
+          <div class="modal-stats">
+            <div class="modal-stat">
+              <span class="modal-stat-val">${a.rating}</span>
+              <span class="modal-stat-label">Rating</span>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-val">${App.formatReviews(a.reviews)}</span>
+              <span class="modal-stat-label">Reviews</span>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-val" style="font-size:0.78rem">${a.fee}</span>
+              <span class="modal-stat-label">Entry</span>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-val" style="font-size:0.78rem">${a.duration}</span>
+              <span class="modal-stat-label">Duration</span>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-val" style="font-size:0.75rem">${a.bestTime}</span>
+              <span class="modal-stat-label">Best Time</span>
+            </div>
+            <div class="modal-stat">
+              <span class="modal-stat-val" style="font-size:0.75rem">${a.difficulty}</span>
+              <span class="modal-stat-label">Difficulty</span>
+            </div>
+          </div>
+          <p class="modal-desc">${a.description}</p>
+          <div style="margin-bottom:0.75rem">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-light);margin-bottom:0.4rem">Activities</div>
+            <div class="modal-tags">
+              ${a.activities.map(act => `<span class="activity-pill">${act}</span>`).join('')}
+            </div>
+          </div>
+          <div style="margin-bottom:1rem">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-light);margin-bottom:0.4rem">Tags</div>
+            <div class="modal-tags">
+              ${a.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-secondary" id="modalFavBtn" data-fav="${id}"
+                    style="flex:1">
+              ${isFav ? '♥ Favorited' : '♡ Favorite'}
+            </button>
+            <button class="btn-primary" id="modalItinBtn" data-itin="${id}"
+                    style="flex:1">
+              ${isItin ? '✓ In Trip' : '+ Add to Trip'}
+            </button>
+          </div>
+        </div>`;
+
+      // Bind modal buttons
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+
+      document.getElementById('modalFavBtn').addEventListener('click', () => {
+        const btn = document.getElementById('modalFavBtn');
+        const isNow = App.toggleFavorite(id);
+        btn.textContent = isNow ? '♥ Favorited' : '♡ Favorite';
+        // Update card in grid
+        const gridFavBtn = document.querySelector(`#attractionsGrid [data-fav="${id}"]`);
+        if (gridFavBtn) {
+          gridFavBtn.classList.toggle('active', isNow);
+          gridFavBtn.textContent = isNow ? '♥' : '♡';
+        }
+        showToast(isNow ? '♥ Added to Favorites' : '♡ Removed from Favorites');
+      });
+
+      document.getElementById('modalItinBtn').addEventListener('click', () => {
+        const btn = document.getElementById('modalItinBtn');
+        if (App.isInItinerary(id)) {
+          App.removeFromItinerary(id);
+          btn.textContent = '+ Add to Trip';
+          showToast('Removed from your trip');
+        } else {
+          App.addToItinerary(id);
+          btn.textContent = '✓ In Trip';
+          showToast('✓ Added to your trip!');
+        }
+        // Update card button too
+        const gridItinBtn = document.querySelector(`#attractionsGrid [data-itin="${id}"]`);
+        if (gridItinBtn) {
+          gridItinBtn.textContent = App.isInItinerary(id) ? '✓ In Trip' : '+ Add to Trip';
+        }
+      });
+
+      const backdrop = document.getElementById('modalBackdrop');
+      backdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').classList.remove('open');
+      document.body.style.overflow = '';
+      openModalId = null;
+    }
+
+    function initModalClose() {
+      const backdrop = document.getElementById('modalBackdrop');
+      backdrop.addEventListener('click', e => {
+        if (e.target === backdrop) closeModal();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && openModalId !== null) closeModal();
+      });
+    }
+
+    /* ============================================================
+       Toast
+       ============================================================ */
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    /* ============================================================
+       Kick off
+       ============================================================ */
+    startParticles();
+  </script>
+</body>
+</html>

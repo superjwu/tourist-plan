@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover America — Version Gallery</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background: #0D1117; color: #E6EDF3; line-height: 1.6; }
+    img  { display: block; max-width: 100%; }
+    a    { text-decoration: none; color: inherit; }
+
+    /* ---- Tokens ---- */
+    :root {
+      --green:   #238636;
+      --green-h: #2ea043;
+      --blue:    #1f6feb;
+      --border:  #30363D;
+      --surface: #161B22;
+      --surface2:#21262D;
+      --text:    #E6EDF3;
+      --muted:   #8B949E;
+      --radius:  12px;
+    }
+
+    /* ---- Header ---- */
+    .site-header {
+      background: #161B22;
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .logo-icon { font-size: 1.4rem; }
+    .logo-sub  { font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-top: -2px; }
+    .header-badge {
+      background: var(--green);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ---- Hero ---- */
+    .gallery-hero {
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+      background: radial-gradient(ellipse at top, #1a2740 0%, #0D1117 60%);
+      border-bottom: 1px solid var(--border);
+    }
+    .gallery-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #58a6ff, #a5d6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gallery-hero p { color: var(--muted); font-size: 1rem; max-width: 580px; margin: 0 auto 2rem; }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .h-stat { text-align: center; }
+    .h-stat strong { display: block; font-size: 2rem; font-weight: 800; color: #58a6ff; }
+    .h-stat span   { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* ---- Section heading ---- */
+    .section-head {
+      padding: 2rem 2rem 1rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-head h2 { font-size: 1.1rem; font-weight: 700; }
+    .section-head span { font-size: 0.82rem; color: var(--muted); }
+
+    /* ---- Version Grid ---- */
+    .version-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      padding: 1.5rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ---- Version Card ---- */
+    .version-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .version-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .version-card.planned {
+      opacity: 0.65;
+      pointer-events: none;
+    }
+    .version-card.planned:hover { transform: none; }
+
+    /* Preview thumbnail area */
+    .card-preview {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+      background: #1c2128;
+    }
+    .preview-mockup {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* v1 mockup — earthy card grid */
+    .mock-v1 { background: #F5F0E8; }
+    .mock-v1 .mock-bar { height: 30px; background: #2D5016; display: flex; align-items: center; padding: 0 8px; gap: 4px; }
+    .mock-v1 .mock-bar-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+    .mock-v1 .mock-body { display: flex; flex: 1; }
+    .mock-v1 .mock-sidebar { width: 50px; background: #fff; border-right: 1px solid #ddd; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+    .mock-v1 .mock-sidebar-line { height: 4px; background: #ccc; border-radius: 2px; }
+    .mock-v1 .mock-sidebar-line.active { background: #2D5016; }
+    .mock-v1 .mock-main { flex: 1; padding: 8px; }
+    .mock-v1 .mock-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .mock-v1 .mock-card { background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .mock-v1 .mock-card-img { height: 36px; background: linear-gradient(135deg, #4a7c20, #8aaa30); }
+    .mock-v1 .mock-card-body { padding: 3px; }
+    .mock-v1 .mock-card-line { height: 3px; background: #ddd; border-radius: 1px; margin: 2px 0; }
+    .mock-v1 .mock-card-line.title { background: #333; width: 80%; }
+    .mock-v1 .mock-card-line.sub   { width: 60%; }
+
+    /* v2 mockup — split pane planner */
+    .mock-v2 { background: #F0F4FF; }
+    .mock-v2 .mock-bar { height: 30px; background: #1E40AF; display: flex; align-items: center; padding: 0 8px; gap: 6px; }
+    .mock-v2 .mock-bar-logo { width: 30px; height: 5px; background: rgba(255,255,255,0.7); border-radius: 2px; }
+    .mock-v2 .mock-bar-input { flex: 1; height: 14px; background: rgba(255,255,255,0.2); border-radius: 3px; }
+    .mock-v2 .mock-split { display: flex; flex: 1; }
+    .mock-v2 .mock-canvas { width: 55%; background: #E3EAFF; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+    .mock-v2 .mock-stop { background: #fff; border-radius: 3px; height: 28px; display: flex; align-items: center; gap: 3px; padding: 0 4px; }
+    .mock-v2 .mock-stop-num { width: 12px; height: 100%; background: #1E40AF; border-radius: 2px 0 0 2px; }
+    .mock-v2 .mock-stop-img { width: 20px; height: 16px; background: linear-gradient(135deg, #2d5abf, #6b93d6); border-radius: 2px; }
+    .mock-v2 .mock-stop-lines { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 0 2px; }
+    .mock-v2 .mock-line { height: 3px; background: #ddd; border-radius: 1px; }
+    .mock-v2 .mock-line.dark { background: #555; width: 80%; }
+    .mock-v2 .mock-browser { width: 45%; background: #fff; padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+    .mock-v2 .mock-search { height: 12px; background: #F0F4FF; border-radius: 2px; border: 1px solid #ccc; }
+    .mock-v2 .mock-row { height: 22px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 3px; padding: 0 2px; }
+    .mock-v2 .mock-row-thumb { width: 16px; height: 12px; background: linear-gradient(135deg, #2d5abf, #6b93d6); border-radius: 1px; }
+    .mock-v2 .mock-row-line { flex: 1; height: 3px; background: #ddd; border-radius: 1px; }
+    .mock-v2 .mock-row-btn { width: 18px; height: 10px; background: #1E40AF; border-radius: 2px; }
+
+    /* v3 mockup — dark story scroll */
+    .mock-v3 { background: #0F172A; }
+    .mock-v3 .mock-slide-bg { position: relative; flex: 1; background: linear-gradient(135deg, #1a3a5c, #0d2137); overflow: hidden; }
+    .mock-v3 .mock-overlay  { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+    .mock-v3 .mock-content  { position: absolute; bottom: 20px; left: 12px; right: 30px; }
+    .mock-v3 .mock-badge    { height: 6px; width: 40px; background: #10B981; border-radius: 3px; margin-bottom: 4px; }
+    .mock-v3 .mock-title    { height: 10px; width: 80%; background: #fff; border-radius: 3px; margin-bottom: 4px; opacity: 0.9; }
+    .mock-v3 .mock-sub      { height: 5px; width: 55%; background: rgba(255,255,255,0.5); border-radius: 2px; margin-bottom: 5px; }
+    .mock-v3 .mock-desc     { height: 3px; background: rgba(255,255,255,0.3); border-radius: 1px; margin-bottom: 2px; }
+    .mock-v3 .mock-desc.short { width: 70%; }
+    .mock-v3 .mock-fabs     { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 5px; }
+    .mock-v3 .mock-fab      { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+    .mock-v3 .mock-fab.green { background: #10B981; }
+    .mock-v3 .mock-bottom   { height: 20px; background: rgba(15,23,42,0.95); display: flex; align-items: center; padding: 0 8px; gap: 3px; }
+    .mock-v3 .mock-dot      { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .mock-v3 .mock-dot.active { background: #10B981; width: 14px; border-radius: 2px; }
+
+    /* v4 mockup — planned (map) */
+    .mock-v4 { background: #1a1f2e; display: flex; align-items: center; justify-content: center; }
+    .mock-planned-text { color: rgba(255,255,255,0.3); font-size: 0.85rem; text-align: center; }
+    .mock-planned-icon { font-size: 2.5rem; opacity: 0.3; display: block; margin-bottom: 0.4rem; }
+
+    /* Card body */
+    .card-body-v {
+      padding: 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .card-version-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: space-between;
+    }
+    .version-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .status-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status-live     { background: rgba(35,134,54,0.2); color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+    .status-planned  { background: rgba(139,148,158,0.15); color: var(--muted); border: 1px solid var(--border); }
+    .status-progress { background: rgba(210,153,34,0.2); color: #e3b341; border: 1px solid rgba(227,179,65,0.3); }
+
+    .card-title-v { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .card-ux-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 0.1rem;
+    }
+    .card-desc-v  { font-size: 0.82rem; color: var(--muted); line-height: 1.5; flex: 1; }
+
+    .card-meta-v {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .meta-tag {
+      font-size: 0.72rem;
+      background: var(--surface2);
+      color: var(--muted);
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .card-date { font-size: 0.72rem; color: var(--muted); }
+
+    .view-btn {
+      display: block;
+      margin: 1rem 1.25rem 1.25rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      background: var(--green);
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: center;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .view-btn:hover { background: var(--green-h); }
+    .view-btn.disabled {
+      background: var(--surface2);
+      color: var(--muted);
+      cursor: default;
+    }
+
+    /* ---- Planned section ---- */
+    .planned-section {
+      padding: 0 2rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ---- Attractions summary ---- */
+    .attractions-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .attr-bar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .attr-bar-text h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .attr-bar-text p  { font-size: 0.82rem; color: var(--muted); }
+    .attr-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .attr-chip {
+      font-size: 0.72rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    /* ---- Footer ---- */
+    .gallery-footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .gallery-footer a { color: #58a6ff; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 640px) {
+      .version-grid, .planned-section { padding: 1rem; }
+      .gallery-hero { padding: 2.5rem 1rem 2rem; }
+      .hero-stats { gap: 1.5rem; }
+      .section-head { padding: 1.5rem 1rem 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="logo">
+    <span class="logo-icon">🌲</span>
+    <div>
+      <div>Discover America</div>
+      <div class="logo-sub">Version Gallery &amp; Dev Hub</div>
+    </div>
+  </div>
+  <span class="header-badge">Active Development</span>
+</header>
+
+<!-- Hero -->
+<section class="gallery-hero">
+  <h1>Website Version Gallery</h1>
+  <p>Each version explores a different UI/UX approach for browsing and planning trips to U.S. national parks and top attractions. Click any live version to explore.</p>
+  <div class="hero-stats">
+    <div class="h-stat"><strong>20</strong><span>Live Versions</span></div>
+    <div class="h-stat"><strong>6</strong><span>New Bold Concepts</span></div>
+    <div class="h-stat"><strong>100</strong><span>Unique Attractions</span></div>
+    <div class="h-stat"><strong>0</strong><span>Duplicates</span></div>
+  </div>
+</section>
+
+<!-- Attractions bar -->
+<div class="attractions-bar">
+  <div class="attr-bar-inner">
+    <div class="attr-bar-text">
+      <h2>Current Data Coverage</h2>
+      <p>100 unique attractions across 9 regions — relevant local photos, no duplicates</p>
+    </div>
+    <div class="attr-chips">
+      <span class="attr-chip">🏔 Rocky Mountains (4)</span>
+      <span class="attr-chip">🌵 Southwest (7)</span>
+      <span class="attr-chip">🌲 Pacific West (5)</span>
+      <span class="attr-chip">🍂 Northeast (3)</span>
+      <span class="attr-chip">🌿 Southeast (3)</span>
+      <span class="attr-chip">🌾 Great Plains (1)</span>
+      <span class="attr-chip">🌋 Hawaii (1)</span>
+      <span class="attr-chip">❄️ Alaska (1)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Live Versions -->
+<div class="section-head">
+  <h2>Live Versions</h2>
+  <span>13 versions available</span>
+</div>
+
+<div class="version-grid">
+
+  <!-- v1 -->
+  <div class="version-card">
+    <div class="card-preview">
+      <div class="preview-mockup mock-v1">
+        <div class="mock-bar">
+          <div class="mock-bar-dot"></div><div class="mock-bar-dot"></div><div class="mock-bar-dot"></div>
+          <div style="flex:1;height:12px;background:rgba(255,255,255,0.25);border-radius:10px;margin:0 4px"></div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-sidebar">
+            <div class="mock-sidebar-line active"></div>
+            <div class="mock-sidebar-line"></div>
+            <div class="mock-sidebar-line active"></div>
+            <div class="mock-sidebar-line"></div>
+            <div class="mock-sidebar-line"></div>
+            <div class="mock-sidebar-line"></div>
+            <div class="mock-sidebar-line active"></div>
+          </div>
+          <div class="mock-main">
+            <div class="mock-grid">
+              <div class="mock-card"><div class="mock-card-img"></div><div class="mock-card-body"><div class="mock-card-line title"></div><div class="mock-card-line sub"></div><div class="mock-card-line"></div></div></div>
+              <div class="mock-card"><div class="mock-card-img" style="background:linear-gradient(135deg,#3d6b1f,#6a9e3a)"></div><div class="mock-card-body"><div class="mock-card-line title"></div><div class="mock-card-line sub"></div><div class="mock-card-line"></div></div></div>
+              <div class="mock-card"><div class="mock-card-img" style="background:linear-gradient(135deg,#2D5016,#5a8c28)"></div><div class="mock-card-body"><div class="mock-card-line title"></div><div class="mock-card-line sub"></div><div class="mock-card-line"></div></div></div>
+              <div class="mock-card"><div class="mock-card-img" style="background:linear-gradient(135deg,#8aaa30,#4a7c20)"></div><div class="mock-card-body"><div class="mock-card-line title"></div><div class="mock-card-line sub"></div></div></div>
+              <div class="mock-card"><div class="mock-card-img" style="background:linear-gradient(135deg,#C4622D,#e07845)"></div><div class="mock-card-body"><div class="mock-card-line title"></div><div class="mock-card-line sub"></div></div></div>
+              <div class="mock-card"><div class="mock-card-img" style="background:linear-gradient(135deg,#4a7c20,#2D5016)"></div><div class="mock-card-body"><div class="mock-card-line title"></div><div class="mock-card-line sub"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row">
+        <span class="version-tag">Version 1</span>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-ux-label">Discovery Browse</div>
+      <div class="card-title-v">Filter Sidebar + Card Grid</div>
+      <p class="card-desc-v">Classic browse experience. Left sidebar with region/category/difficulty filters, responsive card grid (4→1 columns), inline detail expand panels, and a slide-in itinerary drawer. Best for casual exploration.</p>
+      <div class="card-meta-v">
+        <span class="meta-tag">🎨 Earthy Green</span>
+        <span class="meta-tag">🃏 Card Grid</span>
+        <span class="meta-tag">⚙ Sidebar Filters</span>
+        <span class="meta-tag">📐 Responsive</span>
+      </div>
+      <span class="card-date">Built: March 2026 · 25 attractions</span>
+    </div>
+    <a href="v1-browse/index.html" class="view-btn">→ Open Version 1</a>
+  </div>
+
+  <!-- v2 -->
+  <div class="version-card">
+    <div class="card-preview">
+      <div class="preview-mockup mock-v2">
+        <div class="mock-bar">
+          <div class="mock-bar-logo"></div>
+          <div class="mock-bar-input"></div>
+          <div style="display:flex;gap:3px;margin-left:6px">
+            <div style="width:18px;height:8px;background:rgba(255,255,255,0.6);border-radius:2px"></div>
+            <div style="width:18px;height:8px;background:rgba(255,255,255,0.6);border-radius:2px"></div>
+          </div>
+        </div>
+        <div class="mock-split">
+          <div class="mock-canvas">
+            <div style="font-size:0px">
+              <div class="mock-stop"><div class="mock-stop-num"></div><div class="mock-stop-img"></div><div class="mock-stop-lines"><div class="mock-line dark"></div><div class="mock-line"></div></div></div>
+              <div style="height:8px;border-left:2px dotted rgba(30,64,175,0.4);margin:2px 0 2px 6px"></div>
+              <div class="mock-stop"><div class="mock-stop-num" style="background:#2563EB"></div><div class="mock-stop-img" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)"></div><div class="mock-stop-lines"><div class="mock-line dark"></div><div class="mock-line"></div></div></div>
+              <div style="height:8px;border-left:2px dotted rgba(30,64,175,0.4);margin:2px 0 2px 6px"></div>
+              <div class="mock-stop"><div class="mock-stop-num" style="background:#1d4ed8"></div><div class="mock-stop-img" style="background:linear-gradient(135deg,#D97706,#F59E0B)"></div><div class="mock-stop-lines"><div class="mock-line dark"></div><div class="mock-line"></div></div></div>
+            </div>
+          </div>
+          <div class="mock-browser">
+            <div class="mock-search"></div>
+            <div class="mock-row"><div class="mock-row-thumb"></div><div class="mock-row-line"></div><div class="mock-row-btn"></div></div>
+            <div class="mock-row"><div class="mock-row-thumb" style="background:linear-gradient(135deg,#D97706,#F59E0B)"></div><div class="mock-row-line"></div><div class="mock-row-btn" style="background:#10b981"></div></div>
+            <div class="mock-row"><div class="mock-row-thumb" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"></div><div class="mock-row-line"></div><div class="mock-row-btn"></div></div>
+            <div class="mock-row"><div class="mock-row-thumb" style="background:linear-gradient(135deg,#0891b2,#06b6d4)"></div><div class="mock-row-line"></div><div class="mock-row-btn"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row">
+        <span class="version-tag">Version 2</span>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-ux-label">Trip Planner First</div>
+      <div class="card-title-v">Split-Pane Itinerary Builder</div>
+      <p class="card-desc-v">The itinerary is the center of gravity. Left pane is your trip canvas with reorderable stops and live stats (states, fees). Right pane is a compact attraction browser. Perfect for deliberate, structured trip planning.</p>
+      <div class="card-meta-v">
+        <span class="meta-tag">🎨 Modern Blue</span>
+        <span class="meta-tag">🔀 Split Pane</span>
+        <span class="meta-tag">📋 Itinerary-First</span>
+        <span class="meta-tag">↕ Reorderable</span>
+      </div>
+      <span class="card-date">Built: March 2026 · 25 attractions</span>
+    </div>
+    <a href="v2-planner/index.html" class="view-btn">→ Open Version 2</a>
+  </div>
+
+  <!-- v3 -->
+  <div class="version-card">
+    <div class="card-preview">
+      <div class="preview-mockup mock-v3">
+        <div class="mock-slide-bg">
+          <div class="mock-overlay"></div>
+          <div class="mock-content">
+            <div class="mock-badge"></div>
+            <div class="mock-title"></div>
+            <div class="mock-sub"></div>
+            <div class="mock-desc"></div>
+            <div class="mock-desc short"></div>
+          </div>
+          <div class="mock-fabs">
+            <div class="mock-fab"></div>
+            <div class="mock-fab green"></div>
+            <div class="mock-fab"></div>
+          </div>
+        </div>
+        <div class="mock-bottom">
+          <div class="mock-dot active"></div>
+          <div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div>
+          <div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div>
+          <div class="mock-dot"></div><div class="mock-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row">
+        <span class="version-tag">Version 3</span>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-ux-label">Fullscreen Story Scroll</div>
+      <div class="card-title-v">One Attraction Per Viewport</div>
+      <p class="card-desc-v">Immersive "inspire me" mode. Full-bleed background images with CSS scroll-snap — each park fills the entire screen. Arrow keys or scroll to advance. Floating action bar for favorites and trip adds. Dark night theme.</p>
+      <div class="card-meta-v">
+        <span class="meta-tag">🎨 Dark Night</span>
+        <span class="meta-tag">📜 Scroll-Snap</span>
+        <span class="meta-tag">🖥 Full-Bleed</span>
+        <span class="meta-tag">⌨ Keyboard Nav</span>
+      </div>
+      <span class="card-date">Built: March 2026 · 25 attractions</span>
+    </div>
+    <a href="v3-story/index.html" class="view-btn">→ Open Version 3</a>
+  </div>
+
+  <!-- v4 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#FEF9F0,#FDE68A);display:flex;align-items:center;justify-content:center;font-size:3rem">🗺</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 4</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Map Explorer</div>
+      <div class="card-title-v">SVG Region Map + Side Panel</div>
+      <p class="card-desc-v">Click any U.S. region on an interactive SVG map to browse its attractions. Regions highlight with glow effects, attraction count badges float on each zone, and a filterable panel slides in with matching parks.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Sunrise Desert</span><span class="meta-tag">🗺 SVG Map</span><span class="meta-tag">📍 Geographic</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v4-map/index.html" class="view-btn">→ Open Version 4</a>
+  </div>
+
+  <!-- v5 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#F0FDFA,#99f6e4);display:flex;align-items:center;justify-content:center;font-size:3rem">📊</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 5</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Data Dashboard</div>
+      <div class="card-title-v">Sortable Table + Comparison Mode</div>
+      <p class="card-desc-v">Power-user analytical view. Sort 9 columns, expand any row for full details, checkbox up to 3 rows and compare side-by-side. Live dashboard stats (avg rating, free entry count) update as you filter.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Slate Teal</span><span class="meta-tag">📋 Table View</span><span class="meta-tag">⚖ Compare</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v5-dashboard/index.html" class="view-btn">→ Open Version 5</a>
+  </div>
+
+  <!-- v6 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#FAFAF5,#F5ECC8);display:flex;align-items:center;justify-content:center;font-size:3rem">📰</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 6</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Travel Magazine</div>
+      <div class="card-title-v">Editorial Longform Layout</div>
+      <p class="card-desc-v">Condé Nast–style editorial experience. Big hero, named-grid magazine layout, Playfair Display serif typography, pull quotes, and full-screen article view. Feels like a real travel publication.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Cream/Ink</span><span class="meta-tag">📖 Editorial</span><span class="meta-tag">🖋 Serif</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v6-magazine/index.html" class="view-btn">→ Open Version 6</a>
+  </div>
+
+  <!-- v7 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#FFF5F0,#FFD0BB);display:flex;align-items:center;justify-content:center;font-size:3rem">✅</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 7</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Bucket List Tracker</div>
+      <div class="card-title-v">Check Off Visited Parks</div>
+      <p class="card-desc-v">Gamified progress tracker. Check parks as visited (confetti animation!), star ones you want to go. Circular progress ring, achievement badges, milestone celebrations, and persistent localStorage state.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Warm Coral</span><span class="meta-tag">☑ Checklist</span><span class="meta-tag">🎉 Gamified</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v7-bucketlist/index.html" class="view-btn">→ Open Version 7</a>
+  </div>
+
+  <!-- v8 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#111;display:flex;align-items:center;justify-content:center;font-size:3rem">🖼</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 8</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Photo Mosaic</div>
+      <div class="card-title-v">Full-Bleed Image Grid</div>
+      <p class="card-desc-v">Image-first experience. Full-bleed photo grid with zero gaps — text hidden until hover reveals a gradient overlay. Varying cell spans create visual rhythm. Click any photo for a full-screen detail modal.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Minimal Dark</span><span class="meta-tag">🖼 Mosaic Grid</span><span class="meta-tag">👁 Hover Reveal</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v8-mosaic/index.html" class="view-btn">→ Open Version 8</a>
+  </div>
+
+  <!-- v9 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);display:flex;align-items:center;justify-content:center;font-size:3rem">🌸</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 9</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Season Planner</div>
+      <div class="card-title-v">Browse by Best Time to Visit</div>
+      <p class="card-desc-v">Plan around the calendar. Spring / Summer / Fall / Winter tabs filter parks by their best visiting season. Page theme shifts colors with each season. Intelligent bestTime parsing handles ranges like "March–May".</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Sky Blue (shifts)</span><span class="meta-tag">📅 Seasonal</span><span class="meta-tag">🌡 Calendar-first</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v9-seasons/index.html" class="view-btn">→ Open Version 9</a>
+  </div>
+
+  <!-- v10 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#1A0533,#3b0764);display:flex;align-items:center;justify-content:center;font-size:3rem">👆</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 10</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Swipe Mode</div>
+      <div class="card-title-v">Tinder-Style Card Stack</div>
+      <p class="card-desc-v">Drag cards left to skip, right to add to your trip. Mouse drag or arrow keys. Cards rotate on drag, flash green/red with ✕/♥ overlays. Liked cards build your trip list below. Undo the last swipe.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Cosmic Purple</span><span class="meta-tag">👆 Swipe/Drag</span><span class="meta-tag">🃏 Card Stack</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v10-swipe/index.html" class="view-btn">→ Open Version 10</a>
+  </div>
+
+  <!-- v11 -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg,#F0FDF4,#BBF7D0);display:flex;align-items:center;justify-content:center;font-size:3rem">🥾</div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 11</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Activity Explorer</div>
+      <div class="card-title-v">Find Parks by What You Want to Do</div>
+      <p class="card-desc-v">Activity-first navigation. Pick from 15 activity icons (Hiking, Wildlife, Stargazing, Rock Climbing…). Multi-select with AND/OR mode. Pre-set combos like "Ultimate Hiker" or "Wildlife Safari". Match score on each result.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Forest Green</span><span class="meta-tag">🥾 Activity-first</span><span class="meta-tag">🔀 Multi-select</span></div>
+      <span class="card-date">Built: March 2026 · 75 attractions</span>
+    </div>
+    <a href="v11-activity/index.html" class="view-btn">→ Open Version 11</a>
+  </div>
+
+  <!-- v12 — Quiz (renumbered from v15) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:linear-gradient(135deg, #1E1B4B 0%, #2D2A6E 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1rem">
+      <div style="font-size:2rem">🧭</div>
+      <div style="font-size:0.65rem;letter-spacing:0.2em;color:#818CF8;font-weight:700">QUIZ · MATCH · EXPLORE</div>
+      <div style="display:flex;gap:0.5rem">
+        <span style="background:rgba(129,140,248,0.2);border:1px solid rgba(129,140,248,0.3);padding:2px 8px;border-radius:999px;font-size:0.6rem;color:#A5B4FC">Adventure?</span>
+        <span style="background:rgba(251,146,60,0.2);border:1px solid rgba(251,146,60,0.3);padding:2px 8px;border-radius:999px;font-size:0.6rem;color:#FB923C">94% Match</span>
+      </div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 12</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Quiz Mode</div>
+      <div class="card-title-v">6-Question Quiz → Personalized Matches</div>
+      <p class="card-desc-v">Travel personality quiz with scored recommendations. Each match shows WHY it fits your answers. Shareable results via URL. Warm indigo theme.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Warm Indigo</span><span class="meta-tag">🧭 Quiz</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v12-quiz/index.html" class="view-btn">→ Open Version 12</a>
+  </div>
+
+  <!-- v13 — Tarot (renumbered from v16) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#0C0A1E;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.75rem">
+      <div style="width:70px;height:110px;border-radius:8px;background:linear-gradient(135deg,#1A1535,#0C0A1E);border:1px solid rgba(157,92,255,0.4);box-shadow:0 0 20px rgba(157,92,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.5rem">✦</div>
+      <span style="font-size:0.6rem;letter-spacing:0.25em;color:#FFD700;font-family:serif">THE ORACLE</span>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 13</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Oracle Cards</div>
+      <div class="card-title-v">Mystic Card-Drawing Ritual</div>
+      <p class="card-desc-v">Each attraction revealed as a tarot-style oracle card. Draw from a shuffled deck, flip with 3D animation, keep favorites. Cinzel font, cosmic purple.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Cosmic Purple</span><span class="meta-tag">✦ Oracle</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v13-tarot/index.html" class="view-btn">→ Open Version 13</a>
+  </div>
+
+</div>
+
+<!-- v14–v20: Bold & Immersive -->
+<div class="section-head">
+  <h2>Bold &amp; Immersive</h2>
+  <span>Not travel websites — art, games, and experiences</span>
+</div>
+
+<div class="version-grid">
+
+  <!-- v14 — Cinema (renumbered from v18) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#0A0A0A;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.4rem;padding:1rem">
+      <div style="font-size:0.55rem;letter-spacing:0.3em;color:#888;text-align:center">THE AMERICAN LANDSCAPES</div>
+      <div style="font-family:Georgia,serif;font-style:italic;font-size:1.1rem;color:#C9A84C;letter-spacing:0.05em">Film Festival</div>
+      <div style="border:1px solid rgba(201,168,76,0.3);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:#C9A84C;text-align:center;line-height:1.2">100<br>Films</div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 14</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Film Festival</div>
+      <div class="card-title-v">Cannes-Style Program Catalog</div>
+      <p class="card-desc-v">Every attraction is a film with a poster, genre, director's note, and critic reviews. Scrolling marquee, screening schedule sidebar, gold-on-black. Cormorant Garamond elegance.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Gold &amp; Black</span><span class="meta-tag">🎬 Cinema</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v14-cinema/index.html" class="view-btn">View Version →</a>
+  </div>
+
+  <!-- v15 — Constellation Atlas (new) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#020b18;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1rem;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%, rgba(0,80,180,0.15) 0%, transparent 70%)"></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;z-index:1">
+        <div style="width:6px;height:6px;border-radius:50%;background:#00bfff;box-shadow:0 0 6px #00bfff"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#ffd700;box-shadow:0 0 8px #ffd700;margin-top:-2px"></div>
+        <div style="width:4px;height:4px;border-radius:50%;background:#48f0a0;box-shadow:0 0 4px #48f0a0;margin-top:4px"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#ff6ec7;box-shadow:0 0 6px #ff6ec7"></div>
+        <div style="width:5px;height:5px;border-radius:50%;background:#00bfff;box-shadow:0 0 4px #00bfff;margin-top:3px"></div>
+      </div>
+      <span style="font-size:0.6rem;letter-spacing:0.2em;color:#7ec8e3;font-family:monospace;z-index:1">CONSTELLATION ATLAS</span>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 15</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Data Art / Sky Map</div>
+      <div class="card-title-v">100 Parks as Stars on a Dark Sky Canvas</div>
+      <p class="card-desc-v">Parks plotted as glowing stars sized by rating, colored by region, grouped into constellations. Drag to pan, scroll to zoom. Click stars to explore. Draw lines between stars to build your route.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Deep Space</span><span class="meta-tag">⭐ Data Art</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v15-constellation/index.html" class="view-btn">View Version →</a>
+  </div>
+
+  <!-- v16 — Mood Board (new) -->
+  <div class="version-card">
+    <div class="card-preview" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;height:200px">
+      <div style="background:#4a7c59;display:flex;align-items:center;justify-content:center;font-size:0.55rem;letter-spacing:0.15em;color:#fff;font-weight:700">SERENE</div>
+      <div style="background:#1a2a1a;display:flex;align-items:center;justify-content:center;font-size:0.55rem;letter-spacing:0.15em;color:#c8d8b8;font-weight:700">WILD</div>
+      <div style="background:#a0522d;display:flex;align-items:center;justify-content:center;font-size:0.55rem;letter-spacing:0.15em;color:#fdf5e0;font-weight:700">ANCIENT</div>
+      <div style="background:#7b2d8b;display:flex;align-items:center;justify-content:center;font-size:0.55rem;letter-spacing:0.15em;color:#d4b8e0;font-weight:700">DRAMATIC</div>
+      <div style="background:#0077a8;display:flex;align-items:center;justify-content:center;font-size:0.55rem;letter-spacing:0.15em;color:#e0f4f8;font-weight:700">COASTAL</div>
+      <div style="background:#c89a2a;display:flex;align-items:center;justify-content:center;font-size:0.55rem;letter-spacing:0.15em;color:#fdf5e0;font-weight:700">SPIRITUAL</div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 16</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Mood / Vibe</div>
+      <div class="card-title-v">Pick Your Vibe, Page Transforms</div>
+      <p class="card-desc-v">6 vibe tiles: Serene, Wild, Ancient, Dramatic, Coastal, Spiritual. Click one and the entire page morphs — colors, textures, font, and ranked parks all shift. Blend two vibes for hybrid results.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Morphing Palette</span><span class="meta-tag">🌿 Vibe Match</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v16-moodboard/index.html" class="view-btn">View Version →</a>
+  </div>
+
+  <!-- v17 — Quest Board (new) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#f4e4c1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.4rem;padding:1rem">
+      <div style="display:flex;gap:8px">
+        <div style="width:48px;height:64px;background:#ede0c0;border:1.5px solid #8b4513;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:1px 1px 3px rgba(0,0,0,0.2)">
+          <span style="font-size:0.7rem">⚔️</span>
+          <span style="font-size:0.35rem;color:#5a2d0c;font-weight:700;letter-spacing:0.05em">EPIC</span>
+        </div>
+        <div style="width:48px;height:64px;background:#ede0c0;border:1.5px solid #8b4513;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:1px 1px 3px rgba(0,0,0,0.2)">
+          <span style="font-size:0.7rem">🗺️</span>
+          <span style="font-size:0.35rem;color:#8b6914;font-weight:700;letter-spacing:0.05em">LEGEND</span>
+        </div>
+      </div>
+      <span style="font-size:0.55rem;letter-spacing:0.15em;color:#5a2d0c;font-weight:700">QUEST BOARD</span>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 17</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">RPG / Gamified</div>
+      <div class="card-title-v">Parchment Quest Board with Guild Selection</div>
+      <p class="card-desc-v">Parks as torn quest cards pinned to a cork board. Choose your guild (Nature Seeker, History Hunter, Thrill Chaser, Budget Explorer) to unlock secret locations. Rarity tiers: Common → Legendary.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Aged Parchment</span><span class="meta-tag">⚔️ RPG</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v17-questboard/index.html" class="view-btn">View Version →</a>
+  </div>
+
+  <!-- v18 — Documentary (new) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#0f0f0f;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.4rem;padding:1rem">
+      <div style="font-size:0.5rem;letter-spacing:0.3em;color:#555;text-align:center">EP. 001</div>
+      <div style="font-family:Georgia,serif;font-size:1rem;color:#c8a96e;font-style:italic;letter-spacing:0.05em">Field Notes</div>
+      <div style="display:flex;gap:4px;margin-top:4px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#c8a96e"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#333"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#333"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#333"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#333"></div>
+      </div>
+      <div style="font-size:0.45rem;letter-spacing:0.2em;color:#555;text-transform:uppercase">Documentary Series · 100 Episodes</div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 18</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Immersive Storytelling</div>
+      <div class="card-title-v">5-Chapter Documentary Per Park</div>
+      <p class="card-desc-v">Each park told as a 5-chapter story: Discovery → The Land → Wildlife → Practical Notes → Go Now. Scroll-snap chapters, Ken Burns image animation, chapter progress dots. Related stories sidebar builds your itinerary.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Cinematic Dark</span><span class="meta-tag">🎥 Documentary</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v18-documentary/index.html" class="view-btn">View Version →</a>
+  </div>
+
+  <!-- v19 — Gazette (new) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#f0e6c8;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.3rem;padding:0.75rem">
+      <div style="font-size:0.5rem;letter-spacing:0.3em;color:#8b1a1a;font-weight:700;font-family:Georgia,serif;text-align:center;border-bottom:1px solid #8b1a1a;padding-bottom:3px;width:100%;text-align:center">THE AMERICAN WILDERNESS GAZETTE</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:4px;width:100%">
+        <div>
+          <div style="height:3px;background:#1a0f00;width:90%;margin-bottom:2px"></div>
+          <div style="height:2px;background:#555;width:70%;margin-bottom:2px"></div>
+          <div style="height:2px;background:#555;width:80%;margin-bottom:2px"></div>
+          <div style="height:2px;background:#555;width:65%"></div>
+        </div>
+        <div style="background:#ddd;height:50px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#888">📷</div>
+      </div>
+      <div style="font-size:0.4rem;color:#8b1a1a;letter-spacing:0.1em">✂ CLIP &amp; SAVE</div>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 19</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Vintage Editorial</div>
+      <div class="card-title-v">Art Deco Broadsheet Newspaper</div>
+      <p class="card-desc-v">Parks as broadsheet articles with datelines, drop caps, and bylines ("Special Correspondent · Rockies Bureau"). Sepia photo treatment. Scissors-click to clip articles into a growing scrapbook itinerary.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Aged Newsprint</span><span class="meta-tag">📰 Broadsheet</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v19-gazette/index.html" class="view-btn">View Version →</a>
+  </div>
+
+  <!-- v20 — Trading Cards (new) -->
+  <div class="version-card">
+    <div class="card-preview" style="background:#0d0010;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1rem;overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;background:conic-gradient(from 0deg, rgba(255,110,199,0.1), rgba(255,251,150,0.1), rgba(72,240,160,0.1), rgba(155,150,255,0.1), rgba(255,110,199,0.1));animation:none"></div>
+      <div style="display:flex;gap:6px;z-index:1">
+        <div style="width:36px;height:52px;border-radius:4px;background:linear-gradient(135deg,#1a0030,#4a0060);border:1px solid rgba(255,110,199,0.5);box-shadow:0 0 10px rgba(255,110,199,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem">🏔️</div>
+        <div style="width:36px;height:52px;border-radius:4px;background:linear-gradient(135deg,#003020,#006040);border:1px solid rgba(72,240,160,0.5);box-shadow:0 0 10px rgba(72,240,160,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem">🌋</div>
+        <div style="width:36px;height:52px;border-radius:4px;background:linear-gradient(135deg,#302000,#906000);border:1px solid rgba(255,200,50,0.6);box-shadow:0 0 14px rgba(255,200,50,0.4);display:flex;align-items:center;justify-content:center;font-size:0.8rem">⭐</div>
+      </div>
+      <span style="font-size:0.55rem;letter-spacing:0.2em;color:#ff6ec7;font-family:monospace;z-index:1">WILD AMERICA</span>
+    </div>
+    <div class="card-body-v">
+      <div class="card-version-row"><span class="version-tag">Version 20</span><span class="status-badge status-live">● Live</span></div>
+      <div class="card-ux-label">Gamified / Collectible</div>
+      <div class="card-title-v">Holographic Trading Cards + Deck Builder</div>
+      <p class="card-desc-v">Open a foil card pack — 5 parks dealt out with holographic shimmer effects. Rarity tiers: Common to Mythic. Legendary cards glow rainbow. Build a 5-card trip deck. Collect all 100.</p>
+      <div class="card-meta-v"><span class="meta-tag">🎨 Iridescent Dark</span><span class="meta-tag">✨ Holographic</span><span class="meta-tag">Mar 2026</span></div>
+    </div>
+    <a href="v20-tradingcards/index.html" class="view-btn">View Version →</a>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="gallery-footer">
+  <p>Discover America &mdash; U.S. Tourist Attractions Planner &mdash; HTML + CSS + Vanilla JS</p>
+  <p style="margin-top:0.3rem">20 live versions · 100 unique attractions · No frameworks</p>
+</footer>
+
+</body>
+</html>
