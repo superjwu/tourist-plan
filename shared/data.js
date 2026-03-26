@@ -2935,7 +2935,7 @@ const attractions = [
     "state": "Alaska",
     "region": "Pacific West",
     "category": "National Park",
-    "description": "One of the least-visited national parks in the US, Kobuk Valley is a true wilderness accessible only by small aircraft or river travel, lying above the Arctic Circle in Alaska's Brooks Range. The Great Kobuk Sand Dunes—25 square miles of towering Arctic sand dunes—create one of the world's most unexpected landscapes, where temperatures can soar to 90°F in summer while caribou herds of 500,000 migrate through.",
+    "description": "Kobuk Valley lies above the Arctic Circle in Alaska's Brooks Range, reachable only by small aircraft or river, where 25 square miles of towering Arctic sand dunes rise unexpectedly from the tundra. The Great Kobuk Sand Dunes can reach 90°F in summer even as permafrost persists below, and half a million caribou migrate through the valley each year.",
     "rating": 4.7,
     "reviews": 1200,
     "fee": "Free",

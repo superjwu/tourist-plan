@@ -319,6 +319,47 @@
     }
     .gallery-footer a { color: #58a6ff; }
 
+    /* ---- Final Version Banner ---- */
+    .final-banner {
+      background: linear-gradient(135deg, #1e2030 0%, #2a2e48 50%, #1a1a30 100%);
+      border-bottom: 1px solid rgba(167,139,250,0.3);
+      padding: 2.5rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .final-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 50%, rgba(167,139,250,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .final-banner-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 2rem; flex-wrap: wrap; position: relative; z-index: 1;
+    }
+    .final-banner-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(167,139,250,0.18); color: #c4b5fd;
+      border: 1px solid rgba(167,139,250,0.35);
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0.25rem 0.65rem; border-radius: 999px; margin-bottom: 0.6rem;
+    }
+    .final-banner h2 {
+      font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800; color: #fff; margin-bottom: 0.35rem;
+    }
+    .final-banner p { font-size: 0.9rem; color: #8B949E; max-width: 560px; }
+    .final-banner-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: #a78bfa; color: #000;
+      padding: 0.75rem 1.75rem; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap; flex-shrink: 0;
+      box-shadow: 0 0 32px rgba(167,139,250,0.4);
+    }
+    .final-banner-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+    .status-final { background: rgba(167,139,250,0.2); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.4); }
+
     /* ---- Responsive ---- */
     @media (max-width: 640px) {
       .version-grid, .planned-section { padding: 1rem; }
@@ -339,15 +380,27 @@
       <div class="logo-sub">Version Gallery &amp; Dev Hub</div>
     </div>
   </div>
-  <span class="header-badge">Active Development</span>
+  <span class="header-badge">v25 Final</span>
 </header>
+
+<!-- Final Version Banner -->
+<div class="final-banner">
+  <div class="final-banner-inner">
+    <div>
+      <div class="final-banner-badge">★ Final Version</div>
+      <h2>Wild America — v25 Vivid</h2>
+      <p>The definitive version: vivid season themes (yellow spring, green summer, orange fall, icy winter), color-coded park badges, compact info cards with italic descriptions, clickable hero slideshow, and a Bucket List dropdown with Favorites.</p>
+    </div>
+    <a href="v25-vivid/index.html" class="final-banner-cta">→ Open Final Version</a>
+  </div>
+</div>
 
 <!-- Hero -->
 <section class="gallery-hero">
   <h1>Website Version Gallery</h1>
   <p>Each version explores a different UI/UX approach for browsing and planning trips to U.S. national parks and top attractions. Click any live version to explore.</p>
   <div class="hero-stats">
-    <div class="h-stat"><strong>23</strong><span>Live Versions</span></div>
+    <div class="h-stat"><strong>25</strong><span>Live Versions</span></div>
     <div class="h-stat"><strong>6</strong><span>New Bold Concepts</span></div>
     <div class="h-stat"><strong>100</strong><span>Unique Attractions</span></div>
     <div class="h-stat"><strong>0</strong><span>Duplicates</span></div>
@@ -892,12 +945,52 @@
     <a href="v23-nightfall2/index.html" class="view-btn">→ Open Version 23</a>
   </div>
 
+  <!-- v24 -->
+  <div class="version-card">
+    <div class="card-body-v">
+      <div class="card-version-row">
+        <span class="version-tag">Version 24</span>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-ux-label">Nightfall 3 — Bucket List</div>
+      <div class="card-title-v">Dropdown Bucket List + Clickable Hero</div>
+      <p class="card-desc-v">Replaces the bottom drawer with a top-right dropdown panel featuring Trip and Favorites tabs. Favorites now have a real home. Hero slides are clickable — tap any park to open its story. Park names shown in frosted-glass pills. Sharper images from reduced Ken Burns scaling. Opaque nav bar.</p>
+      <div class="card-meta-v">
+        <span class="meta-tag">🌙 Dark Seasonal</span>
+        <span class="meta-tag">🎒 Bucket List</span>
+        <span class="meta-tag">♥ Favorites</span>
+        <span class="meta-tag">Mar 2026</span>
+      </div>
+    </div>
+    <a href="v24-bucketlist/index.html" class="view-btn">→ Open Version 24</a>
+  </div>
+
+  <!-- v25 -->
+  <div class="version-card" style="border-color: rgba(167,139,250,0.5); box-shadow: 0 0 0 1px rgba(167,139,250,0.2);">
+    <div class="card-body-v">
+      <div class="card-version-row">
+        <span class="version-tag">Version 25</span>
+        <span class="status-badge status-final">★ Final Version</span>
+      </div>
+      <div class="card-ux-label">Vivid — Refined Palette</div>
+      <div class="card-title-v">Distinct Seasons + Info Cards + Color Badges</div>
+      <p class="card-desc-v">Summer (sky blue) and Winter (deep icy navy) are now clearly distinct. Brighter mid-dark palette throughout. Category badges use color-coded backgrounds by type (green for NP, amber for monuments, teal for seashores…). Card descriptions replaced with a compact info strip: difficulty · fee · duration · best time · activities.</p>
+      <div class="card-meta-v">
+        <span class="meta-tag">🌈 Vivid Seasons</span>
+        <span class="meta-tag">🏷 Color Badges</span>
+        <span class="meta-tag">📊 Info Strip</span>
+        <span class="meta-tag">Mar 2026</span>
+      </div>
+    </div>
+    <a href="v25-vivid/index.html" class="view-btn">→ Open Version 25</a>
+  </div>
+
 </div>
 
 <!-- Footer -->
 <footer class="gallery-footer">
   <p>Discover America &mdash; U.S. Tourist Attractions Planner &mdash; HTML + CSS + Vanilla JS</p>
-  <p style="margin-top:0.3rem">23 live versions · 100 unique attractions · No frameworks</p>
+  <p style="margin-top:0.3rem">25 live versions · 100 unique attractions · No frameworks</p>
 </footer>
 
 </body>

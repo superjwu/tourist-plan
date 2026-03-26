@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild America — Bucket List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: auto; }
+
+/* ── Season Themes ─────────────────────────────────────── */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  --text: #f0f0f0;
+  --text-muted: rgba(255,255,255,0.5);
+  --card-bg: rgba(255,255,255,0.055);
+  --card-border: rgba(255,255,255,0.09);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.55);
+  --radius: 14px;
+  --nav-h: 56px;
+  color: var(--text);
+  min-height: 100vh;
+}
+body.season-all    { --bg:#1a1a2e; --bg-alt:#252545; --primary:#a78bfa; --primary-dark:#7c3aed; --accent:#c4b5fd; background:#1a1a2e; }
+body.season-spring { --bg:#0c1f17; --bg-alt:#152e22; --primary:#4ade80; --primary-dark:#16a34a; --accent:#86efac; background:#0c1f17; }
+body.season-summer { --bg:#091828; --bg-alt:#102233; --primary:#60a5fa; --primary-dark:#2563eb; --accent:#93c5fd; background:#091828; }
+body.season-fall   { --bg:#1e0f07; --bg-alt:#2d180c; --primary:#fb923c; --primary-dark:#c2410c; --accent:#fdba74; background:#1e0f07; }
+body.season-winter { --bg:#0c1a2d; --bg-alt:#132440; --primary:#93c5fd; --primary-dark:#1e40af; --accent:#bfdbfe; background:#0c1a2d; }
+
+/* ── Hero (sticky so main slides over it) ──────────────── */
+#hero {
+  position: sticky; top: 0; z-index: 1;
+  height: 100vh; overflow: hidden; background: #000;
+  cursor: pointer;
+}
+#hero-slides { position: absolute; inset: 0; }
+.hero-slide {
+  position: absolute; inset: 0; opacity: 0;
+  transition: opacity 1s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-slide-bg {
+  /* inset: 0 — no over-enlargement, renders at native quality */
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  animation: kenBurns 10s ease-in-out infinite alternate;
+  will-change: transform;
+  image-rendering: auto;
+}
+@keyframes kenBurns {
+  from { transform: scale(1.0) translate(0, 0); }
+  to   { transform: scale(1.04) translate(-0.8%, 0.8%); }
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.08) 0%,
+    rgba(0,0,0,0.12) 35%,
+    rgba(0,0,0,0.55) 80%,
+    rgba(0,0,0,0.82) 100%
+  );
+}
+
+/* Hover hint */
+.hero-click-hint {
+  position: absolute; bottom: 9rem; left: 50%; transform: translateX(-50%);
+  font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.55);
+  background: rgba(0,0,0,0.3); backdrop-filter: blur(6px);
+  padding: 0.3rem 0.9rem; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none; z-index: 3; white-space: nowrap;
+}
+#hero:hover .hero-click-hint { opacity: 1; }
+
+/* Site name — dead center, fades on scroll */
+#hero-center {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 0 2rem;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+#hero-site-name {
+  font-family: 'Merriweather', serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 700; line-height: 1;
+  color: #fff; letter-spacing: -0.01em;
+  text-shadow: 0 4px 32px rgba(0,0,0,0.7);
+  margin-bottom: 0.5rem;
+}
+#hero-tagline {
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  color: rgba(255,255,255,0.7);
+  font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+/* Park info — frosted-glass pill, bottom of hero */
+#hero-park-info {
+  position: absolute; bottom: 140px; left: 0; right: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 2rem;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+.park-info-item {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.8s ease;
+}
+.park-info-item.active { opacity: 1; }
+.park-name-block {
+  text-align: center;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 0.85rem 1.75rem;
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+.hero-park-name {
+  font-family: 'Merriweather', serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 700; color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  margin-bottom: 0.3rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+}
+.hero-park-sub {
+  font-size: 0.95rem; color: rgba(255,255,255,0.8);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+  opacity: 0; transition: opacity 0.5s ease 0.4s;
+}
+.park-info-item.active .hero-park-name { opacity: 1; transform: translateY(0); }
+.park-info-item.active .hero-park-sub  { opacity: 1; }
+
+/* Bottom controls */
+#hero-bottom {
+  position: absolute; bottom: 2.5rem; left: 0; right: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; gap: 1.1rem;
+  will-change: opacity;
+}
+#hero-dots { display: flex; gap: 0.6rem; }
+.hero-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); border: none; cursor: pointer;
+  transition: all 0.3s; z-index: 10;
+}
+.hero-dot.active { background: #fff; transform: scale(1.4); }
+#hero-cta {
+  background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.45);
+  color: #fff; backdrop-filter: blur(10px);
+  padding: 0.65rem 2rem; border-radius: 999px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  transition: all 0.25s; display: flex; align-items: center; gap: 0.5rem;
+  z-index: 10;
+}
+#hero-cta:hover { background: rgba(255,255,255,0.22); border-color: #fff; }
+
+/* Scroll-fade overlay */
+#hero-scroll-veil {
+  position: absolute; inset: 0; z-index: 4;
+  background: var(--bg); opacity: 0; pointer-events: none;
+  transition: none;
+}
+
+/* ── Main Interface ──────────────────────────────────────── */
+#main-interface {
+  position: relative; z-index: 2;
+  background: var(--bg);
+  transition: background 0.55s ease;
+  box-shadow: 0 -12px 48px rgba(0,0,0,0.6);
+}
+
+/* ── Sticky Nav ─────────────────────────────────────────── */
+#main-nav {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--nav-h);
+  /* More opaque nav — not ghostlike */
+  background: rgba(0,0,0,0.82);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(14px);
+  display: flex; align-items: center; padding: 0 1.5rem;
+  transition: background 0.55s;
+}
+#main-nav h1 {
+  font-family: 'Merriweather', serif; font-size: 1.1rem; font-weight: 700;
+  color: var(--primary); flex: 1; transition: color 0.3s;
+}
+#trip-badge {
+  background: var(--primary); color: #000;
+  font-size: 0.82rem; font-weight: 700;
+  padding: 0.3rem 0.8rem; border-radius: 999px;
+  cursor: pointer; transition: background 0.3s; white-space: nowrap;
+  border: none; position: relative;
+}
+#trip-badge:hover { opacity: 0.85; }
+
+/* ── Bucket List Dropdown Panel ─────────────────────────── */
+#bucket-panel {
+  position: absolute;
+  top: calc(var(--nav-h) + 0.5rem);
+  right: 1.5rem;
+  width: 300px;
+  max-height: 440px;
+  background: var(--bg-alt);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+  z-index: 300;
+  overflow: hidden;
+  /* closed state */
+  transform: translateY(-8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.22s cubic-bezier(0.32,0.72,0,1), opacity 0.22s;
+  display: flex; flex-direction: column;
+}
+#bucket-panel.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+#bucket-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1rem 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+#bucket-panel-title {
+  font-family: 'Merriweather', serif;
+  font-size: 0.98rem; font-weight: 700; color: var(--text);
+}
+#bucket-panel-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.2rem; cursor: pointer; padding: 0.1rem 0.3rem;
+  line-height: 1; border-radius: 4px; transition: color 0.2s;
+}
+#bucket-panel-close:hover { color: var(--text); }
+#bucket-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.bucket-tab {
+  flex: 1; padding: 0.55rem 0.75rem;
+  background: none; border: none;
+  font-size: 0.86rem; font-weight: 600;
+  color: var(--text-muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.bucket-tab:hover { color: var(--text); }
+.bucket-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+#bucket-body {
+  overflow-y: auto; flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  padding: 0.4rem 0 0.75rem;
+}
+#bucket-empty {
+  font-size: 0.88rem; color: var(--text-muted);
+  text-align: center; padding: 1.5rem 1rem;
+}
+.bucket-item {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.15s; cursor: pointer;
+}
+.bucket-item:hover { background: rgba(255,255,255,0.04); }
+.bucket-item img {
+  width: 46px; height: 34px; object-fit: cover;
+  border-radius: 6px; flex-shrink: 0;
+}
+.bucket-item-info { flex: 1; min-width: 0; }
+.bucket-item-name { font-size: 0.86rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bucket-item-sub  { font-size: 0.75rem; color: var(--text-muted); }
+.bucket-item-remove {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1rem; cursor: pointer; padding: 0.2rem 0.35rem;
+  border-radius: 4px; transition: color 0.2s; flex-shrink: 0;
+}
+.bucket-item-remove:hover { color: #ef4444; }
+
+/* ── Season Tabs ─────────────────────────────────────────── */
+#season-tabs {
+  position: sticky; top: var(--nav-h); z-index: 190;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; gap: 0.25rem; padding: 0.5rem 1.5rem;
+  overflow-x: auto; scrollbar-width: none;
+  transition: background 0.55s;
+}
+#season-tabs::-webkit-scrollbar { display: none; }
+.season-tab {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 1rem; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04); color: var(--text-muted);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: all 0.25s;
+}
+.season-tab:hover { border-color: var(--primary); color: var(--text); }
+.season-tab.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
+/* ── Main content ───────────────────────────────────────── */
+#main { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+/* ── Featured Picks Banner ──────────────────────────────── */
+#picks-banner {
+  margin: 2rem 0 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 1.4rem 1.75rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s, background 0.3s;
+}
+#picks-banner::before {
+  content: '';
+  position: absolute; inset: -2px;
+  border-radius: 18px;
+  background: conic-gradient(from var(--angle, 0deg), var(--primary), transparent 40%, var(--primary));
+  opacity: 0; z-index: 0;
+  transition: opacity 0.3s;
+  animation: rotateBorder 3s linear infinite;
+}
+@property --angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes rotateBorder { to { --angle: 360deg; } }
+#picks-banner:hover::before { opacity: 0.35; }
+#picks-banner:hover { border-color: var(--primary); background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); }
+#picks-banner > * { position: relative; z-index: 1; }
+.picks-banner-title {
+  font-family: 'Merriweather', serif;
+  font-size: 1.2rem; font-weight: 700; color: var(--text);
+  margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.picks-banner-sub { font-size: 0.9rem; color: var(--text-muted); }
+#picks-cta {
+  background: var(--primary); color: #000;
+  border: none; border-radius: 999px;
+  padding: 0.6rem 1.4rem; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  transition: opacity 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(167,139,250,0.35);
+}
+#picks-cta:hover { opacity: 0.88; transform: scale(1.03); }
+
+/* Swipe deck */
+#swipe-content {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.32,0.72,0,1);
+}
+#swipe-content.open { max-height: 620px; }
+#swipe-inner { padding: 1.5rem 0 0.5rem; }
+#swipe-arena {
+  position: relative; height: 360px;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+}
+#swipe-done {
+  display: none; flex-direction: column; align-items: center;
+  gap: 0.75rem; text-align: center;
+}
+#swipe-done .done-icon { font-size: 2.5rem; }
+#swipe-done p { color: var(--text-muted); font-size: 0.95rem; }
+#swipe-done button {
+  background: var(--primary); color: #000; border: none; border-radius: 999px;
+  padding: 0.55rem 1.5rem; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+.swipe-card-wrapper {
+  position: absolute; width: min(360px, 88vw);
+  transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.35s;
+}
+.swipe-card-wrapper:nth-child(2) { z-index: 30; }
+.swipe-card-wrapper:nth-child(3) { z-index: 20; transform: scale(0.96) translateY(12px); opacity: 0.65; pointer-events: none; }
+.swipe-card-wrapper:nth-child(4) { z-index: 10; transform: scale(0.92) translateY(24px); opacity: 0.4; pointer-events: none; }
+.swipe-card {
+  background: var(--bg-alt); border-radius: 18px; box-shadow: var(--shadow-lg);
+  overflow: hidden; cursor: grab; position: relative;
+  border: 1px solid rgba(255,255,255,0.1); transition: background 0.55s;
+}
+.swipe-card:active { cursor: grabbing; }
+.swipe-card-img { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; pointer-events: none; }
+.swipe-card-body { padding: 0.9rem 1.1rem 1rem; }
+.swipe-card-title { font-family: 'Merriweather', serif; font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.swipe-card-meta { font-size: 0.85rem; color: var(--text-muted); }
+.swipe-overlay {
+  position: absolute; inset: 0; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; font-weight: 800; opacity: 0; pointer-events: none; transition: opacity 0.1s;
+}
+.swipe-overlay.like { background: rgba(74,222,128,0.8); color: #fff; }
+.swipe-overlay.skip { background: rgba(148,163,184,0.7); color: #fff; }
+.swipe-overlay.fav  { background: rgba(251,191,36,0.85); color: #000; }
+.swipe-card-wrapper.fly-right { transform: translateX(160%) rotate(20deg) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
+.swipe-card-wrapper.fly-left  { transform: translateX(-160%) rotate(-20deg) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
+.swipe-card-wrapper.fly-up    { transform: translateY(-130%) scale(0.85) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
+#deck-buttons {
+  display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;
+}
+.deck-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.55rem 1.25rem; border-radius: 999px;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1.5px solid;
+}
+.deck-btn-skip { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-muted); }
+.deck-btn-skip:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+.deck-btn-fav  { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.1); color: #fbbf24; }
+.deck-btn-fav:hover  { background: rgba(251,191,36,0.2); }
+.deck-btn-add  { border-color: var(--primary); background: var(--primary); color: #000; }
+.deck-btn-add:hover  { opacity: 0.85; }
+
+/* Star burst */
+.star-particle {
+  position: fixed; pointer-events: none; z-index: 9999;
+  font-size: 1.4rem; animation: starFly 0.7s ease-out forwards;
+}
+@keyframes starFly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx),var(--ty)) scale(0.2); opacity: 0; }
+}
+
+/* ── Month Strip ─────────────────────────────────────────── */
+#month-section { padding: 1.75rem 0 0; }
+#month-strip {
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 0.4rem;
+}
+.month-cell {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0.55rem 0.1rem; border-radius: 10px;
+  background: var(--bg-alt); cursor: pointer;
+  transition: all 0.2s; border: 1.5px solid transparent;
+  font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+}
+.month-cell:hover { border-color: var(--primary); color: var(--text); }
+.month-cell.active { background: var(--primary); color: #000; border-color: var(--primary); }
+.month-cell.season-spring { border-color: rgba(74,222,128,0.3); }
+.month-cell.season-summer { border-color: rgba(96,165,250,0.3); }
+.month-cell.season-fall   { border-color: rgba(251,146,60,0.3); }
+.month-cell.season-winter { border-color: rgba(147,197,253,0.3); }
+
+/* ── Grid Section ────────────────────────────────────────── */
+#grid-section { padding: 1.5rem 0; }
+#grid-controls { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+#search-input {
+  flex: 1; min-width: 200px;
+  padding: 0.6rem 1rem; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  font-size: 0.95rem; background: rgba(255,255,255,0.06); color: var(--text);
+  transition: border-color 0.2s;
+}
+#search-input::placeholder { color: var(--text-muted); }
+#search-input:focus { outline: none; border-color: var(--primary); }
+#results-info { font-size: 0.88rem; color: var(--text-muted); align-self: center; }
+#attractions-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;
+}
+.att-card {
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.att-card:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--primary), var(--shadow-lg); border-color: var(--primary); }
+.att-card.best-match { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary), var(--shadow-md); }
+.att-card-img-wrap { position: relative; }
+.att-card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+.att-card-badge {
+  position: absolute; top: 0.6rem; left: 0.6rem;
+  background: rgba(0,0,0,0.6); color: #fff; backdrop-filter: blur(4px);
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem; border-radius: 6px;
+}
+.best-badge {
+  position: absolute; top: 0.6rem; right: 0.6rem;
+  background: var(--primary); color: #000;
+  font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px;
+}
+.att-card-fav {
+  position: absolute; bottom: 0.5rem; right: 0.6rem;
+  background: rgba(0,0,0,0.5); color: #fff; backdrop-filter: blur(4px);
+  border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 0.95rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+}
+.att-card-fav:hover { transform: scale(1.15); }
+.att-card-fav.active { background: rgba(239,68,68,0.8); }
+.att-card-body { padding: 0.9rem 1rem 1rem; }
+.att-card-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; font-family: 'Merriweather', serif; }
+.att-card-loc { font-size: 0.84rem; color: var(--text-muted); margin-bottom: 0.35rem; }
+.att-card-rating { font-size: 0.84rem; color: var(--accent); font-weight: 600; margin-bottom: 0.4rem; }
+.att-card-desc { font-size: 0.94rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 0.7rem; }
+.att-card-actions { display: flex; gap: 0.5rem; }
+.btn-trip {
+  flex: 1; padding: 0.45rem 0.75rem; border-radius: 999px;
+  border: 1.5px solid var(--primary); background: transparent; color: var(--primary);
+  font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.btn-trip:hover, .btn-trip.active { background: var(--primary); color: #000; }
+.btn-story {
+  flex: 1; padding: 0.45rem 0.75rem; border-radius: 999px;
+  background: var(--primary); color: #000; border: none;
+  font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+}
+.btn-story:hover { opacity: 0.85; }
+
+/* ── Story Overlay ───────────────────────────────────────── */
+#story-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--bg); transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32,0.72,0,1); overflow: hidden;
+}
+#story-overlay.open { transform: translateY(0); }
+#story-close {
+  position: fixed; top: 1rem; left: 1rem; z-index: 1100;
+  background: rgba(0,0,0,0.6); color: #fff; border: none;
+  border-radius: 999px; padding: 0.45rem 1rem;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px);
+}
+#story-close:hover { background: rgba(0,0,0,0.85); }
+#story-progress {
+  position: fixed; right: 1.2rem; top: 50%; transform: translateY(-50%);
+  z-index: 1100; display: flex; flex-direction: column; gap: 0.65rem;
+}
+.prog-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12);
+  cursor: pointer; transition: all 0.2s;
+}
+.prog-dot.active { background: var(--primary); border-color: var(--primary); transform: scale(1.4); animation: dotPulse 2s ease infinite; }
+@keyframes dotPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+  50%     { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+}
+#chapters-scroll { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+#chapters-scroll::-webkit-scrollbar { display: none; }
+.chapter { height: 100vh; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+
+/* Ch1 — Discovery */
+.ch-discovery { background: #0a0a0a; }
+.ch-discovery .ch-bg { position: absolute; inset: -5%; background-size: cover; background-position: center; animation: kenBurns 14s ease-in-out infinite alternate; }
+.ch-discovery .ch-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.55)); }
+.ch-discovery .ch-content { position: relative; z-index: 2; text-align: center; padding: 2rem; color: #fff; max-width: 700px; }
+.ch1-label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.65; margin-bottom: 1rem; }
+.ch1-title { font-family: 'Merriweather', serif; font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.6rem; }
+.ch1-sub { font-size: 1rem; opacity: 0.75; }
+.ch-scroll-hint { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: rgba(255,255,255,0.55); display: flex; flex-direction: column; align-items: center; gap: 0.3rem; animation: bounce 2s ease infinite; }
+@keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+/* Ch2 — The Land */
+.ch-land { background: var(--bg-alt); transition: background 0.55s; }
+.ch-land .ch-content { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 3rem 4rem; width: 100%; max-width: 1100px; align-items: center; }
+.ch2-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.65rem; transition: color 0.3s; }
+.ch2-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.5rem); font-weight: 700; line-height: 1.2; margin-bottom: 0.9rem; color: var(--text); }
+.ch2-desc { font-size: 1.05rem; line-height: 1.8; color: var(--text-muted); }
+.ch2-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+.ch2-tag { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.8rem; color: var(--text-muted); }
+.ch2-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 14px; box-shadow: var(--shadow-lg); }
+
+/* Ch3 — Experience */
+.ch-experience { background: var(--bg); transition: background 0.55s; }
+.ch-experience .ch-content { padding: 3rem 4rem; width: 100%; max-width: 800px; text-align: center; }
+.ch3-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.65rem; transition: color 0.3s; }
+.ch3-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: var(--text); }
+.activities-grid { display: flex; flex-wrap: wrap; gap: 0.65rem; justify-content: center; margin-bottom: 2rem; }
+.activity-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: 0.55rem 1.1rem; font-size: 0.95rem; font-weight: 500; color: var(--text); }
+.ch3-info { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+.ch3-info-item { text-align: center; }
+.ch3-info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.25rem; }
+.ch3-info-value { font-size: 1rem; font-weight: 700; color: var(--primary); transition: color 0.3s; }
+
+/* Ch4 — Visit Notes (parchment) */
+.ch-visit { background: #FAF6EE; }
+.ch-visit .ch-content { padding: 3rem 4rem; width: 100%; max-width: 700px; }
+.ch4-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8B6914; margin-bottom: 0.65rem; }
+.ch4-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: #2D1B00; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+.stat-box { background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+.stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8B6914; margin-bottom: 0.3rem; }
+.stat-value { font-size: 1.05rem; font-weight: 700; color: #2D1B00; }
+.ch4-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.ch4-tag { background: #EFE8D4; padding: 0.28rem 0.65rem; border-radius: 999px; font-size: 0.8rem; color: #5C4A20; }
+
+/* Ch5 — Go Now */
+.ch-gonow { background: var(--bg-alt); transition: background 0.55s; }
+.ch-gonow .ch-content { padding: 3rem 4rem; width: 100%; max-width: 900px; text-align: center; }
+.ch5-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.65rem; transition: color 0.3s; }
+.ch5-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 0.6rem; color: var(--text); }
+.ch5-rating { font-size: 1.3rem; margin-bottom: 1.5rem; }
+.ch5-rating .stars { color: var(--accent); }
+.ch5-rating .num { font-size: 1rem; font-weight: 700; color: var(--primary); margin-left: 0.4rem; transition: color 0.3s; }
+.ch5-actions { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+.ch5-btn { padding: 0.7rem 2rem; border-radius: 999px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+.ch5-btn-primary { background: var(--primary); color: #000; border-color: var(--primary); }
+.ch5-btn-primary:hover { opacity: 0.85; }
+.ch5-btn-secondary { background: transparent; color: var(--primary); border-color: var(--primary); }
+.ch5-btn-secondary:hover { background: var(--primary); color: #000; }
+.ch5-related-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.9rem; }
+.related-cards { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.related-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; cursor: pointer; width: 175px; transition: transform 0.2s, box-shadow 0.2s; }
+.related-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.related-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.related-card-name { padding: 0.5rem 0.6rem; font-size: 0.82rem; font-weight: 600; color: var(--text); }
+
+/* ── Toast ───────────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 0.6rem 1.2rem; border-radius: 999px;
+  font-size: 0.9rem; font-weight: 500;
+  opacity: 0; transition: all 0.3s; z-index: 2000;
+  pointer-events: none; white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #main { padding: 0 1rem 5rem; }
+  .ch-land .ch-content { grid-template-columns: 1fr; padding: 2rem 1.5rem; gap: 1.5rem; }
+  .ch-land .ch-content .ch2-img { order: -1; }
+  .ch-experience .ch-content, .ch-visit .ch-content, .ch-gonow .ch-content { padding: 2rem 1.5rem; }
+  #story-progress { right: 0.5rem; }
+  #bucket-panel { right: 0.75rem; width: calc(100vw - 1.5rem); }
+}
+@media (max-width: 480px) {
+  #month-strip { grid-template-columns: repeat(6, 1fr); }
+  #attractions-grid { grid-template-columns: 1fr; }
+  .ch5-actions { flex-direction: column; align-items: stretch; }
+  .stats-grid { grid-template-columns: 1fr; }
+  #deck-buttons { gap: 0.5rem; }
+  .deck-btn { padding: 0.45rem 0.85rem; font-size: 0.82rem; }
+}
+</style>
+</head>
+<body class="season-all">
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div id="hero-slides"></div>
+
+  <!-- Centered site name — fades on scroll -->
+  <div id="hero-center">
+    <div id="hero-site-name">🌿 Wild America</div>
+    <div id="hero-tagline">100 Places to Discover</div>
+  </div>
+
+  <!-- Park name — frosted glass pill -->
+  <div id="hero-park-info"></div>
+
+  <!-- Click hint -->
+  <div class="hero-click-hint">✦ Tap to explore this park</div>
+
+  <!-- Scroll veil -->
+  <div id="hero-scroll-veil"></div>
+
+  <!-- Dots + CTA -->
+  <div id="hero-bottom">
+    <div id="hero-dots"></div>
+    <button id="hero-cta" onclick="scrollToMain(); event.stopPropagation();">↓ Explore by Season</button>
+  </div>
+</section>
+
+<!-- ── MAIN INTERFACE ── -->
+<div id="main-interface">
+  <nav id="main-nav">
+    <h1>🌿 Wild America</h1>
+    <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
+
+    <!-- Dropdown panel — child of nav for positioning -->
+    <div id="bucket-panel" onclick="event.stopPropagation()">
+      <div id="bucket-panel-header">
+        <span id="bucket-panel-title">My Bucket List</span>
+        <button id="bucket-panel-close" onclick="closeBucketPanel()">×</button>
+      </div>
+      <div id="bucket-tabs">
+        <button class="bucket-tab active" data-tab="trip" onclick="switchBucketTab('trip')">✈ My Trip</button>
+        <button class="bucket-tab" data-tab="favs" onclick="switchBucketTab('favs')">♥ Favorites</button>
+      </div>
+      <div id="bucket-body">
+        <div id="bucket-empty">Nothing here yet — add from picks or the grid!</div>
+      </div>
+    </div>
+  </nav>
+
+  <div id="season-tabs">
+    <button class="season-tab active" data-season="all">🗺️ All Year</button>
+    <button class="season-tab" data-season="spring">🌸 Spring</button>
+    <button class="season-tab" data-season="summer">☀️ Summer</button>
+    <button class="season-tab" data-season="fall">🍂 Fall</button>
+    <button class="season-tab" data-season="winter">❄️ Winter</button>
+  </div>
+
+  <div id="main">
+    <!-- Featured Picks Banner -->
+    <div id="picks-banner" onclick="toggleSwipeDeck()">
+      <div class="picks-banner-text">
+        <div class="picks-banner-title">✨ Featured This Season</div>
+        <div class="picks-banner-sub">Top picks for <span id="picks-season-label">All Year</span> — swipe to add</div>
+      </div>
+      <button id="picks-cta">Explore Picks →</button>
+    </div>
+    <div id="swipe-content">
+      <div id="swipe-inner">
+        <div id="swipe-arena"></div>
+        <div id="deck-buttons">
+          <button class="deck-btn deck-btn-skip" onclick="triggerSwipe('left')">← Skip</button>
+          <button class="deck-btn deck-btn-fav"  onclick="triggerSwipe('up')">★ Favorite</button>
+          <button class="deck-btn deck-btn-add"  onclick="triggerSwipe('right')">Add to Bucket →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Month Strip -->
+    <section id="month-section">
+      <div id="month-strip"></div>
+    </section>
+
+    <!-- Grid -->
+    <section id="grid-section">
+      <div id="grid-controls">
+        <input type="text" id="search-input" placeholder="Search parks, states, regions…">
+        <span id="results-info">100 attractions</span>
+      </div>
+      <div id="attractions-grid"></div>
+    </section>
+  </div>
+</div>
+
+<!-- Story Overlay -->
+<div id="story-overlay">
+  <button id="story-close" onclick="closeStory()">× Close</button>
+  <div id="story-progress">
+    <div class="prog-dot active" data-ch="0" onclick="jumpToChapter(0)"></div>
+    <div class="prog-dot" data-ch="1" onclick="jumpToChapter(1)"></div>
+    <div class="prog-dot" data-ch="2" onclick="jumpToChapter(2)"></div>
+    <div class="prog-dot" data-ch="3" onclick="jumpToChapter(3)"></div>
+    <div class="prog-dot" data-ch="4" onclick="jumpToChapter(4)"></div>
+  </div>
+  <div id="chapters-scroll"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+// ── Constants ──────────────────────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SEASON_MONTHS = { spring:[2,3,4], summer:[5,6,7], fall:[8,9,10], winter:[11,0,1] };
+const MONTH_TO_SEASON = { 0:'winter',1:'winter',2:'spring',3:'spring',4:'spring',5:'summer',6:'summer',7:'summer',8:'fall',9:'fall',10:'fall',11:'winter' };
+const SEASON_EMOJI  = { all:'🗺️', spring:'🌸', summer:'☀️', fall:'🍂', winter:'❄️' };
+const SEASON_LABEL  = { all:'All Year', spring:'Spring', summer:'Summer', fall:'Fall', winter:'Winter' };
+const HERO_SLUGS = ['yosemite','grand-canyon','yellowstone','zion','glacier','great-smoky'];
+
+// ── State ──────────────────────────────────────────────────
+let currentSeason = 'all';
+let activeMonth   = null;
+let searchQuery   = '';
+let itinerary = JSON.parse(localStorage.getItem('tourist_itinerary') || '[]');
+let favorites = JSON.parse(localStorage.getItem('tourist_favorites') || '[]');
+let bucketPanelOpen = false, bucketActiveTab = 'trip';
+let swipeDeckOpen = false;
+let deckAttractions = [], deckIndex = 0;
+let isDragging = false, dragStartX=0, dragStartY=0, dragCurrentX=0, dragCurrentY=0;
+let heroAttractions = [];
+
+// ── Utils ──────────────────────────────────────────────────
+function save() {
+  localStorage.setItem('tourist_itinerary', JSON.stringify(itinerary));
+  localStorage.setItem('tourist_favorites', JSON.stringify(favorites));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function updateTripBadge() {
+  const total = itinerary.length + favorites.length;
+  document.getElementById('trip-badge').textContent = `My Bucket List (${itinerary.length})`;
+  document.getElementById('bucket-panel-title').textContent = `My Bucket List`;
+}
+
+// ── Bucket Panel ───────────────────────────────────────────
+function toggleBucketPanel(e) {
+  e && e.stopPropagation();
+  bucketPanelOpen = !bucketPanelOpen;
+  document.getElementById('bucket-panel').classList.toggle('open', bucketPanelOpen);
+  if (bucketPanelOpen) renderBucketPanel();
+}
+function closeBucketPanel() {
+  bucketPanelOpen = false;
+  document.getElementById('bucket-panel').classList.remove('open');
+}
+function switchBucketTab(tab) {
+  bucketActiveTab = tab;
+  document.querySelectorAll('.bucket-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  renderBucketPanel();
+}
+function renderBucketPanel() {
+  const body  = document.getElementById('bucket-body');
+  const empty = document.getElementById('bucket-empty');
+  // Remove existing items
+  body.querySelectorAll('.bucket-item').forEach(el => el.remove());
+
+  const ids  = bucketActiveTab === 'trip' ? itinerary : favorites;
+  const list = ids.map(id => attractions.find(a => a.id === id)).filter(Boolean);
+
+  if (!list.length) {
+    empty.style.display = 'block';
+    empty.textContent = bucketActiveTab === 'trip'
+      ? "No trips planned yet — add parks from the grid!"
+      : "No favorites yet — heart a park to save it here!";
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'bucket-item';
+    item.innerHTML = `
+      <img src="../shared/images/${a.slug}.jpg" onerror="this.src='../shared/images/yellowstone.jpg'" alt="${a.name}">
+      <div class="bucket-item-info">
+        <div class="bucket-item-name">${a.name}</div>
+        <div class="bucket-item-sub">📍 ${a.state} · ★ ${a.rating}</div>
+      </div>
+      <button class="bucket-item-remove" title="Remove">×</button>`;
+    item.querySelector('.bucket-item-remove').addEventListener('click', e => {
+      e.stopPropagation();
+      if (bucketActiveTab === 'trip') {
+        itinerary = itinerary.filter(x => x !== a.id);
+        showToast('Removed from trip');
+      } else {
+        favorites = favorites.filter(x => x !== a.id);
+        showToast('♡ Unfavorited');
+      }
+      save(); updateTripBadge(); renderBucketPanel(); renderGrid();
+    });
+    item.addEventListener('click', () => { closeBucketPanel(); openStory(a.id); });
+    body.insertBefore(item, empty);
+  });
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', () => {
+  if (bucketPanelOpen) closeBucketPanel();
+});
+
+// ── Hero Scroll Fade ───────────────────────────────────────
+function initScrollFade() {
+  const center   = document.getElementById('hero-center');
+  const parkInfo = document.getElementById('hero-park-info');
+  const bottom   = document.getElementById('hero-bottom');
+  const veil     = document.getElementById('hero-scroll-veil');
+
+  window.addEventListener('scroll', () => {
+    const vh = window.innerHeight;
+    const sy = window.scrollY;
+    const p = Math.min(sy / (vh * 0.6), 1);
+    const titleP = Math.min(sy / (vh * 0.3), 1);
+    center.style.opacity   = 1 - titleP;
+    center.style.transform = `translateY(${titleP * -25}px)`;
+    const elemP = Math.min(sy / (vh * 0.45), 1);
+    parkInfo.style.opacity = 1 - elemP;
+    parkInfo.style.transform = `translateY(${elemP * -15}px)`;
+    bottom.style.opacity   = 1 - elemP * 1.5;
+    veil.style.opacity = p * 0.75;
+  }, { passive: true });
+}
+
+function scrollToMain() {
+  document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Hero Slideshow ─────────────────────────────────────────
+let heroIdx = 0;
+function initHero() {
+  heroAttractions = HERO_SLUGS.map(s => attractions.find(a => a.slug === s)).filter(Boolean);
+  const slidesEl   = document.getElementById('hero-slides');
+  const parkInfoEl = document.getElementById('hero-park-info');
+  const dotsEl     = document.getElementById('hero-dots');
+
+  heroAttractions.forEach((a, i) => {
+    // Slide background (clickable)
+    const slide = document.createElement('div');
+    slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
+    slide.innerHTML = `
+      <div class="hero-slide-bg" style="background-image:url('../shared/images/${a.slug}.jpg')"></div>
+      <div class="hero-overlay"></div>`;
+    slidesEl.appendChild(slide);
+
+    // Dot nav
+    const dot = document.createElement('button');
+    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', e => { e.stopPropagation(); goSlide(i); });
+    dotsEl.appendChild(dot);
+
+    // Park info pill
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'park-info-item' + (i === 0 ? ' active' : '');
+    infoDiv.innerHTML = `
+      <div class="park-name-block">
+        <div class="hero-park-name">${a.name}</div>
+        <div class="hero-park-sub">📍 ${a.state} &nbsp;·&nbsp; ★ ${a.rating}</div>
+      </div>`;
+    parkInfoEl.appendChild(infoDiv);
+  });
+
+  // Hero click → open story for current slide
+  document.getElementById('hero').addEventListener('click', () => {
+    if (heroAttractions[heroIdx]) openStory(heroAttractions[heroIdx].id);
+  });
+
+  function goSlide(idx) {
+    heroIdx = idx;
+    document.querySelectorAll('.hero-slide').forEach((s,i) => s.classList.toggle('active', i===idx));
+    document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+    parkInfoEl.querySelectorAll('.park-info-item').forEach((d,i) => d.classList.toggle('active', i===idx));
+  }
+
+  setInterval(() => goSlide((heroIdx + 1) % heroAttractions.length), 5000);
+}
+
+// ── Season ─────────────────────────────────────────────────
+function matchesSeason(a, season) {
+  if (season === 'all') return true;
+  const bt = (a.bestTime || '').toLowerCase();
+  if (/year.?round|all year/i.test(bt)) return true;
+  return SEASON_MONTHS[season].some(mi => bt.includes(MONTH_FULL[mi].toLowerCase().slice(0,3)));
+}
+function matchesMonth(a, mi) {
+  if (mi === null) return true;
+  const bt = (a.bestTime || '').toLowerCase();
+  if (/year.?round|all year/i.test(bt)) return true;
+  return bt.includes(MONTH_FULL[mi].toLowerCase().slice(0,3));
+}
+
+function setSeason(season, fromMonth) {
+  currentSeason = season;
+  document.body.className = `season-${season}`;
+  document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', t.dataset.season === season));
+  document.getElementById('picks-season-label').textContent = SEASON_LABEL[season];
+  if (!fromMonth) { activeMonth = null; }
+  initSwipeDeck();
+  renderGrid();
+  renderMonthStrip();
+}
+
+function initSeasonTabs() {
+  document.querySelectorAll('.season-tab').forEach(tab => {
+    tab.addEventListener('click', () => { activeMonth = null; setSeason(tab.dataset.season, false); });
+  });
+}
+
+// ── Month Strip ────────────────────────────────────────────
+const SEASON_MONTH_CLASS = { spring:'season-spring', summer:'season-summer', fall:'season-fall', winter:'season-winter' };
+function renderMonthStrip() {
+  const strip = document.getElementById('month-strip');
+  strip.innerHTML = '';
+  MONTHS.forEach((m, i) => {
+    const cell = document.createElement('div');
+    const mSeason = MONTH_TO_SEASON[i];
+    cell.className = 'month-cell ' + SEASON_MONTH_CLASS[mSeason] + (activeMonth === i ? ' active' : '');
+    cell.textContent = m;
+    cell.addEventListener('click', () => {
+      if (activeMonth === i) { activeMonth = null; setSeason('all', true); }
+      else { activeMonth = i; setSeason(mSeason, true); }
+    });
+    strip.appendChild(cell);
+  });
+}
+
+// ── Card Grid ──────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('attractions-grid');
+  const info = document.getElementById('results-info');
+  let list = attractions.filter(a => matchesSeason(a, currentSeason) && matchesMonth(a, activeMonth));
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(a =>
+      a.name.toLowerCase().includes(q) || a.state.toLowerCase().includes(q) ||
+      a.region.toLowerCase().includes(q) || (a.category||'').toLowerCase().includes(q)
+    );
+  }
+  info.textContent = `${list.length} attraction${list.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = '';
+  list.forEach(a => {
+    const isBest  = currentSeason !== 'all' && matchesSeason(a, currentSeason);
+    const inTrip  = itinerary.includes(a.id);
+    const isFav   = favorites.includes(a.id);
+    const card = document.createElement('div');
+    card.className = 'att-card' + (isBest ? ' best-match' : '');
+    card.innerHTML = `
+      <div class="att-card-img-wrap">
+        <img class="att-card-img" src="../shared/images/${a.slug}.jpg" alt="${a.name}" onerror="this.src='../shared/images/yellowstone.jpg'">
+        <span class="att-card-badge">${a.category || 'Landmark'}</span>
+        ${isBest ? `<span class="best-badge">✨ Best Match</span>` : ''}
+        <button class="att-card-fav${isFav ? ' active' : ''}" data-id="${a.id}">${isFav ? '♥' : '♡'}</button>
+      </div>
+      <div class="att-card-body">
+        <div class="att-card-title">${a.name}</div>
+        <div class="att-card-loc">📍 ${a.state} · ${a.region}</div>
+        <div class="att-card-rating">${'★'.repeat(Math.round(a.rating))} ${a.rating}</div>
+        <div class="att-card-desc">${a.description}</div>
+        <div class="att-card-actions">
+          <button class="btn-trip${inTrip ? ' active' : ''}" data-id="${a.id}">${inTrip ? '✓ In Bucket' : '+ Bucket'}</button>
+          <button class="btn-story" data-id="${a.id}">Read Story</button>
+        </div>
+      </div>`;
+    card.querySelector('.att-card-fav').addEventListener('click', e => { e.stopPropagation(); toggleFav(a.id, card.querySelector('.att-card-fav')); });
+    card.querySelector('.btn-trip').addEventListener('click', e => { e.stopPropagation(); toggleTrip(a.id, card.querySelector('.btn-trip')); });
+    card.querySelector('.btn-story').addEventListener('click', e => { e.stopPropagation(); openStory(a.id); });
+    card.addEventListener('click', () => openStory(a.id));
+    grid.appendChild(card);
+  });
+}
+
+// ── Fav / Trip ─────────────────────────────────────────────
+function toggleFav(id, btn) {
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(x=>x!==id);
+    if(btn){btn.classList.remove('active');btn.textContent='♡';}
+    showToast('♡ Removed from favorites');
+  } else {
+    favorites.push(id);
+    if(btn){btn.classList.add('active');btn.textContent='♥';}
+    showToast('♥ Added to favorites!');
+  }
+  save(); updateTripBadge();
+  if (bucketPanelOpen) renderBucketPanel();
+}
+function toggleTrip(id, btn) {
+  if (itinerary.includes(id)) {
+    itinerary = itinerary.filter(x=>x!==id);
+    if(btn){btn.classList.remove('active');btn.textContent='+ Bucket';}
+    showToast('Removed from bucket');
+  } else {
+    itinerary.push(id);
+    if(btn){btn.classList.add('active');btn.textContent='✓ In Bucket';}
+    showToast('✓ Added to bucket!');
+  }
+  save(); updateTripBadge();
+  if (bucketPanelOpen) renderBucketPanel();
+}
+
+// ── Swipe Deck ─────────────────────────────────────────────
+function toggleSwipeDeck() {
+  swipeDeckOpen = !swipeDeckOpen;
+  document.getElementById('swipe-content').classList.toggle('open', swipeDeckOpen);
+  document.getElementById('picks-cta').textContent = swipeDeckOpen ? 'Hide ▴' : 'Explore Picks →';
+}
+function initSwipeDeck() {
+  deckAttractions = attractions.filter(a => matchesSeason(a, currentSeason)).sort((a,b) => b.rating - a.rating).slice(0, 10);
+  deckIndex = 0;
+  renderDeck();
+}
+function renderDeck() {
+  const arena = document.getElementById('swipe-arena');
+  arena.innerHTML = '';
+  const done = document.createElement('div');
+  done.id = 'swipe-done'; done.style.display = 'none';
+  done.innerHTML = `<div class="done-icon">🎉</div><p>All picks seen!</p><button onclick="document.getElementById('grid-section').scrollIntoView({behavior:'smooth'})">See full grid ↓</button>`;
+  arena.appendChild(done);
+  if (deckIndex >= deckAttractions.length) { done.style.display = 'flex'; return; }
+  const show = deckAttractions.slice(deckIndex, deckIndex + 3);
+  show.reverse().forEach((a, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'swipe-card-wrapper'; wrapper.dataset.id = a.id;
+    wrapper.innerHTML = `
+      <div class="swipe-card">
+        <div class="swipe-overlay like">ADDED ✓</div>
+        <div class="swipe-overlay skip">SKIP</div>
+        <div class="swipe-overlay fav">★ FAVE!</div>
+        <img class="swipe-card-img" src="../shared/images/${a.slug}.jpg" onerror="this.src='../shared/images/yellowstone.jpg'">
+        <div class="swipe-card-body">
+          <div class="swipe-card-title">${a.name}</div>
+          <div class="swipe-card-meta">📍 ${a.state} · ★ ${a.rating}</div>
+        </div>
+      </div>`;
+    arena.insertBefore(wrapper, done);
+    if (i === show.length - 1) initDrag(wrapper, a);
+  });
+}
+function getTopCard() {
+  const wrappers = document.getElementById('swipe-arena').querySelectorAll('.swipe-card-wrapper');
+  return wrappers.length ? wrappers[wrappers.length - 1] : null;
+}
+function triggerSwipe(dir) {
+  const wrapper = getTopCard(); if (!wrapper) return;
+  const a = attractions.find(x => x.id === parseInt(wrapper.dataset.id));
+  if (a) doSwipe(dir, wrapper, a);
+}
+function initDrag(wrapper, attraction) {
+  function onStart(x, y) { isDragging=true; dragStartX=x; dragStartY=y; dragCurrentX=x; dragCurrentY=y; wrapper.style.transition='none'; }
+  function onMove(x, y) {
+    if (!isDragging) return;
+    dragCurrentX=x; dragCurrentY=y;
+    const dx=dragCurrentX-dragStartX, dy=dragCurrentY-dragStartY;
+    wrapper.style.transform=`translateX(${dx}px) translateY(${dy}px) rotate(${dx*0.07}deg)`;
+    const th=wrapper.offsetWidth*0.3;
+    wrapper.querySelector('.swipe-overlay.like').style.opacity = dx>20 ? Math.min((dx-20)/th,1) : 0;
+    wrapper.querySelector('.swipe-overlay.skip').style.opacity = dx<-20 ? Math.min((-dx-20)/th,1) : 0;
+    wrapper.querySelector('.swipe-overlay.fav').style.opacity  = dy<-30 ? Math.min((-dy-30)/th,1) : 0;
+  }
+  function onEnd() {
+    if (!isDragging) return; isDragging=false; wrapper.style.transition='';
+    const dx=dragCurrentX-dragStartX, dy=dragCurrentY-dragStartY, th=wrapper.offsetWidth*0.35;
+    if (dy<-th && Math.abs(dy)>Math.abs(dx)) doSwipe('up',wrapper,attraction);
+    else if (dx>th) doSwipe('right',wrapper,attraction);
+    else if (dx<-th) doSwipe('left',wrapper,attraction);
+    else { wrapper.style.transform=''; wrapper.querySelectorAll('.swipe-overlay').forEach(o=>o.style.opacity=0); }
+  }
+  wrapper.addEventListener('mousedown', e => { e.preventDefault(); onStart(e.clientX,e.clientY); });
+  document.addEventListener('mousemove', e => { if(isDragging) onMove(e.clientX,e.clientY); });
+  document.addEventListener('mouseup',   () => { if(isDragging) onEnd(); });
+  wrapper.addEventListener('touchstart', e => onStart(e.touches[0].clientX,e.touches[0].clientY), {passive:true});
+  wrapper.addEventListener('touchmove',  e => onMove(e.touches[0].clientX,e.touches[0].clientY), {passive:true});
+  wrapper.addEventListener('touchend',   onEnd);
+}
+function doSwipe(dir, wrapper, attraction) {
+  if (dir==='right') { wrapper.classList.add('fly-right'); if(!itinerary.includes(attraction.id)){itinerary.push(attraction.id);save();updateTripBadge();if(bucketPanelOpen)renderBucketPanel();} showToast('✓ Added to bucket!'); }
+  else if (dir==='left') { wrapper.classList.add('fly-left'); showToast('Skipped'); }
+  else { wrapper.classList.add('fly-up'); starBurst(wrapper); if(!favorites.includes(attraction.id)){favorites.push(attraction.id);save();updateTripBadge();} showToast('★ Added to favorites!'); }
+  deckIndex++;
+  setTimeout(() => { renderDeck(); renderGrid(); }, 450);
+}
+function starBurst(wrapper) {
+  const rect=wrapper.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/3;
+  ['★','✦','✧','⭐','✨'].forEach((sym,i) => {
+    const angle=(i/5)*Math.PI*2, dist=80+Math.random()*60;
+    const p=document.createElement('div'); p.className='star-particle'; p.textContent=sym;
+    p.style.cssText=`left:${cx}px;top:${cy}px;--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-30}px;animation-delay:${i*0.05}s`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),800);
+  });
+}
+
+// ── Story Overlay ──────────────────────────────────────────
+function openStory(id) {
+  const a = attractions.find(x=>x.id===id); if(!a) return;
+  document.body.style.overflow='hidden';
+  buildStory(a);
+  document.getElementById('story-overlay').classList.add('open');
+  jumpToChapter(0);
+}
+function closeStory() {
+  document.getElementById('story-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function jumpToChapter(n) {
+  const scroll=document.getElementById('chapters-scroll');
+  const chapters=scroll.querySelectorAll('.chapter');
+  if(chapters[n]) chapters[n].scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.prog-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+}
+function buildStory(a) {
+  const scroll=document.getElementById('chapters-scroll');
+  const actIcons={'Hiking':'🥾','Camping':'🏕️','Swimming':'🏊','Kayaking':'🛶','Fishing':'🎣','Wildlife Watching':'🦌','Photography':'📷','Skiing':'⛷️','Rock Climbing':'🧗','Stargazing':'🌟','Cycling':'🚴','Bird Watching':'🦅','Horseback Riding':'🐎'};
+  const related=attractions.filter(x=>x.region===a.region&&x.id!==a.id).slice(0,3);
+  scroll.innerHTML=`
+    <div class="chapter ch-discovery">
+      <div class="ch-bg" style="background-image:url('../shared/images/${a.slug}.jpg')"></div>
+      <div class="ch-overlay"></div>
+      <div class="ch-content">
+        <div class="ch1-label">Chapter 1 · Discovery</div>
+        <h2 class="ch1-title">${a.name}</h2>
+        <p class="ch1-sub">📍 ${a.state} &nbsp;·&nbsp; ${a.region}</p>
+      </div>
+      <div class="ch-scroll-hint">↓ Scroll to explore</div>
+    </div>
+    <div class="chapter ch-land">
+      <div class="ch-content">
+        <div class="ch2-text">
+          <div class="ch2-chapter-label">Chapter 2 · The Land</div>
+          <h2 class="ch2-title">${a.name}</h2>
+          <p class="ch2-desc">${a.description}</p>
+          <div class="ch2-tags"><span class="ch2-tag">${a.category||'Landmark'}</span><span class="ch2-tag">${a.region}</span><span class="ch2-tag">${a.state}</span></div>
+        </div>
+        <img class="ch2-img" src="../shared/images/${a.slug}.jpg" onerror="this.src='../shared/images/yellowstone.jpg'">
+      </div>
+    </div>
+    <div class="chapter ch-experience">
+      <div class="ch-content">
+        <div class="ch3-chapter-label">Chapter 3 · Experience</div>
+        <h2 class="ch3-title">What Awaits You</h2>
+        <div class="activities-grid">${(a.activities||[]).map(act=>`<div class="activity-pill">${actIcons[act]||'🌿'} ${act}</div>`).join('')}</div>
+        <div class="ch3-info">
+          <div class="ch3-info-item"><div class="ch3-info-label">Difficulty</div><div class="ch3-info-value">${a.difficulty||'Varies'}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">Duration</div><div class="ch3-info-value">${a.duration||'1–2 days'}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">Accessibility</div><div class="ch3-info-value">${a.accessibility?'♿ Accessible':'Limited'}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chapter ch-visit">
+      <div class="ch-content">
+        <div class="ch4-chapter-label">Chapter 4 · Visit Notes</div>
+        <h2 class="ch4-title">Plan Your Visit</h2>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-label">Entrance Fee</div><div class="stat-value">${a.fee||'Free'}</div></div>
+          <div class="stat-box"><div class="stat-label">Best Time</div><div class="stat-value">${a.bestTime||'Year-round'}</div></div>
+          <div class="stat-box"><div class="stat-label">Duration</div><div class="stat-value">${a.duration||'1–2 days'}</div></div>
+          <div class="stat-box"><div class="stat-label">Difficulty</div><div class="stat-value">${a.difficulty||'Varies'}</div></div>
+        </div>
+        <div class="ch4-tags">${(a.tags||[]).map(t=>`<span class="ch4-tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="chapter ch-gonow">
+      <div class="ch-content">
+        <div class="ch5-chapter-label">Chapter 5 · Go Now</div>
+        <h2 class="ch5-title">${a.name}</h2>
+        <div class="ch5-rating"><span class="stars">${'★'.repeat(Math.round(a.rating))}</span><span class="num">${a.rating} · ${(a.reviews||0).toLocaleString()} reviews</span></div>
+        <div class="ch5-actions">
+          <button class="ch5-btn ch5-btn-primary" id="ch5-trip" onclick="storyTrip(${a.id})">${itinerary.includes(a.id)?'✓ In Bucket':'+ Add to Bucket'}</button>
+          <button class="ch5-btn ch5-btn-secondary" id="ch5-fav" onclick="storyFav(${a.id})">${favorites.includes(a.id)?'♥ Favorited':'♡ Favorite'}</button>
+        </div>
+        ${related.length?`<div class="ch5-related-title">More in ${a.region}</div><div class="related-cards">${related.map(r=>`<div class="related-card" onclick="openStory(${r.id})"><img src="../shared/images/${r.slug}.jpg" onerror="this.src='../shared/images/yellowstone.jpg'"><div class="related-card-name">${r.name}</div></div>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const idx=Array.from(scroll.querySelectorAll('.chapter')).indexOf(e.target);
+        document.querySelectorAll('.prog-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+      }
+    });
+  },{root:scroll,threshold:0.5});
+  scroll.querySelectorAll('.chapter').forEach(ch=>obs.observe(ch));
+}
+function storyTrip(id){ toggleTrip(id,null); const b=document.getElementById('ch5-trip'); if(b) b.textContent=itinerary.includes(id)?'✓ In Bucket':'+ Add to Bucket'; }
+function storyFav(id) { toggleFav(id,null);  const b=document.getElementById('ch5-fav');  if(b) b.textContent=favorites.includes(id)?'♥ Favorited':'♡ Favorite'; }
+
+// ── Keyboard ───────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (document.getElementById('story-overlay').classList.contains('open')) {
+    if (e.key==='Escape') closeStory();
+    const cur=parseInt(document.querySelector('.prog-dot.active')?.dataset.ch||'0');
+    if (e.key==='ArrowDown') jumpToChapter(Math.min(cur+1,4));
+    if (e.key==='ArrowUp')   jumpToChapter(Math.max(cur-1,0));
+    return;
+  }
+  if (e.key==='Escape' && bucketPanelOpen) { closeBucketPanel(); return; }
+  if (e.key==='ArrowRight') triggerSwipe('right');
+  if (e.key==='ArrowLeft')  triggerSwipe('left');
+  if (e.key==='ArrowUp' && !e.target.closest('input')) triggerSwipe('up');
+});
+
+// ── Search ─────────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  clearTimeout(window._st); window._st = setTimeout(renderGrid, 180);
+});
+
+// ── Init ───────────────────────────────────────────────────
+initHero();
+initScrollFade();
+initSeasonTabs();
+renderMonthStrip();
+renderGrid();
+initSwipeDeck();
+updateTripBadge();
+</script>
+</body>
+</html>
