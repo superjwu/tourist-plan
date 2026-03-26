@@ -1,0 +1,536 @@
+[
+  {
+    "slug": "yellowstone",
+    "status": "skipped",
+    "size": 413187
+  },
+  {
+    "slug": "yosemite",
+    "status": "downloaded",
+    "size": 28368721,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Half_Dome_with_Eastern_Yosemite_Valley_%2850MP%29.jpg"
+  },
+  {
+    "slug": "grand-canyon",
+    "status": "skipped",
+    "size": 3351087
+  },
+  {
+    "slug": "zion",
+    "status": "skipped",
+    "size": 223891
+  },
+  {
+    "slug": "glacier",
+    "status": "downloaded",
+    "size": 11223046,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Mountain_Goat_at_Hidden_Lake.jpg"
+  },
+  {
+    "slug": "olympic",
+    "status": "downloaded",
+    "size": 7036204,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Cedar_Creek_Abbey_Island_Ruby_Beach.jpg"
+  },
+  {
+    "slug": "acadia",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "great-smoky",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "rocky-mountain",
+    "status": "downloaded",
+    "size": 3441065,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Rocky_Mountain_National_Park_in_September_2011_-_Glacier_Gorge_from_Bear_Lake.JPG"
+  },
+  {
+    "slug": "joshua-tree",
+    "status": "skipped",
+    "size": 2423477
+  },
+  {
+    "slug": "arches",
+    "status": "downloaded",
+    "size": 1844560,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Delicate_arch_sunset.jpg"
+  },
+  {
+    "slug": "bryce-canyon",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "crater-lake",
+    "status": "downloaded",
+    "size": 8188331,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Above_Crater_Lake_%28cropped%29.jpg"
+  },
+  {
+    "slug": "badlands",
+    "status": "downloaded",
+    "size": 3334562,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/MK00609_Badlands.jpg"
+  },
+  {
+    "slug": "everglades",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "grand-teton",
+    "status": "downloaded",
+    "size": 836977,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Barns_grand_tetons.jpg"
+  },
+  {
+    "slug": "hawaii-volcanoes",
+    "status": "downloaded",
+    "size": 3919733,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/P%C4%81hoehoe_and_Aa_flows_at_Hawaii.jpg"
+  },
+  {
+    "slug": "mount-rainier",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "shenandoah",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "sequoia",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "niagara-falls",
+    "status": "downloaded",
+    "size": 3712403,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/3Falls_Niagara.jpg"
+  },
+  {
+    "slug": "statue-of-liberty",
+    "status": "downloaded",
+    "size": 1091586,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Front_view_of_Statue_of_Liberty_%28cropped%29.jpg"
+  },
+  {
+    "slug": "antelope-canyon",
+    "status": "downloaded",
+    "size": 963963,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b5/USA_Antelope-Canyon.jpg"
+  },
+  {
+    "slug": "death-valley",
+    "status": "downloaded",
+    "size": 1458829,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Mesquite_Sand_Dunes_in_Death_Valley.jpg"
+  },
+  {
+    "slug": "denali",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "canyonlands-ut",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "capitol-reef-ut",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "mesa-verde-cliff",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "white-sands-nm",
+    "status": "skipped",
+    "size": 173071
+  },
+  {
+    "slug": "guadalupe-mountains-tx",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "big-bend-tx",
+    "status": "downloaded",
+    "size": 2223136,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Canyon%2C_Rio_Grande%2C_Texas.jpeg"
+  },
+  {
+    "slug": "carlsbad-caverns-nm",
+    "status": "downloaded",
+    "size": 207281,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Carlsbad_Interior_Formations.jpg"
+  },
+  {
+    "slug": "petrified-forest-az",
+    "status": "downloaded",
+    "size": 3158236,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Jasper_Forest_at_Petrified_Forest_NP_in_AZ_12.jpg"
+  },
+  {
+    "slug": "pinnacles-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "channel-islands-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "redwood-np-ca",
+    "status": "downloaded",
+    "size": 304559,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Redwood_National_Park%2C_fog_in_the_forest.jpg"
+  },
+  {
+    "slug": "lassen-volcanic-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "north-cascades-wa",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "kenai-fjords-ak",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "gates-of-the-arctic-ak",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "biscayne-np-fl",
+    "status": "downloaded",
+    "size": 397991,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Biscayne.JPG"
+  },
+  {
+    "slug": "dry-tortugas-fl",
+    "status": "downloaded",
+    "size": 1083521,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Fort-Jefferson_Dry-Tortugas.jpg"
+  },
+  {
+    "slug": "congaree-np-sc",
+    "status": "downloaded",
+    "size": 429371,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/A548%2C_Congaree_National_Park%2C_South_Carolina%2C_USA%2C_2012.jpg"
+  },
+  {
+    "slug": "new-river-gorge-wv",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "cuyahoga-valley-oh",
+    "status": "downloaded",
+    "size": 2708742,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Cuyahoga_Valley_National_Park_20.jpg"
+  },
+  {
+    "slug": "isle-royale-mi",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "voyageurs-np-mn",
+    "status": "downloaded",
+    "size": 202663,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Voyageurs_National_Park.jpg"
+  },
+  {
+    "slug": "theodore-roosevelt-nd",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "wind-cave-sd",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "hot-springs-np-ar",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "mount-rushmore-sd",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "crazy-horse-memorial-sd",
+    "status": "downloaded",
+    "size": 5778872,
+    "url": "https://upload.wikimedia.org/wikipedia/en/4/4f/CrazyHorse.jpg"
+  },
+  {
+    "slug": "gateway-arch-mo",
+    "status": "downloaded",
+    "size": 1778995,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Gateway_Arch%2C_St._Louis.jpg"
+  },
+  {
+    "slug": "independence-hall-pa",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "liberty-bell-center-pa",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "ellis-island-ny",
+    "status": "downloaded",
+    "size": 480025,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Aerial_view_of_Ellis_Island%2C_Jersey_City%2C_New_Jersey_LCCN2011635626_-_cropped_balance.jpg"
+  },
+  {
+    "slug": "gettysburg-nmp-pa",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "little-bighorn-battlefield-mt",
+    "status": "downloaded",
+    "size": 434828,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Little_Bighorn_memorial_obelisk.jpg"
+  },
+  {
+    "slug": "chaco-culture-nhp-nm",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "devils-tower-wy",
+    "status": "downloaded",
+    "size": 267865,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Devils_Tower_in_Wyoming.jpg"
+  },
+  {
+    "slug": "muir-woods-nm-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "golden-gate-nra-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "alcatraz-island-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "monument-valley-navajo-az",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "rainbow-bridge-nm-ut",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "natural-bridges-nm-ut",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "craters-of-the-moon-nm-id",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "lava-beds-nm-ca",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "dinosaur-nm-co",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "jewel-cave-nm-sd",
+    "status": "downloaded",
+    "size": 7581932,
+    "url": "https://upload.wikimedia.org/wikipedia/en/5/59/Scenic_Tour_Route.JPG"
+  },
+  {
+    "slug": "timpanogos-cave-nm-ut",
+    "status": "no_image"
+  },
+  {
+    "slug": "oregon-caves-nm-or",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "sunset-crater-volcano-nm-az",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "wupatki-nm-az",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "mesa-verde-cliff-palace-co",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "na-pali-coast",
+    "status": "no_image"
+  },
+  {
+    "slug": "horseshoe-bend",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "the-wave",
+    "status": "downloaded",
+    "size": 1494547,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/TheWave_1600pixels.jpg"
+  },
+  {
+    "slug": "havasu-falls",
+    "status": "no_image"
+  },
+  {
+    "slug": "blue-ridge-parkway",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "going-to-the-sun-road",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "pacific-coast-highway",
+    "status": "downloaded",
+    "size": 36421,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/California_1.svg/500px-California_1.svg.png"
+  },
+  {
+    "slug": "appalachian-trail",
+    "status": "downloaded",
+    "size": 238702,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Appalachian_Trail_logo.png"
+  },
+  {
+    "slug": "cape-hatteras",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "assateague-island",
+    "status": "downloaded",
+    "size": 1967372,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Assateague_Island%2C_MD-04_%287001453353%29.jpg"
+  },
+  {
+    "slug": "indiana-dunes",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "congaree",
+    "status": "downloaded",
+    "size": 429371,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/A548%2C_Congaree_National_Park%2C_South_Carolina%2C_USA%2C_2012.jpg"
+  },
+  {
+    "slug": "pictured-rocks",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "great-sand-dunes",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "apostle-islands",
+    "status": "downloaded",
+    "size": 1215845,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Big_waves_on_Devils_Island_shoreline_%28e99f5cd1-548c-439d-962d-0c03204c2bf8%29.jpg"
+  },
+  {
+    "slug": "theodore-roosevelt",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "kenai-fjords",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "wrangell-st-elias",
+    "status": "downloaded",
+    "size": 97084,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Mt_Saint_Elias%2C_South_Central_Alaska.jpg"
+  },
+  {
+    "slug": "mesa-verde-cliff-dwellings",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "biscayne",
+    "status": "downloaded",
+    "size": 397991,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Biscayne.JPG"
+  },
+  {
+    "slug": "cuyahoga-valley",
+    "status": "downloaded",
+    "size": 2708742,
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Cuyahoga_Valley_National_Park_20.jpg"
+  },
+  {
+    "slug": "guadalupe-mountains",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "kobuk-valley",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "saguaro",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  },
+  {
+    "slug": "channel-islands",
+    "status": "dl_error",
+    "error": "HTTP 429 from image URL"
+  }
+]
