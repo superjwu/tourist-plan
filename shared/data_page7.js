@@ -160,40 +160,40 @@ const attractionsPage7 = [
   },
   {
     "id": 215,
-    "name": "Springfield 1908 Race Riot National Monument",
-    "slug": "springfield-1908-race-riot-national-monument",
-    "parkCode": "spra",
-    "designation": "National Monument",
+    "name": "Starved Rock State Park",
+    "slug": "starved-rock",
     "state": "Illinois",
     "region": "Great Plains",
-    "category": "National Monument",
-    "description": "In August 1908, a large White mob attacked the Black community in Springfield, Illinois. Rioters destroyed homes and businesses and lynched two men. The event led to the founding of the National Association for the Advancement of Colored People (NAACP). Today, archeological evidence gives a rare glimpse into a community devastated by the race riots of the early 20th century.",
-    "rating": 4.6,
-    "reviews": 23228,
+    "category": "State Park",
+    "description": "Eighteen canyons carved by glacial meltwater cut into sandstone bluffs along the Illinois River, each ending in a seasonal waterfall framed by moss-covered walls. French explorers and the Illini people named the landmark rock for a siege that ended atop its 125-foot cliff. Winter transforms the canyon waterfalls into spectacular ice formations, making Starved Rock one of the few Midwest parks that is arguably more beautiful in January than July.",
+    "rating": 4.7,
+    "reviews": 24500,
     "fee": "Free",
-    "bestTime": "May-September",
-    "duration": "Half day-1 day",
+    "bestTime": "Year-round",
+    "duration": "Half day–1 day",
     "activities": [
       "Hiking",
       "Photography",
-      "Guided Tours"
+      "Kayaking",
+      "Fishing",
+      "Bird Watching"
     ],
     "difficulty": "Easy to Moderate",
     "accessibility": true,
-    "image": "../shared/images/springfield-1908-race-riot-national-monument.jpg",
+    "image": "../shared/images/starved-rock.jpg",
     "tags": [
-      "African American Heritage",
-      "Archeology",
-      "National Monument",
-      "Great Plains",
-      "Illinois"
+      "Canyons",
+      "Waterfalls",
+      "State Park",
+      "Illinois",
+      "Ice Formations"
     ],
     "lodgingCost": "$",
     "travelTime": {
       "nyc": 4,
-      "chi": 2.5,
-      "la": 4.5,
-      "bay": 4.5
+      "chi": 1.5,
+      "la": 5,
+      "bay": 5
     }
   },
   {
