@@ -1,0 +1,18 @@
+B&W or near-B&W images that need color replacements
+====================================================
+Detected via saturation analysis (avg saturation < 0.08)
+
+1. alcatraz-island-ca.jpg          — fully B&W (sat=0.0), 60KB
+2. blackstone-river-valley-national-historical-park.jpg — fully B&W (sat=0.0), 172KB
+3. emmett-till-and-mamie-till-mobley-national-monument.jpg — near B&W (sat=0.047), 91KB
+4. federal-hall-national-memorial.jpg — near B&W (sat=0.068), 360KB
+5. gauley-river-national-recreation-area.jpg — near B&W (sat=0.074), 402KB
+6. hohokam-pima.jpg                — fully B&W (sat=0.0), 13KB (also very small)
+7. katmai-national-park-and-preserve.jpg — near B&W (sat=0.034), 320KB
+8. manzanar.jpg                    — fully B&W (sat=0.0), 271KB
+9. monument-valley-navajo-az.jpg   — fully B&W (sat=0.0), 258KB
+10. muir-woods-nm-ca.jpg           — near B&W (sat=0.079), 305KB
+11. springfield-1908-race-riot-national-monument.jpg — fully B&W (sat=0.0), 207KB
+
+To fix: re-download color versions from NPS API or other sources.
+Run: python3 scripts/localize_catalog_images.py (with updated source URLs)

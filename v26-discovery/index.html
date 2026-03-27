@@ -1164,7 +1164,7 @@ function renderGrid() {
     card.className = 'att-card' + (isBest ? ' best-match' : '');
     card.innerHTML = `
       <div class="att-card-img-wrap">
-        <img class="att-card-img" src="${getAttractionImage(a)}" alt="${a.name}" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+        <img class="att-card-img" src="${getAttractionImage(a)}" alt="${a.name}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
         <span class="att-card-badge" data-cat="${catKey}">${a.category || 'Landmark'}</span>
         ${isBest ? `<span class="best-badge">✨ Best Match</span>` : ''}
         <button class="att-card-fav${isFav ? ' active' : ''}" data-id="${a.id}" aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${isFav ? '♥' : '♡'}</button>
