@@ -27,7 +27,9 @@ const attractions = [
       "Wildlife",
       "Hot Springs",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":6.5,"chi":5,"la":4,"bay":4}
   },
   {
     "id": 2,
@@ -57,7 +59,9 @@ const attractions = [
       "Waterfalls",
       "Valley",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":3,"bay":3.5}
   },
   {
     "id": 3,
@@ -87,7 +91,9 @@ const attractions = [
       "Geology",
       "Colorado River",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":4.5,"bay":5.5}
   },
   {
     "id": 4,
@@ -117,7 +123,9 @@ const attractions = [
       "Sandstone",
       "Hiking",
       "Desert"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":8,"chi":6.5,"la":3.5,"bay":4}
   },
   {
     "id": 5,
@@ -147,7 +155,9 @@ const attractions = [
       "Glaciers",
       "Wildlife",
       "Scenic Drive"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":5,"la":4,"bay":4}
   },
   {
     "id": 6,
@@ -177,7 +187,9 @@ const attractions = [
       "Coastline",
       "Mountains",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":5,"bay":5}
   },
   {
     "id": 7,
@@ -207,7 +219,9 @@ const attractions = [
       "Granite",
       "Sunrise",
       "Cycling"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5.5,"chi":7.5,"la":11,"bay":11}
   },
   {
     "id": 8,
@@ -238,7 +252,9 @@ const attractions = [
       "Fall Foliage",
       "Wildlife",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3,"chi":2.5,"la":6,"bay":6.5}
   },
   {
     "id": 9,
@@ -268,7 +284,9 @@ const attractions = [
       "Tundra",
       "Elk",
       "Mountains"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5.5,"chi":4,"la":4,"bay":4}
   },
   {
     "id": 10,
@@ -298,7 +316,9 @@ const attractions = [
       "Rock Climbing",
       "Stargazing",
       "Unique Trees"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6,"chi":4.5,"la":2.5,"bay":2}
   },
   {
     "id": 11,
@@ -328,7 +348,9 @@ const attractions = [
       "Sandstone",
       "Desert",
       "Photography"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6,"la":6,"bay":5.5}
   },
   {
     "id": 12,
@@ -358,7 +380,9 @@ const attractions = [
       "Stargazing",
       "Amphitheater",
       "Dark Sky"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":9.5,"chi":8,"la":5,"bay":5.5}
   },
   {
     "id": 13,
@@ -388,7 +412,9 @@ const attractions = [
       "Deep Blue Water",
       "Volcano",
       "Scenic Drive"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":9,"chi":7.5,"la":5,"bay":3.5}
   },
   {
     "id": 14,
@@ -418,7 +444,9 @@ const attractions = [
       "Fossils",
       "Bison",
       "Prairie"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5.5,"chi":3.5,"la":4,"bay":4}
   },
   {
     "id": 15,
@@ -448,7 +476,9 @@ const attractions = [
       "Alligators",
       "Birdwatching",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":4.5,"chi":4.5,"la":6,"bay":6.5}
   },
   {
     "id": 16,
@@ -478,7 +508,9 @@ const attractions = [
       "Alpine Lakes",
       "Wildlife",
       "Photography"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":6,"chi":4.5,"la":3.5,"bay":3.5}
   },
   {
     "id": 17,
@@ -508,7 +540,9 @@ const attractions = [
       "Lava",
       "Active",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":12,"chi":11,"la":6.5,"bay":6}
   },
   {
     "id": 18,
@@ -538,7 +572,9 @@ const attractions = [
       "Glaciers",
       "Wildflowers",
       "Subalpine"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6.5,"la":4.5,"bay":4.5}
   },
   {
     "id": 19,
@@ -568,7 +604,9 @@ const attractions = [
       "Fall Foliage",
       "Skyline Drive",
       "Appalachian Trail"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3.5,"chi":4,"la":6.5,"bay":7}
   },
   {
     "id": 20,
@@ -598,7 +636,9 @@ const attractions = [
       "Ancient",
       "Forest",
       "General Sherman"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":3,"bay":2.5}
   },
   {
     "id": 21,
@@ -628,7 +668,9 @@ const attractions = [
       "Boat Tour",
       "Natural Wonder",
       "Historic"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":1,"chi":3,"la":6,"bay":6.5}
   },
   {
     "id": 22,
@@ -658,7 +700,9 @@ const attractions = [
       "History",
       "Symbol",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":0.5,"chi":3,"la":6,"bay":6.5}
   },
   {
     "id": 23,
@@ -686,7 +730,9 @@ const attractions = [
       "Light Beams",
       "Photography",
       "Navajo Nation"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7.5,"chi":6,"la":3.5,"bay":4.5}
   },
   {
     "id": 24,
@@ -716,7 +762,9 @@ const attractions = [
       "Salt Flats",
       "Extreme Landscape",
       "Dark Sky"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":7.5,"chi":6,"la":4,"bay":3.5}
   },
   {
     "id": 25,
@@ -746,7 +794,9 @@ const attractions = [
       "Wilderness",
       "Wildlife",
       "Remote"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":13,"chi":12,"la":9.5,"bay":10}
   },
   {
     "id": 26,
@@ -776,7 +826,9 @@ const attractions = [
       "Mesa",
       "Colorado River",
       "Dark Sky"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6.5,"chi":5,"la":5,"bay":5}
   },
   {
     "id": 27,
@@ -806,7 +858,9 @@ const attractions = [
       "Slot Canyons",
       "Pioneer History",
       "Orchard"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6.5,"la":5.5,"bay":5.5}
   },
   {
     "id": 28,
@@ -836,7 +890,9 @@ const attractions = [
       "Ancestral Pueblo",
       "Archaeology",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7,"chi":6,"la":5.5,"bay":6.5}
   },
   {
     "id": 29,
@@ -866,7 +922,9 @@ const attractions = [
       "Gypsum",
       "White Sand",
       "Surreal Landscape"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":5.5,"chi":4.5,"la":3.5,"bay":4}
   },
   {
     "id": 30,
@@ -896,7 +954,9 @@ const attractions = [
       "Highest Point Texas",
       "Desert",
       "Remote"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":6,"chi":5,"la":4,"bay":4.5}
   },
   {
     "id": 31,
@@ -926,7 +986,9 @@ const attractions = [
       "Desert",
       "Rio Grande",
       "Dark Sky"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":7.5,"chi":7,"la":6.5,"bay":7}
   },
   {
     "id": 32,
@@ -956,7 +1018,9 @@ const attractions = [
       "Bats",
       "Stalactites",
       "Underground"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":6.5,"chi":5.5,"la":4.5,"bay":5}
   },
   {
     "id": 33,
@@ -986,7 +1050,9 @@ const attractions = [
       "Painted Desert",
       "Fossils",
       "Geology"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6.5,"chi":5.5,"la":3.5,"bay":4.5}
   },
   {
     "id": 34,
@@ -1016,7 +1082,9 @@ const attractions = [
       "Rock Formations",
       "Caves",
       "Volcanic"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8.5,"chi":6,"la":3.5,"bay":2}
   },
   {
     "id": 35,
@@ -1046,7 +1114,9 @@ const attractions = [
       "Marine Life",
       "Kelp Forest",
       "Endemic Species"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":8,"chi":6.5,"la":2.5,"bay":4}
   },
   {
     "id": 36,
@@ -1076,7 +1146,9 @@ const attractions = [
       "Old Growth",
       "Elk",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7.5,"chi":6,"la":3,"bay":1.5}
   },
   {
     "id": 37,
@@ -1106,7 +1178,9 @@ const attractions = [
       "Hydrothermal",
       "Mud Pots",
       "Cascade Range"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":7.5,"la":3.5,"bay":3.5}
   },
   {
     "id": 38,
@@ -1136,7 +1210,9 @@ const attractions = [
       "Alpine",
       "Remote",
       "Turquoise Lakes"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":9,"chi":7.5,"la":5.5,"bay":5.5}
   },
   {
     "id": 39,
@@ -1166,7 +1242,9 @@ const attractions = [
       "Fjords",
       "Marine Wildlife",
       "Icefield"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":12,"chi":10,"la":8,"bay":8.5}
   },
   {
     "id": 40,
@@ -1196,7 +1274,9 @@ const attractions = [
       "Wilderness",
       "No Trails",
       "Caribou Migration"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":12.5,"chi":10,"la":8,"bay":8.5}
   },
   {
     "id": 41,
@@ -1226,7 +1306,9 @@ const attractions = [
       "Underwater",
       "Florida Keys",
       "Marine Life"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3.5,"chi":3.5,"la":5,"bay":5.5}
   },
   {
     "id": 42,
@@ -1256,7 +1338,9 @@ const attractions = [
       "Coral Reef",
       "Fort Jefferson",
       "Sea Turtles"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":6,"chi":6,"la":7.5,"bay":8}
   },
   {
     "id": 43,
@@ -1286,7 +1370,9 @@ const attractions = [
       "Cypress Trees",
       "Fireflies",
       "Floodplain"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":2.5,"chi":3.5,"la":5.5,"bay":6}
   },
   {
     "id": 44,
@@ -1316,7 +1402,9 @@ const attractions = [
       "Whitewater",
       "Steel Bridge",
       "Rock Climbing"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":3,"chi":3.5,"la":6,"bay":6.5}
   },
   {
     "id": 45,
@@ -1346,7 +1434,9 @@ const attractions = [
       "River",
       "Scenic Railroad",
       "Fall Foliage"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":2.5,"chi":2,"la":5.5,"bay":6}
   },
   {
     "id": 46,
@@ -1376,7 +1466,9 @@ const attractions = [
       "Wolves",
       "Moose",
       "Remote"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":7,"chi":5,"la":8.5,"bay":9}
   },
   {
     "id": 47,
@@ -1406,7 +1498,9 @@ const attractions = [
       "Boating",
       "Northern Lights",
       "Boundary Waters"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":5,"chi":3.5,"la":5.5,"bay":5.5}
   },
   {
     "id": 48,
@@ -1436,7 +1530,9 @@ const attractions = [
       "Wild Horses",
       "Bison",
       "Prairie"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":7.5,"chi":5.5,"la":6,"bay":6}
   },
   {
     "id": 49,
@@ -1466,7 +1562,9 @@ const attractions = [
       "Boxwork",
       "Bison",
       "Subterranean"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5.5,"chi":3.5,"la":4,"bay":4}
   },
   {
     "id": 50,
@@ -1496,7 +1594,9 @@ const attractions = [
       "Bathhouses",
       "Historic",
       "Thermal Waters"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":4,"chi":3,"la":4.5,"bay":5.5}
   },
   {
     "id": 51,
@@ -1526,7 +1626,9 @@ const attractions = [
       "Sculpture",
       "American History",
       "Iconic"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5,"chi":3,"la":3.5,"bay":3.5}
   },
   {
     "id": 52,
@@ -1556,7 +1658,9 @@ const attractions = [
       "Sculpture",
       "History",
       "Mountain Carving"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5.5,"chi":3.5,"la":4,"bay":4}
   },
   {
     "id": 53,
@@ -1586,7 +1690,9 @@ const attractions = [
       "American History",
       "Urban",
       "Iconic Landmark"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":3.5,"chi":1.5,"la":5,"bay":5}
   },
   {
     "id": 54,
@@ -1616,7 +1722,9 @@ const attractions = [
       "UNESCO",
       "Founding Documents",
       "Philadelphia"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":1.5,"chi":3,"la":5.5,"bay":6}
   },
   {
     "id": 55,
@@ -1646,7 +1754,9 @@ const attractions = [
       "Freedom",
       "Philadelphia",
       "Iconic Symbol"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":1.5,"chi":3,"la":5.5,"bay":6}
   },
   {
     "id": 56,
@@ -1676,7 +1786,9 @@ const attractions = [
       "American History",
       "Museum",
       "NYC"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":0.5,"chi":3,"la":6,"bay":6.5}
   },
   {
     "id": 57,
@@ -1706,7 +1818,9 @@ const attractions = [
       "American History",
       "Battlefield",
       "Lincoln"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3,"chi":3.5,"la":6,"bay":6.5}
   },
   {
     "id": 58,
@@ -1736,7 +1850,9 @@ const attractions = [
       "American History",
       "Battlefield",
       "19th Century"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7.5,"chi":5.5,"la":5,"bay":5}
   },
   {
     "id": 59,
@@ -1766,7 +1882,9 @@ const attractions = [
       "Native American",
       "UNESCO",
       "Ancestral Puebloans"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":7,"chi":5.5,"la":4,"bay":5}
   },
   {
     "id": 60,
@@ -1796,7 +1914,9 @@ const attractions = [
       "Rock Climbing",
       "Native American Sacred Site",
       "Monolith"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6,"chi":4.5,"la":5,"bay":5}
   },
   {
     "id": 61,
@@ -1826,7 +1946,9 @@ const attractions = [
       "Old-Growth Forest",
       "Conservation",
       "Bay Area"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6,"la":2,"bay":0.5}
   },
   {
     "id": 62,
@@ -1856,7 +1978,9 @@ const attractions = [
       "Coastline",
       "Urban Parks",
       "San Francisco"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6,"la":2,"bay":0.5}
   },
   {
     "id": 63,
@@ -1886,7 +2010,9 @@ const attractions = [
       "San Francisco",
       "Island",
       "Crime History"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6,"la":2,"bay":0.5}
   },
   {
     "id": 64,
@@ -1916,7 +2042,9 @@ const attractions = [
       "Navajo Nation",
       "Buttes",
       "Iconic Landscape"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7.5,"chi":6,"la":4,"bay":5}
   },
   {
     "id": 65,
@@ -1946,7 +2074,9 @@ const attractions = [
       "Native American Sacred Site",
       "Geology",
       "Lake Powell"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":6.5,"bay":7}
   },
   {
     "id": 66,
@@ -1976,7 +2106,9 @@ const attractions = [
       "Dark Sky",
       "Ancestral Puebloans",
       "Canyon Country"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":6.5,"bay":7}
   },
   {
     "id": 67,
@@ -2006,7 +2138,9 @@ const attractions = [
       "Geology",
       "Lava Tubes",
       "Unique Landscape"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":7.5,"chi":5.5,"la":4,"bay":3.5}
   },
   {
     "id": 68,
@@ -2036,7 +2170,9 @@ const attractions = [
       "Caves",
       "Volcanic",
       "Native American History"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":8,"chi":6.5,"la":4.5,"bay":4}
   },
   {
     "id": 69,
@@ -2066,7 +2202,9 @@ const attractions = [
       "Fossils",
       "Rafting",
       "Geology"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6,"chi":4.5,"la":4.5,"bay":4.5}
   },
   {
     "id": 70,
@@ -2096,7 +2234,9 @@ const attractions = [
       "Geology",
       "Black Hills",
       "Underground Exploration"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":6,"chi":4,"la":4.5,"bay":4.5}
   },
   {
     "id": 71,
@@ -2126,7 +2266,9 @@ const attractions = [
       "Mountain Hiking",
       "Crystal Formations",
       "Wasatch Range"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7,"chi":5,"la":3.5,"bay":3}
   },
   {
     "id": 72,
@@ -2156,7 +2298,9 @@ const attractions = [
       "Old-Growth Forest",
       "Siskiyou Mountains",
       "Historic Lodge"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":9,"chi":7.5,"la":4.5,"bay":3.5}
   },
   {
     "id": 73,
@@ -2186,7 +2330,9 @@ const attractions = [
       "Cinder Cone",
       "Arizona",
       "Geology"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6,"chi":5,"la":2.5,"bay":3.5}
   },
   {
     "id": 74,
@@ -2216,7 +2362,9 @@ const attractions = [
       "Archaeology",
       "Arizona",
       "High Desert"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":6,"chi":5,"la":2.5,"bay":3.5}
   },
   {
     "id": 75,
@@ -2246,7 +2394,9 @@ const attractions = [
       "Ancestral Puebloans",
       "UNESCO",
       "Archaeology"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7,"chi":6,"la":5.5,"bay":6.5}
   },
   {
     "id": 76,
@@ -2277,7 +2427,9 @@ const attractions = [
       "hawaii",
       "tropical",
       "remote"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":13.5,"chi":12,"la":7,"bay":7}
   },
   {
     "id": 77,
@@ -2307,7 +2459,9 @@ const attractions = [
       "arizona",
       "photography",
       "iconic"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7.5,"chi":6,"la":3.5,"bay":4.5}
   },
   {
     "id": 78,
@@ -2337,7 +2491,9 @@ const attractions = [
       "arizona",
       "geology",
       "rare"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6.5,"la":4,"bay":5}
   },
   {
     "id": 79,
@@ -2368,7 +2524,9 @@ const attractions = [
       "tribal",
       "backpacking",
       "arizona"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8.5,"chi":7,"la":5,"bay":5.5}
   },
   {
     "id": 80,
@@ -2399,7 +2557,9 @@ const attractions = [
       "appalachian",
       "scenic",
       "drive"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3,"chi":2.5,"la":5.5,"bay":6}
   },
   {
     "id": 81,
@@ -2430,7 +2590,9 @@ const attractions = [
       "road trip",
       "montana",
       "mountain"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":5,"la":4,"bay":4}
   },
   {
     "id": 82,
@@ -2461,7 +2623,9 @@ const attractions = [
       "road trip",
       "big sur",
       "coastal"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":8,"chi":6,"la":1,"bay":1}
   },
   {
     "id": 83,
@@ -2492,7 +2656,9 @@ const attractions = [
       "backpacking",
       "epic",
       "trail"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3,"chi":4,"la":7,"bay":7.5}
   },
   {
     "id": 84,
@@ -2523,7 +2689,9 @@ const attractions = [
       "north carolina",
       "outer banks",
       "ocean"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5,"chi":5.5,"la":8,"bay":8.5}
   },
   {
     "id": 85,
@@ -2554,7 +2722,9 @@ const attractions = [
       "maryland",
       "camping",
       "wildlife"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":3.5,"chi":4,"la":6.5,"bay":7}
   },
   {
     "id": 86,
@@ -2585,7 +2755,9 @@ const attractions = [
       "beach",
       "midwest",
       "hidden gem"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":4,"chi":1.5,"la":5.5,"bay":6}
   },
   {
     "id": 87,
@@ -2616,7 +2788,9 @@ const attractions = [
       "UNESCO",
       "humpback whale",
       "rainforest"
-    ]
+    ],
+    "lodgingCost": "$$$",
+    "travelTime": {"nyc":10,"chi":8.5,"la":6.5,"bay":6.5}
   },
   {
     "id": 88,
@@ -2647,7 +2821,9 @@ const attractions = [
       "michigan",
       "kayaking",
       "ice caves"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":5,"chi":3,"la":6.5,"bay":7}
   },
   {
     "id": 89,
@@ -2678,7 +2854,9 @@ const attractions = [
       "mountains",
       "unique",
       "surreal"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7,"chi":6,"la":5,"bay":5.5}
   },
   {
     "id": 90,
@@ -2709,7 +2887,9 @@ const attractions = [
       "sea caves",
       "kayaking",
       "lighthouses"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":5,"chi":3,"la":6,"bay":6.5}
   },
   {
     "id": 91,
@@ -2740,7 +2920,9 @@ const attractions = [
       "underground",
       "longest cave",
       "UNESCO"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":4.5,"chi":3,"la":5.5,"bay":6}
   },
   {
     "id": 92,
@@ -2771,7 +2953,9 @@ const attractions = [
       "sand dunes",
       "freshwater",
       "most beautiful"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5,"chi":2.5,"la":6.5,"bay":7}
   },
   {
     "id": 93,
@@ -2802,7 +2986,9 @@ const attractions = [
       "glacier",
       "wilderness",
       "remote"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":12,"chi":12,"la":12,"bay":12}
   },
   {
     "id": 94,
@@ -2833,7 +3019,9 @@ const attractions = [
       "petroglyphs",
       "desert",
       "sandstone"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7,"chi":5.5,"la":1,"bay":2}
   },
   {
     "id": 95,
@@ -2864,7 +3052,9 @@ const attractions = [
       "pikes peak",
       "free",
       "climbing"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":5.5,"chi":4,"la":4,"bay":4}
   },
   {
     "id": 96,
@@ -2895,7 +3085,9 @@ const attractions = [
       "canyon",
       "tropical",
       "grand canyon of the pacific"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":13,"chi":11.5,"la":6.5,"bay":6.5}
   },
   {
     "id": 97,
@@ -2926,7 +3118,9 @@ const attractions = [
       "fossils",
       "volcanic",
       "john day"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":9.5,"chi":8,"la":5,"bay":4.5}
   },
   {
     "id": 98,
@@ -2957,7 +3151,9 @@ const attractions = [
       "sand dunes",
       "remote",
       "wilderness"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":12.5,"chi":10,"la":8,"bay":8.5}
   },
   {
     "id": 99,
@@ -2988,7 +3184,9 @@ const attractions = [
       "desert",
       "sunset",
       "tucson"
-    ]
+    ],
+    "lodgingCost": "$",
+    "travelTime": {"nyc":5.5,"chi":4,"la":2.5,"bay":2.5}
   },
   {
     "id": 100,
@@ -3019,6 +3217,8 @@ const attractions = [
       "waterfall",
       "multnomah falls",
       "columbia river"
-    ]
+    ],
+    "lodgingCost": "$$",
+    "travelTime": {"nyc":7.5,"chi":6,"la":4,"bay":3.5}
   }
 ];
