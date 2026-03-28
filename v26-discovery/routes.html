@@ -59,6 +59,36 @@ body.season-winter { --bg:#070e1a;--bg-alt:#0d1a2e;--bg-card:#112238;--primary:#
 .bucket-item-sub { font-size:0.72rem;color:var(--text-muted); }
 .bucket-item-remove { background:none;border:none;color:var(--text-muted);font-size:1rem;cursor:pointer;padding:0.2rem;flex-shrink:0; }
 
+/* ── Picks Banner (identical to index.html) ──────────────── */
+#picks-banner { display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;margin-bottom:0;border-radius:var(--radius);border:1px solid var(--card-border);cursor:pointer;position:relative;overflow:hidden;background:var(--card-bg);transition:border-color 0.2s; }
+#picks-banner::before { content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,var(--primary),transparent 70%);opacity:0.15;transition:opacity 0.3s; }
+#picks-banner:hover::before { opacity:0.3; }
+#picks-banner:hover { border-color:var(--primary); }
+#picks-banner > * { position:relative;z-index:1; }
+.picks-banner-title { font-family:'Merriweather',serif;font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:0.2rem; }
+.picks-banner-sub { font-size:0.9rem;color:var(--text-muted); }
+#picks-cta { background:var(--primary);color:#000;border:none;border-radius:999px;padding:0.6rem 1.4rem;font-size:0.9rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s;flex-shrink:0; }
+#picks-cta:hover { opacity:0.88; }
+
+/* ── Month Strip (identical to index.html) ───────────────── */
+#month-section { padding:1rem 0 0; }
+#month-strip { display:grid;grid-template-columns:repeat(12,1fr);gap:0.4rem; }
+.month-cell { padding:0.4rem 0;text-align:center;border-radius:999px;font-size:0.82rem;font-weight:600;color:var(--text-muted);border:1.5px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.2s;background:transparent; }
+.month-cell:hover { border-color:var(--primary);color:var(--text); }
+.month-cell.active { background:var(--primary);color:#000;border-color:var(--primary); }
+.month-cell.season-spring { border-color:rgba(244,114,182,0.4); }
+.month-cell.season-summer { border-color:rgba(34,197,94,0.35); }
+.month-cell.season-fall   { border-color:rgba(249,115,22,0.35); }
+.month-cell.season-winter { border-color:rgba(191,219,254,0.3); }
+
+/* Featured route cards in scroll */
+.featured-route { flex-shrink:0;width:280px;scroll-snap-align:start;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color 0.2s; }
+.featured-route:hover { border-color:var(--primary); }
+.featured-route img { width:100%;height:120px;object-fit:cover; }
+.featured-route-body { padding:0.6rem 0.8rem; }
+.featured-route-name { font-family:'Merriweather',serif;font-size:0.88rem;font-weight:700;color:var(--text);margin-bottom:0.2rem; }
+.featured-route-sub { font-size:0.72rem;color:var(--text-muted); }
+
 /* ── Main content area ───────────────────────────────────── */
 #main { max-width:1200px;margin:0 auto;padding:0 1.5rem 5rem; }
 
@@ -168,6 +198,10 @@ body.season-winter { --bg:#070e1a;--bg-alt:#0d1a2e;--bg-card:#112238;--primary:#
   .f-chip { padding:0.25rem 0.6rem;font-size:0.75rem; }
   .filter-label { min-width:2.5rem;font-size:0.72rem; }
   #bucket-panel { right:0.75rem;width:calc(100vw - 1.5rem); }
+  #picks-banner { flex-direction:column;align-items:flex-start;gap:0.75rem;padding:1.25rem; }
+  #picks-cta { align-self:stretch;text-align:center; }
+  #month-strip { grid-template-columns:repeat(6,1fr); }
+  .featured-route { width:220px; }
   #season-tabs { overflow-x:visible;flex-wrap:wrap;padding:0.5rem 1rem;gap:0.35rem; }
   .season-tab { flex:1 1 30%;justify-content:center;padding:0.42rem 0.5rem;font-size:0.82rem; }
 }
@@ -205,7 +239,22 @@ body.season-winter { --bg:#070e1a;--bg-alt:#0d1a2e;--bg-card:#112238;--primary:#
 </div>
 
 <div id="main">
-  <div id="discovery-bar" style="margin-top:1rem">
+  <div id="picks-banner" onclick="toggleFeatured()">
+    <div class="picks-banner-text">
+      <div class="picks-banner-title">✨ Featured Routes This Season</div>
+      <div class="picks-banner-sub">Top picks for <span id="picks-season-label">All Year</span></div>
+    </div>
+    <button id="picks-cta">Explore Picks →</button>
+  </div>
+  <div id="featured-routes" style="max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.32,0.72,0,1)">
+    <div id="featured-scroll" style="display:flex;gap:0.75rem;overflow-x:auto;padding:1rem 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch"></div>
+  </div>
+
+  <section id="month-section">
+    <div id="month-strip"></div>
+  </section>
+
+  <div id="discovery-bar" style="margin-top:0.5rem">
     <div class="filter-row" style="gap:0.5rem">
       <input type="text" id="search-input" placeholder="Search routes, parks, states…" style="flex:1;min-width:0;padding:0.5rem 1rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.9rem;background:rgba(255,255,255,0.07);color:var(--text)">
       <select id="sort-select">
@@ -307,16 +356,67 @@ function save() { localStorage.setItem('tourist_itinerary', JSON.stringify(itine
 function showToast(msg) { const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200); }
 function updateTripBadge() { document.getElementById('trip-badge').textContent = `My Bucket List (${itinerary.length})`; }
 
-// ── Season tabs ────────────────────────────────────────────
-function setSeason(season) {
+// ── Season tabs + month strip ──────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_TO_SEASON = {0:'winter',1:'winter',2:'spring',3:'spring',4:'spring',5:'summer',6:'summer',7:'summer',8:'fall',9:'fall',10:'fall',11:'winter'};
+const SEASON_LABEL = {all:'All Year',spring:'Spring',summer:'Summer',fall:'Fall',winter:'Winter'};
+let activeMonth = null;
+
+function setSeason(season, fromMonth) {
   currentSeason = season;
   document.body.className = `season-${season}`;
   document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', t.dataset.season === season));
+  document.getElementById('picks-season-label').textContent = SEASON_LABEL[season];
+  if (!fromMonth) activeMonth = null;
+  renderMonthStrip();
+  renderFeaturedRoutes();
   renderRoutes();
 }
 document.querySelectorAll('.season-tab').forEach(tab => {
-  tab.addEventListener('click', () => setSeason(tab.dataset.season));
+  tab.addEventListener('click', () => { activeMonth = null; setSeason(tab.dataset.season, false); });
 });
+
+function renderMonthStrip() {
+  const strip = document.getElementById('month-strip');
+  strip.innerHTML = '';
+  MONTHS.forEach((m, i) => {
+    const mSeason = MONTH_TO_SEASON[i];
+    const cell = document.createElement('div');
+    cell.className = 'month-cell season-' + mSeason + (activeMonth === i ? ' active' : '');
+    cell.textContent = m;
+    cell.addEventListener('click', () => {
+      if (activeMonth === i) { activeMonth = null; setSeason('all', true); }
+      else { activeMonth = i; setSeason(mSeason, true); }
+    });
+    strip.appendChild(cell);
+  });
+}
+
+// ── Featured Routes ────────────────────────────────────────
+let featuredOpen = false;
+function toggleFeatured() {
+  featuredOpen = !featuredOpen;
+  document.getElementById('featured-routes').style.maxHeight = featuredOpen ? '250px' : '0';
+  document.getElementById('picks-cta').textContent = featuredOpen ? 'Hide ▴' : 'Explore Picks →';
+}
+function renderFeaturedRoutes() {
+  const container = document.getElementById('featured-scroll');
+  const top = ALL_ROUTES.filter(rt => routeMatchesSeason(rt, currentSeason)).slice(0, 8);
+  const usedSlugs = new Set();
+  container.innerHTML = top.map(rt => {
+    const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+    const unique = matched.find(p => !usedSlugs.has(p.slug)) || matched[0];
+    if (unique) usedSlugs.add(unique.slug);
+    const img = unique ? getAttractionImage(unique) : DEFAULT_CARD_IMAGE;
+    return `<div class="featured-route" onclick="openRoadTripStory('${rt.id}')">
+      <img src="${img}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+      <div class="featured-route-body">
+        <div class="featured-route-name">${rt.name}</div>
+        <div class="featured-route-sub">${rt.distance} · ${rt.days}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 function routeMatchesSeason(rt, season) {
   if (season === 'all') return true;
@@ -494,6 +594,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
 document.addEventListener('click',e=>{if(bucketPanelOpen&&!e.target.closest('#bucket-panel')&&!e.target.closest('#trip-badge'))closeBucketPanel();});
 
 // ── Init ───────────────────────────────────────────────────
+renderMonthStrip();
+renderFeaturedRoutes();
 renderRoutes();
 updateTripBadge();
 </script>
