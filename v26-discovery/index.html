@@ -166,16 +166,6 @@ body.season-winter {
   transition: all 0.3s;
 }
 .hero-dot.active { background: #fff; transform: scale(1.5); }
-#hero-cta {
-  background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.4);
-  color: #fff; backdrop-filter: blur(10px);
-  padding: 0.55rem 1.5rem; border-radius: 999px;
-  font-size: 0.88rem; font-weight: 600; cursor: pointer;
-  transition: all 0.25s;
-}
-#hero-cta:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
-#hero-cta { animation: bounce 2s ease-in-out infinite; }
-@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
 /* Scroll veil */
 #hero-scroll-veil {
@@ -695,7 +685,6 @@ body.season-winter {
   #trip-badge { font-size: 0.72rem; padding: 0.22rem 0.6rem; }
   /* Hero bottom: tighten spacing */
   #hero-bottom { gap: 0.75rem; padding: 0 1rem; }
-  #hero-cta { font-size: 0.8rem; padding: 0.45rem 1rem; }
   /* Swipe arena: even shorter on very small phones */
   #swipe-arena { height: min(460px, 62vh); }
   #swipe-content.open { max-height: calc(62vh + 160px); }
@@ -718,7 +707,6 @@ body.season-winter {
   <div id="hero-scroll-veil"></div>
   <div id="hero-bottom">
     <div id="hero-dots"></div>
-    <button id="hero-cta" onclick="scrollToMain(); event.stopPropagation();">↓ Explore by Season</button>
   </div>
 </section>
 
@@ -991,9 +979,6 @@ function initScrollFade() {
     bottom.style.opacity   = 1 - elemP * 1.5;
     veil.style.opacity = Math.min(sy / (vh * 0.6), 1) * 0.75;
   }, { passive: true });
-}
-function scrollToMain() {
-  document.getElementById('season-tabs').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ── Hero ───────────────────────────────────────────────────
@@ -1727,15 +1712,6 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ── Init ───────────────────────────────────────────────────
-// Hero auto-scroll: when user scrolls past 30% of hero, smoothly jump to main content
-const heroObs = new IntersectionObserver(entries => {
-  const r = entries[0].intersectionRatio;
-  if (r < 0.7 && r > 0.05) {
-    document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
-    heroObs.disconnect();
-  }
-}, { threshold: [0, 0.05, 0.3, 0.7, 1] });
-heroObs.observe(document.getElementById('hero'));
 initHero();
 initScrollFade();
 initSeasonTabs();
