@@ -796,17 +796,14 @@ body.season-winter {
   #swipe-arena { height: min(460px, 62vh); }
   #swipe-content.open { max-height: calc(62vh + 160px); }
 }
-/* ── Custom Cursor + Trail ───────────────────────────────── */
+/* ── Custom Cursor: Blend Invert ──────────────────────────── */
 @media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-dot{position:fixed;width:8px;height:8px;background:#c4b5fd;border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;transition:all 0.2s}
-#cursor-dot.hover{width:4px;height:4px;background:rgba(196,181,253,0.3)}
-#cursor-ring{position:fixed;width:34px;height:34px;border:2px solid rgba(196,181,253,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.1s ease,top 0.1s ease,width 0.2s,height 0.2s,border-color 0.2s,background 0.2s,opacity 0.2s}
-#cursor-ring.hover{width:48px;height:48px;border-color:rgba(196,181,253,0.25);border-width:1px;opacity:0.4}
-#cursor-trail{position:fixed;inset:0;pointer-events:none;z-index:9997}
+#cursor-blend{position:fixed;width:20px;height:20px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s}
+#cursor-blend.hover{width:40px;height:40px}
 </style>
 </head>
 <body class="season-all">
-<div id="cursor-dot"></div><div id="cursor-ring"></div><canvas id="cursor-trail"></canvas>
+<div id="cursor-blend"></div>
 <div class="mesh-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
 
 <!-- HERO -->
@@ -2145,55 +2142,22 @@ window.addEventListener('scroll', () => {
   document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 700);
 }, { passive: true });
 
-// ── Cursor: Ring + Dot + Trail ─────────────────────────────
+// ── Cursor: Blend Invert ───────────────────────────────────
 (function(){
-  const dot = document.getElementById('cursor-dot');
-  const ring = document.getElementById('cursor-ring');
-  const canvas = document.getElementById('cursor-trail');
-  const ctx = canvas.getContext('2d');
-  const particles = [];
-  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-
+  const el = document.getElementById('cursor-blend');
   document.addEventListener('mousemove', e => {
-    // Dot snaps exactly
-    dot.style.left = e.clientX - 4 + 'px';
-    dot.style.top = e.clientY - 4 + 'px';
-    // Ring follows very closely (0.04s CSS transition)
-    ring.style.left = e.clientX + 'px';
-    ring.style.top = e.clientY + 'px';
-    // Trail particles
-    particles.push({ x: e.clientX + (Math.random()-0.5)*6, y: e.clientY + (Math.random()-0.5)*6, a: 0.45, r: 7 + Math.random()*5, hue: Math.random()*360 });
-    if (particles.length > 120) particles.shift();
+    const s = el.classList.contains('hover') ? 20 : 10;
+    el.style.left = e.clientX - s + 'px';
+    el.style.top = e.clientY - s + 'px';
   });
-
-  // Hover state
   document.addEventListener('mouseover', e => {
-    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn')) {
-      ring.classList.add('hover'); dot.classList.add('hover');
-    }
+    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
+      el.classList.add('hover');
   });
   document.addEventListener('mouseout', e => {
-    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn')) {
-      ring.classList.remove('hover'); dot.classList.remove('hover');
-    }
+    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
+      el.classList.remove('hover');
   });
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.a -= 0.005; p.r *= 0.985;
-      if (p.a <= 0) { particles.splice(i, 1); continue; }
-      ctx.globalAlpha = p.a;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 90%, 70%, ${p.a})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(animate);
-  }
-  animate();
 })();
 
 // ── 3D Tilt + Scroll Reveal ────────────────────────────────
