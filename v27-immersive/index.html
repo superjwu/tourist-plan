@@ -798,9 +798,10 @@ body.season-winter {
 }
 /* ── Custom Cursor + Trail ───────────────────────────────── */
 @media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-dot{position:fixed;width:8px;height:8px;background:#c4b5fd;border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen}
-#cursor-ring{position:fixed;width:34px;height:34px;border:2px solid rgba(196,181,253,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.04s linear,top 0.04s linear,width 0.2s,height 0.2s,border-color 0.2s,background 0.2s}
-#cursor-ring.hover{width:48px;height:48px;border-color:rgba(196,181,253,0.8);background:rgba(196,181,253,0.06)}
+#cursor-dot{position:fixed;width:8px;height:8px;background:#c4b5fd;border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;transition:background 0.2s,width 0.2s,height 0.2s}
+#cursor-dot.hover{width:10px;height:10px;background:#fff}
+#cursor-ring{position:fixed;width:34px;height:34px;border:2px solid rgba(196,181,253,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.1s ease,top 0.1s ease,width 0.2s,height 0.2s,border-color 0.2s,background 0.2s}
+#cursor-ring.hover{width:48px;height:48px;border-color:rgba(196,181,253,1);background:rgba(196,181,253,0.12)}
 #cursor-trail{position:fixed;inset:0;pointer-events:none;z-index:9997}
 </style>
 </head>
@@ -2168,12 +2169,14 @@ window.addEventListener('scroll', () => {
 
   // Hover state
   document.addEventListener('mouseover', e => {
-    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
-      ring.classList.add('hover');
+    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn')) {
+      ring.classList.add('hover'); dot.classList.add('hover');
+    }
   });
   document.addEventListener('mouseout', e => {
-    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
-      ring.classList.remove('hover');
+    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn')) {
+      ring.classList.remove('hover'); dot.classList.remove('hover');
+    }
   });
 
   function animate() {
