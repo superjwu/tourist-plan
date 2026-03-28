@@ -231,6 +231,58 @@ body.season-winter {
   border: none;
 }
 #trip-badge:hover { opacity: 0.85; }
+#routes-badge {
+  background: none; color: var(--primary);
+  font-size: 0.82rem; font-weight: 700;
+  padding: 0.3rem 0.85rem; border-radius: 999px;
+  cursor: pointer; transition: all 0.3s; white-space: nowrap;
+  border: 1.5px solid var(--primary);
+}
+#routes-badge:hover { background: var(--primary); color: #000; }
+
+/* ── Routes Panel ────────────────────────────────────────── */
+#routes-panel {
+  position: absolute; top: calc(var(--nav-h) + 0.5rem); right: 1.5rem;
+  width: 340px; max-height: 480px;
+  background: var(--bg-alt); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  z-index: 300; display: none; flex-direction: column;
+  overflow: hidden;
+}
+#routes-panel.open { display: flex; }
+#routes-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+#routes-panel-title { font-family: 'Merriweather', serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+#routes-panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+#routes-body { overflow-y: auto; flex: 1; padding: 0.5rem; }
+.route-item {
+  display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.7rem;
+  border-radius: 8px; cursor: pointer; transition: background 0.15s;
+}
+.route-item:hover { background: rgba(255,255,255,0.06); }
+.route-item-icon { font-size: 1.3rem; flex-shrink: 0; }
+.route-item-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.route-item-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+/* ── Road Trip Story styles ──────────────────────────────── */
+.rt-story-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+.rt-story-tag { padding: 0.3rem 0.75rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 0.82rem; color: var(--text-muted); }
+.rt-itinerary { display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0; }
+.rt-day { display: flex; gap: 0.75rem; align-items: flex-start; }
+.rt-day-num { flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--primary); color: #000; font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; }
+.rt-day-content { flex: 1; }
+.rt-day-title { font-weight: 600; color: var(--text); font-size: 0.9rem; }
+.rt-day-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+.rt-parks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem; margin: 1rem 0; }
+.rt-park-card { border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: border-color 0.2s; }
+.rt-park-card:hover { border-color: var(--primary); }
+.rt-park-card img { width: 100%; aspect-ratio: 3/2; object-fit: cover; }
+.rt-park-card-name { padding: 0.4rem 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--text); }
+.rt-highlights { list-style: none; }
+.rt-highlights li { padding: 0.4rem 0; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.rt-highlights li::before { content: '✦ '; color: var(--primary); }
 
 /* ── Bucket Dropdown ─────────────────────────────────────── */
 #bucket-panel {
@@ -457,15 +509,6 @@ body.season-winter {
   color: var(--text-muted);
   white-space: nowrap;
 }
-
-/* ── Road trips link ────────────────────────────────────── */
-#road-trips-link {
-  padding: 0.5rem 1rem; margin-bottom: 0.75rem; border-radius: 999px; cursor: pointer;
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-  font-size: 0.8rem; color: var(--primary); text-align: center;
-  transition: all 0.2s;
-}
-#road-trips-link:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
 
 /* ── Map modal ──────────────────────────────────────────── */
 #map-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; }
@@ -721,7 +764,8 @@ body.season-winter {
   /* Nav: prevent logo + badge overflow on small phones */
   #main-nav { padding: 0 1rem; }
   #main-nav h1 { font-size: 0.9rem; }
-  #trip-badge { font-size: 0.72rem; padding: 0.22rem 0.6rem; }
+  #trip-badge, #routes-badge { font-size: 0.72rem; padding: 0.22rem 0.6rem; }
+  #routes-panel { right: 0.75rem; width: calc(100vw - 1.5rem); }
   /* Hero bottom: tighten spacing */
   #hero-bottom { gap: 0.75rem; padding: 0 1rem; }
   /* Swipe arena: even shorter on very small phones */
@@ -761,7 +805,17 @@ body.season-winter {
 <div id="main-interface">
   <nav id="main-nav">
     <h1>Wild America</h1>
-    <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
+    <div style="display:flex;gap:0.5rem;align-items:center">
+      <button id="routes-badge" onclick="toggleRoutesPanel(event)">🛣 Routes</button>
+      <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
+    </div>
+    <div id="routes-panel" onclick="event.stopPropagation()">
+      <div id="routes-panel-header">
+        <span id="routes-panel-title">🛣 Road Trips</span>
+        <button id="routes-panel-close" onclick="closeRoutesPanel()">×</button>
+      </div>
+      <div id="routes-body"></div>
+    </div>
     <div id="bucket-panel" onclick="event.stopPropagation()">
       <div id="bucket-panel-header">
         <span id="bucket-panel-title">My Bucket List</span>
@@ -852,7 +906,6 @@ body.season-winter {
           <span class="filter-label">Region</span>
         </div>
       </div>
-      <div id="road-trips-link" onclick="openBucketPanel();switchBucketTab('routes')">🛣 21 curated road trips available — tap to explore</div>
       <div id="grid-controls">
         <input type="text" id="search-input" placeholder="Search parks, states, activities…">
         <select id="sort-select">
@@ -949,6 +1002,147 @@ function toggleBucketPanel(e) {
   document.getElementById('bucket-panel').classList.toggle('open', bucketPanelOpen);
   if (bucketPanelOpen) renderBucketPanel();
 }
+// ── Routes Panel ───────────────────────────────────────────
+let routesPanelOpen = false;
+function toggleRoutesPanel(e) {
+  e && e.stopPropagation();
+  routesPanelOpen = !routesPanelOpen;
+  document.getElementById('routes-panel').classList.toggle('open', routesPanelOpen);
+  if (routesPanelOpen) renderRoutesPanel();
+}
+function closeRoutesPanel() { routesPanelOpen = false; document.getElementById('routes-panel').classList.remove('open'); }
+function renderRoutesPanel() {
+  const body = document.getElementById('routes-body');
+  body.innerHTML = ROAD_TRIPS.map(rt => {
+    const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+    return `<div class="route-item" onclick="closeRoutesPanel();openRoadTripStory('${rt.id}')">
+      <div class="route-item-icon">${rt.icon}</div>
+      <div>
+        <div class="route-item-name">${rt.name}</div>
+        <div class="route-item-sub">🚗 ${rt.distance} · 📅 ${rt.days} · ${matched.length} parks</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openRoadTripStory(tripId) {
+  const rt = ROAD_TRIPS.find(t => t.id === tripId);
+  if (!rt) return;
+  const parks = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+  const heroImg = parks.length ? getAttractionImage(parks[0]) : DEFAULT_CARD_IMAGE;
+
+  document.body.style.overflow = 'hidden';
+  const scroll = document.getElementById('chapters-scroll');
+  scroll.innerHTML = `
+    <div class="chapter ch-discovery">
+      <div class="ch-bg" style="background-image:url('${heroImg}')"></div>
+      <div class="ch-overlay"></div>
+      <div class="ch-content">
+        <div class="ch1-label">${rt.icon} Road Trip</div>
+        <h2 class="ch1-title">${rt.name}</h2>
+        <p class="ch1-sub">🚗 ${rt.distance} &nbsp;·&nbsp; 📅 ${rt.days} &nbsp;·&nbsp; 🌤 ${rt.season}</p>
+      </div>
+    </div>
+    <div class="chapter ch-land">
+      <div class="ch-content">
+        <div class="ch2-text">
+          <div class="ch2-chapter-label">Chapter 2 · The Route</div>
+          <h2 class="ch2-title">${rt.name}</h2>
+          <p class="ch2-desc">${rt.desc}</p>
+          <div class="rt-story-meta">
+            <span class="rt-story-tag">🚗 ${rt.distance}</span>
+            <span class="rt-story-tag">📅 ${rt.days}</span>
+            <span class="rt-story-tag">🌤 Best: ${rt.season}</span>
+            <span class="rt-story-tag">📍 ${parks.length} parks</span>
+          </div>
+          <h3 style="color:var(--text);font-size:0.95rem;margin:1rem 0 0.5rem">Suggested Itinerary</h3>
+          <div class="rt-itinerary">${parks.map((p, i) => `
+            <div class="rt-day">
+              <div class="rt-day-num">${i + 1}</div>
+              <div class="rt-day-content">
+                <div class="rt-day-title">${p.name}</div>
+                <div class="rt-day-desc">${p.state} · ${p.duration || '1–2 days'} · ${p.difficulty || 'Varies'}</div>
+              </div>
+            </div>
+          `).join('')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="chapter ch-experience">
+      <div class="ch-content">
+        <div class="ch3-chapter-label">Chapter 3 · Parks Along the Way</div>
+        <h2 class="ch3-title">${parks.length} Destinations</h2>
+        <div class="rt-parks-grid">${parks.map(p => `
+          <div class="rt-park-card" onclick="closeStory();setTimeout(()=>openStory(${p.id}),300)">
+            <img src="${getAttractionImage(p)}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+            <div class="rt-park-card-name">${p.name}</div>
+          </div>
+        `).join('')}</div>
+      </div>
+    </div>
+    <div class="chapter ch-visit">
+      <div class="ch-content">
+        <div class="ch4-chapter-label">Chapter 4 · Trip Tips</div>
+        <h2 class="ch4-title">Plan Your Trip</h2>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-label">Distance</div><div class="stat-value">${rt.distance}</div></div>
+          <div class="stat-box"><div class="stat-label">Duration</div><div class="stat-value">${rt.days}</div></div>
+          <div class="stat-box"><div class="stat-label">Best Season</div><div class="stat-value">${rt.season}</div></div>
+          <div class="stat-box"><div class="stat-label">Parks</div><div class="stat-value">${parks.length} stops</div></div>
+        </div>
+        <div style="margin-top:1rem">
+          <h3 style="color:var(--text);font-size:0.9rem;margin-bottom:0.5rem">Estimated Costs</h3>
+          <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.6">
+            ${parks.map(p => `${p.name}: ${p.fee || 'Free'} entry · 🏨 ${p.lodgingCost || '$$'}/night area`).join('<br>')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chapter ch-gonow">
+      <div class="ch-content">
+        <div class="ch5-chapter-label">Chapter 5 · Go Plan It</div>
+        <h2 class="ch5-title">${rt.name}</h2>
+        <div class="ch5-rating"><span class="num">${parks.length} parks · ${rt.distance} · ${rt.days}</span></div>
+        <div class="ch5-actions">
+          <button class="ch5-btn ch5-btn-primary" onclick="addAllToTrip([${parks.map(p=>p.id).join(',')}])">+ Add All ${parks.length} Parks to Bucket</button>
+        </div>
+        <h3 style="color:var(--text);font-size:0.9rem;margin:1.5rem 0 0.5rem">Must-Do Highlights</h3>
+        <ul class="rt-highlights">
+          ${parks.slice(0, 5).map(p => `<li>${p.name} — ${(p.tags||[]).slice(0,2).join(', ')}</li>`).join('')}
+        </ul>
+      </div>
+    </div>`;
+
+  document.getElementById('story-overlay').classList.add('open');
+  jumpToChapter(0);
+
+  // 15% scroll skip for road trip story
+  let currentChapter = 0, skipLocked = false;
+  const chapters = scroll.querySelectorAll('.chapter');
+  scroll.addEventListener('scroll', function rtScroll() {
+    if (skipLocked) return;
+    const vh = scroll.clientHeight, sy = scroll.scrollTop;
+    const chapterStart = currentChapter * vh, offset = sy - chapterStart;
+    if (offset > vh * 0.15 && currentChapter < chapters.length - 1) {
+      skipLocked = true; currentChapter++;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    } else if (offset < -vh * 0.15 && currentChapter > 0) {
+      skipLocked = true; currentChapter--;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    }
+  }, { passive: true });
+}
+
+function addAllToTrip(ids) {
+  ids.forEach(id => { if (!itinerary.includes(id)) itinerary.push(id); });
+  save(); updateTripBadge(); renderGrid();
+  showToast(`✓ Added ${ids.length} parks to bucket!`);
+}
+
 function openBucketPanel() {
   bucketPanelOpen = true;
   document.getElementById('bucket-panel').classList.add('open');
@@ -1014,7 +1208,7 @@ function renderBucketPanel() {
     body.insertBefore(item, empty);
   });
 }
-document.addEventListener('click', () => { if (bucketPanelOpen) closeBucketPanel(); });
+document.addEventListener('click', () => { if (bucketPanelOpen) closeBucketPanel(); if (routesPanelOpen) closeRoutesPanel(); });
 
 // ── Scroll Fade ────────────────────────────────────────────
 function initScrollFade() {
