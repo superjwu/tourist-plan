@@ -882,6 +882,16 @@ body.season-winter {
             <option value="name">A–Z</option>
           </select>
           <span id="results-info" style="font-size:0.85rem;color:var(--text-muted);white-space:nowrap">300 attractions</span>
+          <button id="clear-filters" style="display:none">✕ Clear all</button>
+        </div>
+        <div id="type-row" style="display:none">
+          <span class="filter-label">Type</span>
+          <button class="type-chip" data-type="np-loop">🏞 NP Loop</button>
+          <button class="type-chip" data-type="scenic-drive">🛣 Scenic Drive</button>
+          <button class="type-chip" data-type="weekender">🚗 Weekender</button>
+          <button class="type-chip" data-type="themed">🎯 Themed</button>
+          <button class="type-chip" data-type="coastal">🌊 Coastal</button>
+          <button class="type-chip" data-type="island">🏝 Island</button>
         </div>
         <div id="vibe-row">
           <span class="filter-label">Vibe</span>
@@ -891,7 +901,6 @@ body.season-winter {
           <button class="vibe-chip" data-vibe="history">🏛 History</button>
           <button class="vibe-chip" data-vibe="hidden">💎 Hidden Gems</button>
           <button class="vibe-chip" data-vibe="family">👨‍👩‍👧 Family</button>
-          <button id="clear-filters" style="display:none">✕ Clear all</button>
         </div>
         <div id="travel-row">
           <span class="filter-label">From</span>
@@ -921,15 +930,6 @@ body.season-winter {
         </div>
         <div id="region-row">
           <span class="filter-label">Region</span>
-        </div>
-        <div id="type-row" style="display:none">
-          <span class="filter-label">Type</span>
-          <button class="type-chip" data-type="np-loop">🏞 NP Loop</button>
-          <button class="type-chip" data-type="scenic-drive">🛣 Scenic Drive</button>
-          <button class="type-chip" data-type="weekender">🚗 Weekender</button>
-          <button class="type-chip" data-type="themed">🎯 Themed</button>
-          <button class="type-chip" data-type="coastal">🌊 Coastal</button>
-          <button class="type-chip" data-type="island">🏝 Island</button>
         </div>
       </div>
       <div id="attractions-grid"></div>
