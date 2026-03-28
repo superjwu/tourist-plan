@@ -540,9 +540,9 @@ body.season-winter {
 .prog-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); cursor: pointer; transition: all 0.2s; }
 .prog-dot.active { background: var(--primary); border-color: var(--primary); transform: scale(1.4); animation: dotPulse 2s ease infinite; }
 @keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); } 50% { box-shadow: 0 0 0 5px rgba(255,255,255,0); } }
-#chapters-scroll { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+#chapters-scroll { height: 100vh; overflow-y: scroll; scrollbar-width: none; }
 #chapters-scroll::-webkit-scrollbar { display: none; }
-.chapter { height: 100vh; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.chapter { height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 
 .ch-discovery { background: #0a0a0a; }
 .ch-discovery .ch-bg { position: absolute; inset: -5%; background-size: cover; background-position: center; animation: kenBurns 14s ease-in-out infinite alternate; }
@@ -1573,6 +1573,31 @@ function buildStory(a){
     });
   },{root:scroll,threshold:0.5});
   scroll.querySelectorAll('.chapter').forEach(ch=>obs.observe(ch));
+  // 25% scroll skip: when scrolled 25% into current chapter, snap to next
+  let currentChapter = 0;
+  let skipLocked = false;
+  const chapters = scroll.querySelectorAll('.chapter');
+  scroll.addEventListener('scroll', () => {
+    if (skipLocked) return;
+    const vh = scroll.clientHeight;
+    const sy = scroll.scrollTop;
+    const chapterStart = currentChapter * vh;
+    const offset = sy - chapterStart;
+    if (offset > vh * 0.25 && currentChapter < chapters.length - 1) {
+      skipLocked = true;
+      currentChapter++;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    } else if (offset < -vh * 0.25 && currentChapter > 0) {
+      skipLocked = true;
+      currentChapter--;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    }
+  }, { passive: true });
+
   // Init inline map in Chapter 4
   setTimeout(async () => {
     const mapEl = document.getElementById('story-map');
