@@ -1078,6 +1078,7 @@ function openRoadTripStory(tripId) {
       <div class="ch-content">
         <div class="ch3-chapter-label">Chapter 3 · Parks Along the Way</div>
         <h2 class="ch3-title">${parks.length} Destinations</h2>
+        <div id="rt-route-map" style="height:220px;border-radius:10px;margin-bottom:1rem;overflow:hidden"></div>
         <div class="rt-parks-grid">${parks.map(p => `
           <div class="rt-park-card" onclick="closeStory();setTimeout(()=>openStory(${p.id}),300)">
             <img src="${getAttractionImage(p)}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
@@ -1114,6 +1115,37 @@ function openRoadTripStory(tripId) {
 
   document.getElementById('story-overlay').classList.add('open');
   jumpToChapter(0);
+
+  // Init route map with all park pins
+  setTimeout(async () => {
+    const mapEl = document.getElementById('rt-route-map');
+    if (!mapEl || typeof L === 'undefined') return;
+    const allCoords = [];
+    for (const p of parks) {
+      let c = geoCache[p.slug];
+      if (!c) {
+        try {
+          const q = encodeURIComponent(p.name + ', ' + p.state + ', USA');
+          const resp = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {headers:{'User-Agent':'WildAmericaApp'}});
+          const data = await resp.json();
+          if (data.length) { c = [parseFloat(data[0].lat), parseFloat(data[0].lon)]; geoCache[p.slug] = c; localStorage.setItem('geo_cache', JSON.stringify(geoCache)); }
+        } catch(e) {}
+      }
+      if (c) allCoords.push({coords: c, name: p.name});
+    }
+    if (!allCoords.length) { mapEl.style.display = 'none'; return; }
+    const rtMap = L.map(mapEl, {zoomControl: false, attributionControl: false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(rtMap);
+    const markers = allCoords.map((p, i) => L.marker(p.coords).addTo(rtMap).bindPopup(`<b>${i+1}. ${p.name}</b>`));
+    // Draw route line
+    if (allCoords.length > 1) {
+      L.polyline(allCoords.map(p => p.coords), {color: '#a78bfa', weight: 3, opacity: 0.7, dashArray: '8,6'}).addTo(rtMap);
+    }
+    // Fit bounds to show all markers
+    const bounds = L.latLngBounds(allCoords.map(p => p.coords));
+    rtMap.fitBounds(bounds, {padding: [30, 30]});
+    mapEl._leaflet = rtMap;
+  }, 500);
 
   // 15% scroll skip for road trip story
   let currentChapter = 0, skipLocked = false;
@@ -1734,8 +1766,7 @@ function openStory(id){
   jumpToChapter(0);
 }
 function closeStory(){
-  const sm = document.getElementById('story-map');
-  if (sm && sm._leaflet) { sm._leaflet.remove(); sm._leaflet = null; }
+  ['story-map','rt-route-map'].forEach(id => { const el = document.getElementById(id); if (el && el._leaflet) { el._leaflet.remove(); el._leaflet = null; } });
   document.getElementById('story-overlay').classList.remove('open');document.body.style.overflow='';
 }
 function jumpToChapter(n){
@@ -1859,7 +1890,7 @@ function buildStory(a){
       } catch(e) {}
     }
     if (!coords) { mapEl.style.display = 'none'; return; }
-    const m = L.map(mapEl, {zoomControl:false, attributionControl:false}).setView(coords, 9);
+    const m = L.map(mapEl, {zoomControl:false, attributionControl:false}).setView(coords, 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(m);
     L.marker(coords).addTo(m);
     mapEl._leaflet = m;
@@ -1886,7 +1917,7 @@ async function openMap(attractionId) {
   }
   if (!coords) coords = [39.8, -98.5];
   if (mapInstance) { mapInstance.remove(); }
-  mapInstance = L.map('map-container').setView(coords, 10);
+  mapInstance = L.map('map-container').setView(coords, 7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(mapInstance);
   L.marker(coords).addTo(mapInstance).bindPopup('<b>' + a.name + '</b><br>' + a.state).openPopup();
 }
