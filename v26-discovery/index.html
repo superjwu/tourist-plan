@@ -969,20 +969,15 @@ function initScrollFade() {
   const parkInfo = document.getElementById('hero-park-info');
   const bottom   = document.getElementById('hero-bottom');
   const veil     = document.getElementById('hero-scroll-veil');
-  const heroSlides = document.getElementById('hero-slides');
   window.addEventListener('scroll', () => {
     const vh = window.innerHeight, sy = window.scrollY;
-    const progress = Math.min(sy / vh, 1);
-    // Title and park info fade up and out early
-    center.style.opacity   = 1 - Math.min(progress * 3, 1);
-    center.style.transform = `translateY(${progress * -40}px)`;
-    parkInfo.style.opacity = 1 - Math.min(progress * 2.5, 1);
-    bottom.style.opacity   = 1 - Math.min(progress * 3, 1);
-    // Hero image: slight zoom + blur for cinematic parallax depth
-    heroSlides.style.transform = `scale(${1 + progress * 0.05})`;
-    heroSlides.style.filter = `blur(${progress * 4}px)`;
-    // Veil: full fade to background color (ease-in — accelerates toward end)
-    veil.style.opacity = progress * progress;
+    const titleP = Math.min(sy / (vh * 0.3), 1);
+    center.style.opacity   = 1 - titleP;
+    center.style.transform = `translateY(${titleP * -25}px)`;
+    const elemP = Math.min(sy / (vh * 0.45), 1);
+    parkInfo.style.opacity = 1 - elemP;
+    bottom.style.opacity   = 1 - elemP * 1.5;
+    veil.style.opacity = Math.min(sy / (vh * 0.6), 1) * 0.75;
   }, { passive: true });
 }
 
