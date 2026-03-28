@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto; scroll-snap-type: y proximity; }
+html { scroll-behavior: auto; }
 
 /* ── Season Themes — vivid, distinct, medium-dark ──────── */
 body {
@@ -61,7 +61,7 @@ body.season-winter {
 #hero {
   position: sticky; top: 0; z-index: 1;
   height: 100vh; overflow: hidden; background: #000;
-  cursor: pointer; scroll-snap-align: start;
+  cursor: pointer;
 }
 #hero-slides { position: absolute; inset: 0; }
 .hero-slide {
@@ -186,7 +186,7 @@ body.season-winter {
 /* ── Main Interface ──────────────────────────────────────── */
 #main-interface {
   position: relative; z-index: 2;
-  background: var(--bg); scroll-snap-align: start;
+  background: var(--bg);
   transition: background 0.5s ease;
   box-shadow: 0 -16px 56px rgba(0,0,0,0.55);
 }
@@ -473,17 +473,17 @@ body.season-winter {
 
 /* ── Discovery bar ──────────────────────────────────────── */
 #discovery-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem; }
-#vibe-row, #travel-row, #budget-row, #trip-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+#vibe-row, #travel-row, #budget-row, #trip-row, #region-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
 .filter-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); min-width: 3.5rem; flex-shrink: 0; }
-.vibe-chip, .budget-chip, .travel-chip, .trip-chip {
+.vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip {
   display: inline-flex; align-items: center; gap: 0.3rem;
   padding: 0.32rem 0.85rem; border-radius: 999px; cursor: pointer;
   font-size: 0.82rem; font-weight: 500; line-height: 1.3;
   background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
   color: var(--text-muted); transition: all 0.18s; white-space: nowrap;
 }
-.vibe-chip:hover, .budget-chip:hover, .travel-chip:hover, .trip-chip:hover { border-color: var(--primary); color: var(--text); }
-.vibe-chip.active, .budget-chip.active, .travel-chip.active, .trip-chip.active {
+.vibe-chip:hover, .budget-chip:hover, .travel-chip:hover, .trip-chip:hover, .region-chip:hover { border-color: var(--primary); color: var(--text); }
+.vibe-chip.active, .budget-chip.active, .travel-chip.active, .trip-chip.active, .region-chip.active {
   background: var(--primary); color: #000; border-color: var(--primary); font-weight: 600;
 }
 #clear-filters { background: none; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.2s; }
@@ -665,7 +665,7 @@ body.season-winter {
   #story-progress { right: 0.5rem; }
   #bucket-panel { right: 0.75rem; width: calc(100vw - 1.5rem); }
   .filter-label { min-width: 2.5rem; font-size: 0.72rem; }
-  .vibe-chip, .budget-chip, .travel-chip, .trip-chip { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
+  .vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
   .rt-card { width: 220px; padding: 0.75rem; }
   .rt-card-name { font-size: 0.82rem; }
   .road-trip-pill { font-size: 0.72rem; padding: 0.28rem 0.65rem; }
@@ -736,6 +736,7 @@ body.season-winter {
       <div id="bucket-tabs">
         <button class="bucket-tab active" data-tab="trip" onclick="switchBucketTab('trip')">✈ My Trip</button>
         <button class="bucket-tab" data-tab="favs" onclick="switchBucketTab('favs')">♥ Favorites</button>
+        <button class="bucket-tab" data-tab="routes" onclick="switchBucketTab('routes')">🛣 Routes</button>
       </div>
       <div id="bucket-body">
         <div id="bucket-empty">Nothing here yet!</div>
@@ -772,15 +773,6 @@ body.season-winter {
 
     <section id="month-section">
       <div id="month-strip"></div>
-    </section>
-
-    <section id="road-trips-section">
-      <div class="road-trips-header">
-        <h3>🛣 Popular Road Trips</h3>
-        <span class="road-trips-count"></span>
-        <button id="road-trips-toggle" onclick="toggleRoadTrips()">▸ Show</button>
-      </div>
-      <div id="road-trips-scroll" class="collapsed"></div>
     </section>
 
     <section id="grid-section">
@@ -821,10 +813,12 @@ body.season-winter {
           <button class="budget-chip" data-budget="$$">$$ Mid</button>
           <button class="budget-chip" data-budget="$$$">$$$ Premium</button>
         </div>
+        <div id="region-row">
+          <span class="filter-label">Region</span>
+        </div>
       </div>
       <div id="grid-controls">
         <input type="text" id="search-input" placeholder="Search parks, states, activities…">
-        <select id="region-select"><option value="">All regions</option></select>
         <select id="sort-select">
           <option value="default">Default order</option>
           <option value="rating">★ Highest rated</option>
@@ -887,7 +881,7 @@ let swipeDeckOpen = false;
 let deckAttractions = [], deckIndex = 0;
 let sortOrder = 'default';
 let activeVibes = new Set();
-let selectedRegion = '';
+let selectedRegions = new Set();
 let selectedBudgets = new Set();
 let selectedCity = '';
 let selectedTravelHours = new Set();
@@ -932,6 +926,23 @@ function renderBucketPanel() {
   const body  = document.getElementById('bucket-body');
   const empty = document.getElementById('bucket-empty');
   body.querySelectorAll('.bucket-item').forEach(el => el.remove());
+  if (bucketActiveTab === 'routes') {
+    empty.style.display = 'none';
+    ROAD_TRIPS.forEach(rt => {
+      const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+      const item = document.createElement('div');
+      item.className = 'bucket-item';
+      item.style.cursor = 'pointer';
+      item.innerHTML = `<div style="font-size:1.2rem;flex-shrink:0">${rt.icon}</div>
+        <div class="bucket-item-info">
+          <div class="bucket-item-name">${rt.name}</div>
+          <div class="bucket-item-sub">🚗 ${rt.distance} · 📅 ${rt.days} · ${matched.length} parks</div>
+        </div>`;
+      item.addEventListener('click', () => { closeBucketPanel(); showRoadTripDetail(rt.id); });
+      body.appendChild(item);
+    });
+    return;
+  }
   const ids  = bucketActiveTab === 'trip' ? itinerary : favorites;
   const list = ids.map(id => attractionCatalog.find(a => a.id === id)).filter(Boolean);
   if (!list.length) {
@@ -1207,11 +1218,10 @@ function showRoadTripDetail(tripId) {
   // Close story if open
   if (document.getElementById('story-overlay').classList.contains('open')) closeStory();
   // Clear all filters
-  activeVibes.clear(); selectedBudgets.clear(); selectedTravelHours.clear(); selectedTrips.clear();
-  selectedRegion = ''; selectedCity = '';
-  document.querySelectorAll('.vibe-chip,.budget-chip,.travel-chip,.trip-chip').forEach(b => b.classList.remove('active'));
+  activeVibes.clear(); selectedBudgets.clear(); selectedTravelHours.clear(); selectedTrips.clear(); selectedRegions.clear();
+  selectedCity = '';
+  document.querySelectorAll('.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip').forEach(b => b.classList.remove('active'));
   document.getElementById('city-select').value = '';
-  document.getElementById('region-select').value = '';
   searchQuery = ''; document.getElementById('search-input').value = '';
   window._roadTripFilter = new Set(parks.map(p => p.id));
   renderGrid();
@@ -1243,8 +1253,20 @@ const VIBE_MATCH = {
 };
 function initRegionSelect() {
   const regions = [...new Set(attractionCatalog.map(a => a.region).filter(Boolean))].sort();
-  const sel = document.getElementById('region-select');
-  regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o); });
+  const row = document.getElementById('region-row');
+  regions.forEach(r => {
+    const btn = document.createElement('button');
+    btn.className = 'region-chip';
+    btn.dataset.region = r;
+    btn.textContent = r;
+    btn.addEventListener('click', () => {
+      selectedRegions.has(r) ? (selectedRegions.delete(r), btn.classList.remove('active'))
+                              : (selectedRegions.add(r), btn.classList.add('active'));
+      updateClearBtn();
+      renderGrid();
+    });
+    row.appendChild(btn);
+  });
 }
 
 function renderGrid() {
@@ -1267,7 +1289,7 @@ function renderGrid() {
     );
   }
   if (activeVibes.size > 0) list = list.filter(a => [...activeVibes].some(v => VIBE_MATCH[v]?.(a)));
-  if (selectedRegion) list = list.filter(a => a.region === selectedRegion);
+  if (selectedRegions.size > 0) list = list.filter(a => selectedRegions.has(a.region));
   if (selectedBudgets.size > 0) list = list.filter(a => selectedBudgets.has(a.lodgingCost));
   if (selectedCity && selectedTravelHours.size > 0) {
     const maxH = Math.max(...selectedTravelHours);
@@ -1471,7 +1493,11 @@ function openStory(id){
   document.getElementById('story-overlay').classList.add('open');
   jumpToChapter(0);
 }
-function closeStory(){document.getElementById('story-overlay').classList.remove('open');document.body.style.overflow='';}
+function closeStory(){
+  const sm = document.getElementById('story-map');
+  if (sm && sm._leaflet) { sm._leaflet.remove(); sm._leaflet = null; }
+  document.getElementById('story-overlay').classList.remove('open');document.body.style.overflow='';
+}
 function jumpToChapter(n){
   const scroll=document.getElementById('chapters-scroll');
   const chapters=scroll.querySelectorAll('.chapter');
@@ -1529,6 +1555,7 @@ function buildStory(a){
           <div class="stat-box"><div class="stat-label">Difficulty</div><div class="stat-value">${a.difficulty||'Varies'}</div></div>
         </div>
         <div class="ch4-tags">${(a.tags||[]).map(t=>`<span class="ch4-tag">${t}</span>`).join('')}</div>
+        <div id="story-map" style="height:200px;border-radius:8px;margin-top:1rem;overflow:hidden"></div>
       </div>
     </div>
     <div class="chapter ch-gonow">
@@ -1553,6 +1580,25 @@ function buildStory(a){
     });
   },{root:scroll,threshold:0.5});
   scroll.querySelectorAll('.chapter').forEach(ch=>obs.observe(ch));
+  // Init inline map in Chapter 4
+  setTimeout(async () => {
+    const mapEl = document.getElementById('story-map');
+    if (!mapEl || typeof L === 'undefined') return;
+    let coords = geoCache[a.slug];
+    if (!coords) {
+      try {
+        const q = encodeURIComponent(a.name + ', ' + a.state + ', USA');
+        const resp = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {headers:{'User-Agent':'WildAmericaApp'}});
+        const data = await resp.json();
+        if (data.length) { coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)]; geoCache[a.slug] = coords; localStorage.setItem('geo_cache', JSON.stringify(geoCache)); }
+      } catch(e) {}
+    }
+    if (!coords) { mapEl.style.display = 'none'; return; }
+    const m = L.map(mapEl, {zoomControl:false, attributionControl:false}).setView(coords, 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(m);
+    L.marker(coords).addTo(m);
+    mapEl._leaflet = m;
+  }, 400);
 }
 function storyTrip(id){toggleTrip(id,null);const b=document.getElementById('ch5-trip');if(b)b.textContent=itinerary.includes(id)?'✓ In Bucket':'+ Add to Bucket';}
 function storyFav(id){toggleFav(id,null);const b=document.getElementById('ch5-fav');if(b)b.textContent=favorites.includes(id)?'♥ Favorited':'♡ Favorite';}
@@ -1622,9 +1668,6 @@ document.getElementById('search-input').addEventListener('input', e => {
 document.getElementById('sort-select').addEventListener('change', e => {
   sortOrder = e.target.value; renderGrid();
 });
-document.getElementById('region-select').addEventListener('change', e => {
-  selectedRegion = e.target.value; renderGrid();
-});
 document.querySelectorAll('.vibe-chip').forEach(btn => {
   btn.addEventListener('click', () => {
     const v = btn.dataset.vibe;
@@ -1635,12 +1678,11 @@ document.querySelectorAll('.vibe-chip').forEach(btn => {
   });
 });
 document.getElementById('clear-filters').addEventListener('click', () => {
-  activeVibes.clear(); selectedBudgets.clear(); selectedTravelHours.clear(); selectedTrips.clear();
-  selectedCity = ''; selectedRegion = '';
-  document.querySelectorAll('.vibe-chip,.budget-chip,.travel-chip,.trip-chip').forEach(b => b.classList.remove('active'));
+  activeVibes.clear(); selectedBudgets.clear(); selectedTravelHours.clear(); selectedTrips.clear(); selectedRegions.clear();
+  selectedCity = '';
+  document.querySelectorAll('.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip').forEach(b => b.classList.remove('active'));
   document.getElementById('clear-filters').style.display = 'none';
   document.getElementById('city-select').value = '';
-  document.getElementById('region-select').value = '';
   renderGrid();
 });
 document.querySelectorAll('.budget-chip').forEach(btn => {
@@ -1674,7 +1716,7 @@ document.querySelectorAll('.trip-chip').forEach(btn => {
   });
 });
 function updateClearBtn() {
-  const anyActive = activeVibes.size || selectedBudgets.size || selectedTravelHours.size || selectedTrips.size || selectedRegion || selectedCity;
+  const anyActive = activeVibes.size || selectedBudgets.size || selectedTravelHours.size || selectedTrips.size || selectedRegions.size || selectedCity;
   document.getElementById('clear-filters').style.display = anyActive ? '' : 'none';
 }
 document.getElementById('story-overlay').addEventListener('click', e => {
@@ -1685,11 +1727,19 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ── Init ───────────────────────────────────────────────────
+// Hero auto-scroll: when user scrolls past 30% of hero, smoothly jump to main content
+const heroObs = new IntersectionObserver(entries => {
+  const r = entries[0].intersectionRatio;
+  if (r < 0.7 && r > 0.05) {
+    document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
+    heroObs.disconnect();
+  }
+}, { threshold: [0, 0.05, 0.3, 0.7, 1] });
+heroObs.observe(document.getElementById('hero'));
 initHero();
 initScrollFade();
 initSeasonTabs();
 initRegionSelect();
-renderRoadTrips();
 renderMonthStrip();
 renderGrid();
 initSwipeDeck();
