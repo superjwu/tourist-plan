@@ -242,8 +242,8 @@ body.season-winter {
 
 /* ── Routes Panel ────────────────────────────────────────── */
 #routes-panel {
-  position: fixed; top: calc(var(--nav-h)); left: 0; right: 0; bottom: 0;
-  background: var(--bg); z-index: 300; display: none; flex-direction: column;
+  position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+  background: var(--bg); z-index: 250; display: none; flex-direction: column;
   overflow: hidden;
 }
 #routes-panel.open { display: flex; }
@@ -818,13 +818,6 @@ body.season-winter {
       <button id="routes-badge" onclick="toggleRoutesPanel(event)">🛣 Routes</button>
       <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
     </div>
-    <div id="routes-panel" onclick="event.stopPropagation()">
-      <div id="routes-panel-header">
-        <span id="routes-panel-title">🛣 Road Trips</span>
-        <button id="routes-panel-close" onclick="closeRoutesPanel()">×</button>
-      </div>
-      <div id="routes-body"></div>
-    </div>
     <div id="bucket-panel" onclick="event.stopPropagation()">
       <div id="bucket-panel-header">
         <span id="bucket-panel-title">My Bucket List</span>
@@ -840,6 +833,13 @@ body.season-winter {
       </div>
     </div>
   </nav>
+  <div id="routes-panel">
+    <div id="routes-panel-header">
+      <span id="routes-panel-title">🛣 Road Trips</span>
+      <button id="routes-panel-close" onclick="closeRoutesPanel()">×</button>
+    </div>
+    <div id="routes-body"></div>
+  </div>
 
   <div id="season-tabs">
     <button class="season-tab active" data-season="all">🗺️ All Year</button>
@@ -1239,7 +1239,10 @@ function renderBucketPanel() {
     body.insertBefore(item, empty);
   });
 }
-document.addEventListener('click', () => { if (bucketPanelOpen) closeBucketPanel(); if (routesPanelOpen) closeRoutesPanel(); });
+document.addEventListener('click', (e) => {
+  if (bucketPanelOpen && !e.target.closest('#bucket-panel') && !e.target.closest('#trip-badge')) closeBucketPanel();
+  if (routesPanelOpen && !e.target.closest('#routes-panel') && !e.target.closest('#routes-badge')) closeRoutesPanel();
+});
 
 // ── Scroll Fade ────────────────────────────────────────────
 function initScrollFade() {
