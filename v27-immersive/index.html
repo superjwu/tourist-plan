@@ -454,8 +454,6 @@ body.season-winter {
 #results-info { font-size: 0.88rem; color: var(--text-muted); align-self: center; }
 #attractions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
 /* Bento: every 5th card spans 2 columns */
-#attractions-grid .att-card:nth-child(5n+1) { grid-column: span 2; }
-@media (max-width: 768px) { #attractions-grid .att-card:nth-child(5n+1) { grid-column: span 1; } }
 
 .att-card {
   background: rgba(255,255,255,0.05); backdrop-filter: blur(16px) saturate(180%);
@@ -579,8 +577,8 @@ body.season-winter {
 .vibe-chip.active, .budget-chip.active, .travel-chip.active, .trip-chip.active, .region-chip.active, .type-chip.active {
   background: var(--primary); color: #000; border-color: var(--primary); font-weight: 600;
 }
-#clear-filters { background: none; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.2s; }
-#clear-filters:hover { color: var(--text); }
+#clear-filters { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0.35rem 0.85rem; border-radius: 999px; transition: all 0.2s; white-space: nowrap; }
+#clear-filters:hover { border-color: #ef4444; color: #ef4444; }
 #city-select, #region-select {
   padding: 0.32rem 0.75rem; border-radius: 999px;
   border: 1.5px solid rgba(255,255,255,0.12);
@@ -834,7 +832,7 @@ body.season-winter {
     <h1>Wild America</h1>
     <div style="display:flex;gap:0.5rem;align-items:center">
       <button id="view-parks" class="view-toggle active" onclick="setView('parks')">🏞 Parks</button>
-      <button id="view-routes" class="view-toggle" onclick="setView('routes')">🛣 Routes</button>
+      <button id="view-routes" class="view-toggle" onclick="setView('routes')">🛣 Scenic Routes</button>
       <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
     </div>
     <div id="bucket-panel" onclick="event.stopPropagation()">
@@ -969,7 +967,7 @@ body.season-winter {
   <div id="chapters-scroll"></div>
 </div>
 
-<button id="back-to-top" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button id="back-to-top" aria-label="Back to top" onclick="document.getElementById('main-interface').scrollIntoView({behavior:'smooth'})">↑</button>
 <div id="toast"></div>
 <div id="map-modal" onclick="if(event.target===this)closeMap()">
   <button id="map-modal-close" onclick="closeMap()">×</button>
