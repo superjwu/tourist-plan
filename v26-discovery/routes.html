@@ -320,9 +320,21 @@ document.querySelectorAll('.season-tab').forEach(tab => {
 
 function routeMatchesSeason(rt, season) {
   if (season === 'all') return true;
-  const s = (rt.season || '').toLowerCase();
-  if (/year.?round|all year/i.test(s)) return true;
-  return SEASON_MONTHS[season].some(m => s.includes(m));
+  const raw = (rt.season || '').toLowerCase();
+  if (!raw) return false;
+  if (/year.?round/i.test(raw)) return true;
+  const SM = {spring:[2,3,4],summer:[5,6,7],fall:[8,9,10],winter:[11,0,1]};
+  const MN = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  const target = SM[season];
+  function mo(s) { s=s.trim().toLowerCase().replace(/[^a-z]/g,''); for(const[k,v]of Object.entries(MN)){if(s.startsWith(k))return v;} return -1; }
+  function expand(a,b) { const r=[]; if(a<=b){for(let i=a;i<=b;i++)r.push(i);}else{for(let i=a;i<=11;i++)r.push(i);for(let i=0;i<=b;i++)r.push(i);} return r; }
+  for (let seg of raw.replace(/\b(late|early|mid|peak)\b/g,'').split(/\s*\/\s*/)) {
+    if (['spring','summer','fall','winter'].some(s => seg.includes(s) && s === season)) return true;
+    const parts = seg.split(/[–—]|-(?=[a-z])/).map(s=>s.trim()).filter(Boolean);
+    if (parts.length===2) { const a=mo(parts[0]),b=mo(parts[1]); if(a!==-1&&b!==-1&&expand(a,b).some(m=>target.includes(m)))return true; }
+    else if (parts.length===1) { const i=mo(parts[0]); if(i!==-1&&target.includes(i))return true; }
+  }
+  return false;
 }
 
 // ── Bucket Panel ───────────────────────────────────────────
