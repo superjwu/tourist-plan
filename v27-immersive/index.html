@@ -2149,7 +2149,7 @@ window.addEventListener('scroll', () => {
   resize(); window.addEventListener('resize', resize);
 
   document.addEventListener('mousemove', e => {
-    particles.push({ x: e.clientX, y: e.clientY, a: 0.35, r: 5, hue: 240 + Math.random() * 40 });
+    particles.push({ x: e.clientX + (Math.random()-0.5)*6, y: e.clientY + (Math.random()-0.5)*6, a: 0.45, r: 7 + Math.random()*5, hue: Math.random()*360 });
     if (particles.length > 120) particles.shift();
   });
 
@@ -2162,7 +2162,7 @@ window.addEventListener('scroll', () => {
       ctx.globalAlpha = p.a;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 80%, 80%, ${p.a})`;
+      ctx.fillStyle = `hsla(${p.hue}, 90%, 70%, ${p.a})`;
       ctx.fill();
     }
     requestAnimationFrame(animate);
