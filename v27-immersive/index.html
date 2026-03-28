@@ -796,12 +796,16 @@ body.season-winter {
   #swipe-arena { height: min(460px, 62vh); }
   #swipe-content.open { max-height: calc(62vh + 160px); }
 }
-/* ── Cursor Trail ────────────────────────────────────────── */
-#cursor-trail{position:fixed;inset:0;pointer-events:none;z-index:9998}
+/* ── Custom Cursor + Trail ───────────────────────────────── */
+@media(hover:hover){body{cursor:none}body *{cursor:none !important}}
+#cursor-dot{position:fixed;width:8px;height:8px;background:#c4b5fd;border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen}
+#cursor-ring{position:fixed;width:34px;height:34px;border:2px solid rgba(196,181,253,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left 0.04s linear,top 0.04s linear,width 0.2s,height 0.2s,border-color 0.2s,background 0.2s}
+#cursor-ring.hover{width:48px;height:48px;border-color:rgba(196,181,253,0.8);background:rgba(196,181,253,0.06)}
+#cursor-trail{position:fixed;inset:0;pointer-events:none;z-index:9997}
 </style>
 </head>
 <body class="season-all">
-<canvas id="cursor-trail"></canvas>
+<div id="cursor-dot"></div><div id="cursor-ring"></div><canvas id="cursor-trail"></canvas>
 <div class="mesh-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
 
 <!-- HERO -->
@@ -2140,8 +2144,10 @@ window.addEventListener('scroll', () => {
   document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 700);
 }, { passive: true });
 
-// ── Cursor Trail ───────────────────────────────────────────
+// ── Cursor: Ring + Dot + Trail ─────────────────────────────
 (function(){
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
   const canvas = document.getElementById('cursor-trail');
   const ctx = canvas.getContext('2d');
   const particles = [];
@@ -2149,8 +2155,25 @@ window.addEventListener('scroll', () => {
   resize(); window.addEventListener('resize', resize);
 
   document.addEventListener('mousemove', e => {
+    // Dot snaps exactly
+    dot.style.left = e.clientX - 4 + 'px';
+    dot.style.top = e.clientY - 4 + 'px';
+    // Ring follows very closely (0.04s CSS transition)
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+    // Trail particles
     particles.push({ x: e.clientX + (Math.random()-0.5)*6, y: e.clientY + (Math.random()-0.5)*6, a: 0.45, r: 7 + Math.random()*5, hue: Math.random()*360 });
     if (particles.length > 120) particles.shift();
+  });
+
+  // Hover state
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
+      ring.classList.add('hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
+      ring.classList.remove('hover');
   });
 
   function animate() {
