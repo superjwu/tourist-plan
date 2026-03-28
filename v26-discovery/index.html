@@ -242,29 +242,34 @@ body.season-winter {
 
 /* ── Routes Panel ────────────────────────────────────────── */
 #routes-panel {
-  position: absolute; top: calc(var(--nav-h) + 0.5rem); right: 1.5rem;
-  width: 340px; max-height: 480px;
-  background: var(--bg-alt); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: var(--radius); box-shadow: var(--shadow-lg);
-  z-index: 300; display: none; flex-direction: column;
+  position: fixed; top: calc(var(--nav-h)); left: 0; right: 0; bottom: 0;
+  background: var(--bg); z-index: 300; display: none; flex-direction: column;
   overflow: hidden;
 }
 #routes-panel.open { display: flex; }
 #routes-panel-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
 }
-#routes-panel-title { font-family: 'Merriweather', serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
-#routes-panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
-#routes-body { overflow-y: auto; flex: 1; padding: 0.5rem; }
-.route-item {
-  display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.7rem;
-  border-radius: 8px; cursor: pointer; transition: background 0.15s;
+#routes-panel-title { font-family: 'Merriweather', serif; font-size: 1.1rem; font-weight: 700; color: var(--text); }
+#routes-panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; padding: 0.3rem 0.5rem; }
+#routes-body { overflow-y: auto; flex: 1; padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; align-content: start; }
+.route-card {
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s;
 }
-.route-item:hover { background: rgba(255,255,255,0.06); }
-.route-item-icon { font-size: 1.3rem; flex-shrink: 0; }
-.route-item-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
-.route-item-sub { font-size: 0.72rem; color: var(--text-muted); }
+.route-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+.route-card-img { position: relative; height: 160px; overflow: hidden; }
+.route-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.route-card-img-strip { position: absolute; bottom: 0; left: 0; right: 0; display: flex; }
+.route-card-img-strip img { flex: 1; height: 40px; object-fit: cover; border-top: 2px solid var(--bg-card); }
+.route-card-icon { position: absolute; top: 0.6rem; left: 0.6rem; font-size: 1.5rem; background: rgba(0,0,0,0.5); border-radius: 8px; padding: 0.2rem 0.4rem; }
+.route-card-body { padding: 0.85rem 1rem; }
+.route-card-name { font-family: 'Merriweather', serif; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+.route-card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.6rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.route-card-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.route-card-tag { font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); }
 
 /* ── Road Trip Story styles ──────────────────────────────── */
 .rt-story-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
@@ -768,7 +773,8 @@ body.season-winter {
   #main-nav { padding: 0 1rem; }
   #main-nav h1 { font-size: 0.9rem; }
   #trip-badge, #routes-badge { font-size: 0.72rem; padding: 0.22rem 0.6rem; }
-  #routes-panel { right: 0.75rem; width: calc(100vw - 1.5rem); }
+  #routes-body { grid-template-columns: 1fr; padding: 0.75rem; }
+  .route-card-img { height: 120px; }
   /* Hero bottom: tighten spacing */
   #hero-bottom { gap: 0.75rem; padding: 0 1rem; }
   /* Swipe arena: even shorter on very small phones */
@@ -828,7 +834,6 @@ body.season-winter {
       <div id="bucket-tabs">
         <button class="bucket-tab active" data-tab="trip" onclick="switchBucketTab('trip')">✈ My Trip</button>
         <button class="bucket-tab" data-tab="favs" onclick="switchBucketTab('favs')">♥ Favorites</button>
-        <button class="bucket-tab" data-tab="routes" onclick="switchBucketTab('routes')">🛣 Routes</button>
       </div>
       <div id="bucket-body">
         <div id="bucket-empty">Nothing here yet!</div>
@@ -1019,11 +1024,23 @@ function renderRoutesPanel() {
   const body = document.getElementById('routes-body');
   body.innerHTML = ROAD_TRIPS.map(rt => {
     const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
-    return `<div class="route-item" onclick="closeRoutesPanel();openRoadTripStory('${rt.id}')">
-      <div class="route-item-icon">${rt.icon}</div>
-      <div>
-        <div class="route-item-name">${rt.name}</div>
-        <div class="route-item-sub">🚗 ${rt.distance} · 📅 ${rt.days} · ${matched.length} parks</div>
+    const heroImg = matched.length ? getAttractionImage(matched[0]) : DEFAULT_CARD_IMAGE;
+    const strip = matched.slice(1, 5).map(p => `<img src="${getAttractionImage(p)}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">`).join('');
+    return `<div class="route-card" onclick="closeRoutesPanel();openRoadTripStory('${rt.id}')">
+      <div class="route-card-img">
+        <img src="${heroImg}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+        <div class="route-card-icon">${rt.icon}</div>
+        ${strip ? `<div class="route-card-img-strip">${strip}</div>` : ''}
+      </div>
+      <div class="route-card-body">
+        <div class="route-card-name">${rt.name}</div>
+        <div class="route-card-desc">${rt.desc}</div>
+        <div class="route-card-meta">
+          <span class="route-card-tag">🚗 ${rt.distance}</span>
+          <span class="route-card-tag">📅 ${rt.days}</span>
+          <span class="route-card-tag">🌤 ${rt.season}</span>
+          <span class="route-card-tag">📍 ${matched.length} parks</span>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1192,23 +1209,6 @@ function renderBucketPanel() {
   const body  = document.getElementById('bucket-body');
   const empty = document.getElementById('bucket-empty');
   body.querySelectorAll('.bucket-item').forEach(el => el.remove());
-  if (bucketActiveTab === 'routes') {
-    empty.style.display = 'none';
-    ROAD_TRIPS.forEach(rt => {
-      const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
-      const item = document.createElement('div');
-      item.className = 'bucket-item';
-      item.style.cursor = 'pointer';
-      item.innerHTML = `<div style="font-size:1.2rem;flex-shrink:0">${rt.icon}</div>
-        <div class="bucket-item-info">
-          <div class="bucket-item-name">${rt.name}</div>
-          <div class="bucket-item-sub">🚗 ${rt.distance} · 📅 ${rt.days} · ${matched.length} parks</div>
-        </div>`;
-      item.addEventListener('click', () => { closeBucketPanel(); showRoadTripDetail(rt.id); });
-      body.appendChild(item);
-    });
-    return;
-  }
   const ids  = bucketActiveTab === 'trip' ? itinerary : favorites;
   const list = ids.map(id => attractionCatalog.find(a => a.id === id)).filter(Boolean);
   if (!list.length) {
