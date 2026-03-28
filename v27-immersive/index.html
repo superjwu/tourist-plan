@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild America — 300+ US Parks & Attractions to Discover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: auto; }
+
+/* ── Gradient Mesh Background ────────────────────────────── */
+.mesh-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.2; animation: blobFloat 20s ease-in-out infinite; }
+.blob-1 { width: 500px; height: 500px; background: var(--primary, #7c3aed); top: -10%; left: -5%; animation-duration: 18s; }
+.blob-2 { width: 400px; height: 400px; background: #06b6d4; bottom: -5%; right: -5%; animation-duration: 22s; animation-delay: -5s; }
+.blob-3 { width: 350px; height: 350px; background: #f59e0b; top: 40%; left: 40%; animation-duration: 25s; animation-delay: -10s; }
+@keyframes blobFloat { 0%,100%{transform:translate(0,0)} 25%{transform:translate(30px,-40px)} 50%{transform:translate(-20px,30px)} 75%{transform:translate(40px,20px)} }
+
+/* ── Season Themes — vivid, distinct, medium-dark ──────── */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  --text: #f0f0f0;
+  --text-muted: rgba(255,255,255,0.55);
+  --card-bg: rgba(255,255,255,0.07);
+  --card-border: rgba(255,255,255,0.11);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.45);
+  --radius: 14px;
+  --nav-h: 56px;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Each season clearly distinct */
+body.season-all    {
+  --bg: #1e2030; --bg-alt: #272a40; --bg-card: #2a2e48;
+  --primary: #a78bfa; --primary-dark: #7c3aed; --accent: #c4b5fd;
+  background: #1e2030;
+}
+body.season-spring {
+  /* Cherry blossom pink — sakura season */
+  --bg: #1f0d16; --bg-alt: #2e1222; --bg-card: #3a162b;
+  --primary: #f472b6; --primary-dark: #db2777; --accent: #fbcfe8;
+  background: #1f0d16;
+}
+body.season-summer {
+  /* Vivid green — lush forests */
+  --bg: #0a1f0a; --bg-alt: #122212; --bg-card: #162b16;
+  --primary: #22c55e; --primary-dark: #16a34a; --accent: #86efac;
+  background: #0a1f0a;
+}
+body.season-fall {
+  --bg: #2a1200; --bg-alt: #3a1a00; --bg-card: #462100;
+  --primary: #f97316; --primary-dark: #c2410c; --accent: #fdba74;
+  background: #2a1200;
+}
+body.season-winter {
+  /* Deep icy navy — distinct from summer's sky blue */
+  --bg: #070e1a; --bg-alt: #0d1a2e; --bg-card: #112238;
+  --primary: #bfdbfe; --primary-dark: #3b82f6; --accent: #e0f2fe;
+  background: #070e1a;
+}
+
+/* ── Hero ───────────────────────────────────────────────── */
+#hero {
+  position: sticky; top: 0; z-index: 1;
+  height: 100vh; overflow: hidden; background: #000;
+  cursor: pointer;
+}
+#hero-slides { position: absolute; inset: 0; }
+.hero-slide {
+  position: absolute; inset: 0; opacity: 0;
+  transition: opacity 1s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-slide-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  animation: kenBurns 10s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes kenBurns {
+  from { transform: scale(1.0) translate(0, 0); }
+  to   { transform: scale(1.04) translate(-0.8%, 0.8%); }
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.05) 0%,
+    rgba(0,0,0,0.1) 40%,
+    rgba(0,0,0,0.5) 75%,
+    rgba(0,0,0,0.78) 100%
+  );
+}
+
+/* Centered site name */
+#hero-center {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 0 2rem;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+#hero-pre {
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  color: rgba(255,255,255,0.5);
+  font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  margin-bottom: 0.75rem;
+}
+#hero-site-name {
+  font-family: 'Merriweather', serif;
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  font-weight: 700; line-height: 0.95;
+  color: #fff; letter-spacing: -0.02em;
+  text-shadow: 0 4px 40px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.1);
+  margin-bottom: 0.6rem;
+  background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+}
+#hero-divider {
+  width: 60px; height: 2px; border-radius: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  margin: 0.5rem 0 0.75rem;
+}
+#hero-tagline {
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  color: rgba(255,255,255,0.75);
+  font-weight: 300; letter-spacing: 0.08em;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+}
+#hero-stat {
+  margin-top: 1.2rem;
+  display: flex; gap: 1.5rem; align-items: center;
+}
+#hero-stat span {
+  font-size: clamp(0.72rem, 1.3vw, 0.82rem);
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+}
+
+/* Park label — small, bottom-right, single line */
+#hero-park-info {
+  position: absolute; bottom: 5.5rem;
+  left: 2rem; right: 2rem; z-index: 5;
+  text-align: right;
+  will-change: opacity; pointer-events: none;
+}
+.park-label-item {
+  position: absolute; right: 0; bottom: 0;
+  opacity: 0; transition: opacity 0.7s ease;
+  white-space: nowrap;
+}
+.park-label-item.active { opacity: 1; }
+.park-label-name {
+  font-family: 'Merriweather', serif;
+  font-size: 0.88rem;
+  font-weight: 700; color: #fff;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+  margin-bottom: 0.1rem;
+}
+.park-label-sub {
+  font-size: 0.78rem; color: rgba(255,255,255,0.7);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+  letter-spacing: 0.03em;
+}
+
+/* Hover hint */
+.hero-click-hint {
+  position: absolute; bottom: 9rem; right: 2rem; z-index: 5;
+  font-size: 0.78rem; color: rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.3); backdrop-filter: blur(6px);
+  padding: 0.25rem 0.75rem; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+#hero:hover .hero-click-hint { opacity: 1; }
+
+/* Bottom controls */
+#hero-bottom {
+  position: absolute; bottom: 2rem; left: 0; right: 0; z-index: 5;
+  display: flex; flex-direction: row; align-items: center;
+  justify-content: center; gap: 1.5rem;
+  will-change: opacity; padding: 0 2rem;
+}
+#hero-dots { display: flex; gap: 0.5rem; }
+.hero-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); border: none; cursor: pointer;
+  transition: all 0.3s;
+}
+.hero-dot.active { background: #fff; transform: scale(1.5); }
+
+/* Scroll veil */
+#hero-scroll-veil {
+  position: absolute; inset: 0; z-index: 4;
+  background: var(--bg); opacity: 0; pointer-events: none;
+}
+
+/* ── Main Interface ──────────────────────────────────────── */
+#main-interface {
+  position: relative; z-index: 2;
+  background: var(--bg);
+  transition: background 0.5s ease;
+  box-shadow: 0 -16px 56px rgba(0,0,0,0.55);
+}
+
+/* ── Nav ─────────────────────────────────────────────────── */
+#main-nav {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--nav-h);
+  background: rgba(0,0,0,0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px);
+  display: flex; align-items: center; padding: 0 1.5rem;
+  transition: background 0.5s;
+}
+#main-nav h1 {
+  font-family: 'Merriweather', serif; font-size: 1.1rem; font-weight: 700;
+  color: var(--primary); flex: 1; transition: color 0.3s;
+}
+#trip-badge {
+  background: var(--primary); color: #000;
+  font-size: 0.82rem; font-weight: 700;
+  padding: 0.3rem 0.85rem; border-radius: 999px;
+  cursor: pointer; transition: background 0.3s; white-space: nowrap;
+  border: none;
+}
+#trip-badge:hover { opacity: 0.85; }
+.view-toggle {
+  font-size: 0.82rem; font-weight: 700; padding: 0.3rem 0.85rem; border-radius: 999px;
+  cursor: pointer; transition: all 0.3s; white-space: nowrap; text-decoration: none;
+  background: none; color: var(--text-muted); border: 1.5px solid rgba(255,255,255,0.15);
+}
+.view-toggle:hover { border-color: var(--primary); color: var(--text); }
+.view-toggle.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
+/* ── Routes Panel ────────────────────────────────────────── */
+#routes-panel {
+  position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+  background: var(--bg); z-index: 250; display: none; flex-direction: column;
+  overflow: hidden;
+}
+#routes-panel.open { display: flex; }
+#routes-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+#routes-panel-title { font-family: 'Merriweather', serif; font-size: 1.1rem; font-weight: 700; color: var(--text); }
+#routes-panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; padding: 0.3rem 0.5rem; }
+#routes-body { overflow-y: auto; flex: 1; padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; align-content: start; }
+.route-card {
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+}
+.route-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+.route-card-img { position: relative; height: 160px; overflow: hidden; }
+.route-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.route-card-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.65)); }
+.route-card-icon { position: absolute; top: 0.6rem; left: 0.6rem; font-size: 1.5rem; z-index: 1; }
+.route-card-img-name { position: absolute; bottom: 1.5rem; left: 0.7rem; right: 0.7rem; z-index: 1; font-family: 'Merriweather', serif; font-size: 1rem; font-weight: 700; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); line-height: 1.3; }
+.route-card-body { padding: 0.85rem 1rem; }
+.route-card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.6rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.route-card-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.route-card-tag { font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); }
+
+/* ── Road Trip Story styles ──────────────────────────────── */
+.rt-story-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+.rt-story-tag { padding: 0.3rem 0.75rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 0.82rem; color: var(--text-muted); }
+.rt-itinerary { display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0; }
+.rt-day { display: flex; gap: 0.75rem; align-items: flex-start; }
+.rt-day-num { flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--primary); color: #000; font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; }
+.rt-day-content { flex: 1; }
+.rt-day-title { font-weight: 600; color: var(--text); font-size: 0.9rem; }
+.rt-day-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+.rt-parks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem; margin: 1rem 0; }
+.rt-park-card { border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: border-color 0.2s; }
+.rt-park-card:hover { border-color: var(--primary); }
+.rt-park-card img { width: 100%; aspect-ratio: 3/2; object-fit: cover; }
+.rt-park-card-name { padding: 0.4rem 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--text); }
+.rt-highlights { list-style: none; }
+.rt-highlights li { padding: 0.4rem 0; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.rt-highlights li::before { content: '✦ '; color: var(--primary); }
+
+/* ── Bucket Dropdown ─────────────────────────────────────── */
+#bucket-panel {
+  position: absolute;
+  top: calc(var(--nav-h) + 0.5rem);
+  right: 1.5rem;
+  width: 300px; max-height: 440px;
+  background: var(--bg-alt);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+  z-index: 300; overflow: hidden;
+  transform: translateY(-8px); opacity: 0; pointer-events: none;
+  transition: transform 0.22s cubic-bezier(0.32,0.72,0,1), opacity 0.22s;
+  display: flex; flex-direction: column;
+}
+#bucket-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+#bucket-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1rem 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+}
+#bucket-panel-title { font-family: 'Merriweather', serif; font-size: 0.98rem; font-weight: 700; color: var(--text); }
+#bucket-panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 0.1rem 0.3rem; line-height: 1; border-radius: 4px; transition: color 0.2s; }
+#bucket-panel-close:hover { color: var(--text); }
+#bucket-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+.bucket-tab { flex: 1; padding: 0.55rem; background: none; border: none; font-size: 0.86rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.bucket-tab:hover { color: var(--text); }
+.bucket-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+#bucket-body { overflow-y: auto; flex: 1; padding: 0.4rem 0 0.75rem; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+#bucket-empty { font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 1.5rem 1rem; }
+.bucket-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 1rem; transition: background 0.15s; cursor: pointer; }
+.bucket-item:hover { background: rgba(255,255,255,0.04); }
+.bucket-item img { width: 46px; height: 34px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.bucket-item-info { flex: 1; min-width: 0; }
+.bucket-item-name { font-size: 0.86rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bucket-item-sub { font-size: 0.75rem; color: var(--text-muted); }
+.bucket-item-remove { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 0.2rem 0.35rem; border-radius: 4px; transition: color 0.2s; flex-shrink: 0; }
+.bucket-item-remove:hover { color: #ef4444; }
+
+/* ── Season Tabs ─────────────────────────────────────────── */
+#season-tabs {
+  position: sticky; top: var(--nav-h); z-index: 190;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; gap: 0.25rem; padding: 0.5rem 1.5rem;
+  overflow-x: auto; scrollbar-width: none;
+  transition: background 0.5s;
+}
+#season-tabs::-webkit-scrollbar { display: none; }
+.season-tab {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 1rem; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05); color: var(--text-muted);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: all 0.25s;
+}
+.season-tab:hover { border-color: var(--primary); color: var(--text); }
+.season-tab.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
+/* ── Main ─────────────────────────────────────────────────── */
+#main { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+/* ── Picks Banner ─────────────────────────────────────────── */
+#picks-banner {
+  margin: 2rem 0 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 1.5px solid rgba(255,255,255,0.13);
+  border-radius: 18px; padding: 1.4rem 1.75rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s, background 0.3s;
+}
+#picks-banner::before {
+  content: ''; position: absolute; inset: -2px; border-radius: 18px;
+  background: conic-gradient(from var(--angle, 0deg), var(--primary), transparent 40%, var(--primary));
+  opacity: 0; z-index: 0; transition: opacity 0.3s;
+  animation: rotateBorder 3s linear infinite;
+}
+@property --angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes rotateBorder { to { --angle: 360deg; } }
+#picks-banner:hover::before { opacity: 0.3; }
+#picks-banner:hover { border-color: var(--primary); }
+#picks-banner > * { position: relative; z-index: 1; }
+.picks-banner-title { font-family: 'Merriweather', serif; font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.picks-banner-sub { font-size: 0.9rem; color: var(--text-muted); }
+#picks-cta { background: var(--primary); color: #000; border: none; border-radius: 999px; padding: 0.6rem 1.4rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0; box-shadow: 0 0 24px rgba(167,139,250,0.3); }
+#picks-cta:hover { opacity: 0.88; transform: scale(1.03); }
+
+/* Swipe deck */
+#swipe-content { max-height: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.32,0.72,0,1); }
+#swipe-content.open { max-height: 900px; }
+#swipe-inner { padding: 1.5rem 0 0.5rem; }
+#swipe-arena { position: relative; height: 560px; display: flex; align-items: center; justify-content: center; user-select: none; }
+#swipe-done { display: none; flex-direction: column; align-items: center; gap: 0.75rem; text-align: center; }
+#swipe-done .done-icon { font-size: 2.5rem; }
+#swipe-done p { color: var(--text-muted); font-size: 0.95rem; }
+#swipe-done button { background: var(--primary); color: #000; border: none; border-radius: 999px; padding: 0.55rem 1.5rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.swipe-card-wrapper { position: absolute; width: min(400px, 90vw); transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.35s; }
+.swipe-card-wrapper:nth-child(2) { z-index: 30; }
+.swipe-card-wrapper:nth-child(3) { z-index: 20; transform: scale(0.96) translateY(12px); opacity: 0.65; pointer-events: none; }
+.swipe-card-wrapper:nth-child(4) { z-index: 10; transform: scale(0.92) translateY(24px); opacity: 0.4; pointer-events: none; }
+.swipe-card { background: var(--bg-card); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; cursor: grab; position: relative; border: 1px solid rgba(255,255,255,0.1); transition: background 0.5s; }
+.swipe-card:active { cursor: grabbing; }
+.swipe-card-img { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; pointer-events: none; }
+.swipe-card-body { padding: 0.9rem 1.1rem 1rem; }
+.swipe-card-title { font-family: 'Merriweather', serif; font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.swipe-card-meta { font-size: 0.85rem; color: var(--text-muted); }
+.swipe-overlay { position: absolute; inset: 0; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+.swipe-overlay.like { background: rgba(74,222,128,0.8); color: #fff; }
+.swipe-overlay.skip { background: rgba(148,163,184,0.7); color: #fff; }
+.swipe-overlay.fav  { background: rgba(251,191,36,0.85); color: #000; }
+.swipe-card-wrapper.fly-right { transform: translateX(160%) rotate(20deg) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
+.swipe-card-wrapper.fly-left  { transform: translateX(-160%) rotate(-20deg) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
+.swipe-card-wrapper.fly-up    { transform: translateY(-130%) scale(0.85) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
+#deck-buttons { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+.deck-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.25rem; border-radius: 999px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1.5px solid; }
+.deck-btn-skip { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-muted); }
+.deck-btn-skip:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+.deck-btn-fav  { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.1); color: #fbbf24; }
+.deck-btn-fav:hover  { background: rgba(251,191,36,0.2); }
+.deck-btn-add  { border-color: var(--primary); background: var(--primary); color: #000; }
+.deck-btn-add:hover  { opacity: 0.85; }
+
+.star-particle { position: fixed; pointer-events: none; z-index: 9999; font-size: 1.4rem; animation: starFly 0.7s ease-out forwards; }
+@keyframes starFly { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx),var(--ty)) scale(0.2); opacity: 0; } }
+
+/* ── Month Strip ─────────────────────────────────────────── */
+#month-section { padding: 1.75rem 0 0; }
+#month-strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 0.4rem; }
+.month-cell {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0.55rem 0.1rem; border-radius: 10px;
+  background: var(--bg-alt); cursor: pointer;
+  transition: all 0.2s; border: 1.5px solid transparent;
+  font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+}
+.month-cell:hover { border-color: var(--primary); color: var(--text); }
+.month-cell.active { background: var(--primary); color: #000; border-color: var(--primary); }
+.month-cell.season-spring { border-color: rgba(244,114,182,0.4); }
+.month-cell.season-summer { border-color: rgba(34,197,94,0.35); }
+.month-cell.season-fall   { border-color: rgba(249,115,22,0.35); }
+.month-cell.season-winter { border-color: rgba(191,219,254,0.3); }
+
+/* ── Card Grid ───────────────────────────────────────────── */
+#grid-section { padding: 1.5rem 0; }
+#grid-controls { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+#search-input {
+  flex: 1; min-width: 200px;
+  padding: 0.6rem 1rem; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  font-size: 0.95rem; background: rgba(255,255,255,0.07); color: var(--text);
+  transition: border-color 0.2s;
+}
+#search-input::placeholder { color: var(--text-muted); }
+#search-input:focus { outline: none; border-color: var(--primary); }
+#results-info { font-size: 0.88rem; color: var(--text-muted); align-self: center; }
+#attractions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+/* Bento: every 5th card spans 2 columns */
+#attractions-grid .att-card:nth-child(5n+1) { grid-column: span 2; }
+@media (max-width: 768px) { #attractions-grid .att-card:nth-child(5n+1) { grid-column: span 1; } }
+
+.att-card {
+  background: rgba(255,255,255,0.05); backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
+  transition: transform 0.15s ease-out, box-shadow 0.3s, border-color 0.3s;
+  transform-style: preserve-3d; position: relative;
+}
+.att-card .card-shine { position: absolute; inset: 0; border-radius: var(--radius); pointer-events: none; z-index: 10; opacity: 0; transition: opacity 0.3s; }
+.att-card:hover .card-shine { opacity: 1; }
+/* Scroll reveal */
+.att-card[data-aos] { opacity: 0; transform: translateY(30px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+.att-card[data-aos].visible { opacity: 1; transform: translateY(0); }
+.att-card:hover { box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(167,139,250,0.1); border-color: var(--primary); }
+.att-card:hover .att-card-img { transform: scale(1.05); }
+.att-card-img { transition: transform 0.4s ease-out; }
+.att-card.best-match { border-color: rgba(255,255,255,0.25); }
+.att-card-img-wrap { position: relative; }
+.att-card-img { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; }
+
+/* Category badge — color coded by type */
+.att-card-badge {
+  position: absolute; top: 0.6rem; left: 0.6rem;
+  font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem; border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+/* Colors assigned via JS data attribute */
+.att-card-badge[data-cat="national park"]        { background: rgba(20,83,45,0.88); color: #86efac; }
+.att-card-badge[data-cat="national monument"]    { background: rgba(120,53,15,0.88); color: #fcd34d; }
+.att-card-badge[data-cat="national seashore"]    { background: rgba(7,89,133,0.88); color: #7dd3fc; }
+.att-card-badge[data-cat="national recreation area"] { background: rgba(49,46,129,0.88); color: #a5b4fc; }
+.att-card-badge[data-cat="state park"]           { background: rgba(19,78,74,0.88); color: #5eead4; }
+.att-card-badge[data-cat="wildlife refuge"]      { background: rgba(124,45,18,0.88); color: #fb923c; }
+.att-card-badge[data-cat="historic site"]        { background: rgba(59,31,10,0.88); color: #d4a574; }
+.att-card-badge[data-cat="landmark"]             { background: rgba(74,29,150,0.88); color: #c4b5fd; }
+.att-card-badge[data-cat="national forest"]      { background: rgba(22,101,52,0.88); color: #4ade80; }
+.att-card-badge[data-cat="tribal park"]          { background: rgba(99,40,0,0.88); color: #fb923c; }
+/* fallback */
+.att-card-badge                                  { background: rgba(30,30,60,0.85); color: rgba(255,255,255,0.8); }
+
+.best-badge {
+  position: absolute; top: 0.6rem; right: 0.6rem;
+  background: var(--primary); color: #000;
+  font-size: 0.66rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px;
+}
+.att-card-fav {
+  position: absolute; bottom: 0.5rem; right: 0.6rem;
+  background: rgba(0,0,0,0.45); color: #fff; backdrop-filter: blur(4px);
+  border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 0.9rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+}
+.att-card-fav:hover { transform: scale(1.2); }
+.att-card-fav.active { background: rgba(239,68,68,0.82); }
+
+/* Card body */
+.att-card-body { padding: 0.85rem 1rem 0.9rem; display: flex; flex-direction: column; flex: 1; }
+.att-card-title { font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; font-family: 'Merriweather', serif; line-height: 1.3; }
+.att-card-loc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.45rem; }
+
+/* Chip-style info pills */
+.info-chips {
+  display: flex; flex-wrap: wrap; gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 0.2rem 0.55rem; border-radius: 999px;
+  font-size: 0.72rem; line-height: 1.3;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ── Map modal ──────────────────────────────────────────── */
+#map-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; }
+#map-modal.open { display: flex; }
+#map-container { width: min(90vw, 600px); height: min(70vh, 450px); border-radius: 12px; overflow: hidden; }
+#map-modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 2001; }
+.btn-map { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--text-muted); font-size: 0.78rem; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.btn-map:hover { border-color: var(--primary); color: var(--text); }
+
+/* ── Road Trips section ─────────────────────────────────── */
+#road-trips-section { padding: 1rem 0 0.5rem; }
+.road-trips-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.road-trips-header h3 { font-family: 'Merriweather', serif; font-size: 0.95rem; color: var(--text); margin: 0; }
+.road-trips-count { font-size: 0.75rem; color: var(--text-muted); }
+#road-trips-scroll { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+#road-trips-scroll::-webkit-scrollbar { height: 4px; }
+#road-trips-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+.rt-card { flex-shrink: 0; width: 260px; scroll-snap-align: start; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 1rem; cursor: pointer; transition: border-color 0.2s; }
+.rt-card:hover { border-color: var(--primary); }
+.rt-card-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+.rt-card-name { font-family: 'Merriweather', serif; font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+.rt-card-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rt-card-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.rt-card-tag { font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); }
+.road-trip-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.road-trip-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.85rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: var(--text); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+.road-trip-pill:hover { border-color: var(--primary); background: rgba(255,255,255,0.12); }
+#road-trips-toggle { background: none; border: none; color: var(--primary); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; }
+#road-trips-scroll.collapsed { display: none; }
+.rt-card-parks { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }
+.rt-park-thumb { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+.rt-park-more { width: 36px; height: 36px; border-radius: 6px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; color: var(--text-muted); }
+
+/* ── Discovery bar ──────────────────────────────────────── */
+#discovery-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem; max-width: 1200px; }
+#vibe-row, #travel-row, #budget-row, #trip-row, #region-row, #type-row, .filter-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.filter-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); min-width: 3.5rem; flex-shrink: 0; }
+.vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip, .type-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.32rem 0.85rem; border-radius: 999px; cursor: pointer;
+  font-size: 0.82rem; font-weight: 500; line-height: 1.3;
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  color: var(--text-muted); transition: all 0.18s; white-space: nowrap;
+}
+.vibe-chip:hover, .budget-chip:hover, .travel-chip:hover, .trip-chip:hover, .region-chip:hover, .type-chip:hover { border-color: var(--primary); color: var(--text); }
+.vibe-chip.active, .budget-chip.active, .travel-chip.active, .trip-chip.active, .region-chip.active, .type-chip.active {
+  background: var(--primary); color: #000; border-color: var(--primary); font-weight: 600;
+}
+#clear-filters { background: none; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.2s; }
+#clear-filters:hover { color: var(--text); }
+#city-select, #region-select {
+  padding: 0.32rem 0.75rem; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  font-size: 0.82rem; background: rgba(255,255,255,0.06); color: var(--text);
+  cursor: pointer; transition: border-color 0.2s;
+}
+#city-select:focus, #region-select:focus { outline: none; border-color: var(--primary); }
+#city-select option, #region-select option { background: var(--bg, #1e2030); color: var(--text); }
+
+/* One-sentence italic park blurb */
+.att-card-blurb {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 0.9rem; font-style: italic; font-weight: 400;
+  color: rgba(255,255,255,0.78);
+  line-height: 1.55;
+  margin-bottom: 0.65rem;
+  position: relative;
+}
+.att-card-blurb::before {
+  content: '\201C';
+  font-size: 1.6rem; line-height: 0;
+  vertical-align: -0.35em;
+  margin-right: 0.1em;
+  color: var(--primary); opacity: 0.7;
+  font-style: normal;
+}
+
+.att-card-actions { display: flex; gap: 0.5rem; margin-top: auto; padding-top: 0.5rem; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.btn-trip {
+  flex: 1; padding: 0.42rem 0.7rem; border-radius: 999px;
+  border: 1.5px solid var(--primary); background: transparent; color: var(--primary);
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.btn-trip:hover, .btn-trip.active { background: var(--primary); color: #000; }
+.btn-story {
+  flex: 1; padding: 0.42rem 0.7rem; border-radius: 999px;
+  background: var(--primary); color: #000; border: none;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+}
+.btn-story:hover { opacity: 0.85; }
+
+/* ── Story Overlay ───────────────────────────────────────── */
+#story-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--bg); transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32,0.72,0,1); overflow: hidden;
+}
+#story-overlay.open { transform: translateY(0); }
+#story-close {
+  position: fixed; top: 1rem; left: 1rem; z-index: 1100;
+  background: rgba(0,0,0,0.6); color: #fff; border: none;
+  border-radius: 999px; padding: 0.45rem 1rem;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px);
+}
+#story-close:hover { background: rgba(0,0,0,0.85); }
+#story-progress {
+  position: fixed; right: 1.2rem; top: 50%; transform: translateY(-50%);
+  z-index: 1100; display: flex; flex-direction: column; gap: 0.65rem;
+}
+.prog-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); cursor: pointer; transition: all 0.2s; }
+.prog-dot.active { background: var(--primary); border-color: var(--primary); transform: scale(1.4); animation: dotPulse 2s ease infinite; }
+@keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); } 50% { box-shadow: 0 0 0 5px rgba(255,255,255,0); } }
+#chapters-scroll { height: 100vh; overflow-y: scroll; scrollbar-width: none; }
+#chapters-scroll::-webkit-scrollbar { display: none; }
+.chapter { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.chapter .ch-content { max-height: 90vh; overflow-y: auto; scrollbar-width: thin; }
+.chapter .ch-content::-webkit-scrollbar { width: 3px; }
+.chapter .ch-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+.ch-discovery { background: #0a0a0a; }
+.ch-discovery .ch-bg { position: absolute; inset: -5%; background-size: cover; background-position: center; animation: kenBurns 14s ease-in-out infinite alternate; }
+.ch-discovery .ch-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.55)); }
+.ch-discovery .ch-content { position: relative; z-index: 2; text-align: center; padding: 2rem; color: #fff; max-width: 700px; }
+.ch1-label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.65; margin-bottom: 1rem; }
+.ch1-title { font-family: 'Merriweather', serif; font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 0.6rem; }
+.ch1-sub { font-size: 1rem; opacity: 0.75; }
+.ch-scroll-hint { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: rgba(255,255,255,0.55); display: flex; flex-direction: column; align-items: center; gap: 0.3rem; animation: bounce 2s ease infinite; }
+@keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+.ch-land { background: var(--bg-alt); transition: background 0.5s; }
+.ch-land .ch-content { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 3rem 4rem; width: 100%; max-width: 1100px; align-items: center; }
+.ch2-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.65rem; transition: color 0.3s; }
+.ch2-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.5rem); font-weight: 700; line-height: 1.2; margin-bottom: 0.9rem; color: var(--text); }
+.ch2-desc { font-size: 0.95rem; line-height: 1.7; color: var(--text-muted); }
+.ch2-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+.ch2-tag { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.8rem; color: var(--text-muted); }
+.ch2-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 14px; box-shadow: var(--shadow-lg); }
+
+.ch-experience { background: var(--bg); transition: background 0.5s; }
+.ch-experience .ch-content { padding: 3rem 4rem; width: 100%; max-width: 800px; text-align: center; }
+.ch3-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.65rem; transition: color 0.3s; }
+.ch3-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: var(--text); }
+.activities-grid { display: flex; flex-wrap: wrap; gap: 0.65rem; justify-content: center; margin-bottom: 2rem; }
+.activity-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; padding: 0.55rem 1.1rem; font-size: 0.95rem; font-weight: 500; color: var(--text); }
+.ch3-info { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+.ch3-info-item { text-align: center; }
+.ch3-info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.25rem; }
+.ch3-info-value { font-size: 1rem; font-weight: 700; color: var(--primary); transition: color 0.3s; }
+
+.ch-visit { background: #FAF6EE; }
+.ch-visit .ch-content { padding: 3rem 4rem; width: 100%; max-width: 700px; }
+.ch4-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8B6914; margin-bottom: 0.65rem; }
+.ch4-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: #2D1B00; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+.stat-box { background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+.stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8B6914; margin-bottom: 0.3rem; }
+.stat-value { font-size: 1.05rem; font-weight: 700; color: #2D1B00; }
+.ch4-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.ch4-tag { background: #EFE8D4; padding: 0.28rem 0.65rem; border-radius: 999px; font-size: 0.8rem; color: #5C4A20; }
+
+.ch-gonow { background: var(--bg-alt); transition: background 0.5s; }
+.ch-gonow .ch-content { padding: 3rem 4rem; width: 100%; max-width: 900px; text-align: center; }
+.ch5-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.65rem; transition: color 0.3s; }
+.ch5-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 0.6rem; color: var(--text); }
+.ch5-rating { font-size: 1.3rem; margin-bottom: 1.5rem; }
+.ch5-rating .stars { color: var(--accent); }
+.ch5-rating .num { font-size: 1rem; font-weight: 700; color: var(--primary); margin-left: 0.4rem; transition: color 0.3s; }
+.ch5-actions { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
+.ch5-btn { padding: 0.7rem 2rem; border-radius: 999px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+.ch5-btn-primary { background: var(--primary); color: #000; border-color: var(--primary); }
+.ch5-btn-primary:hover { opacity: 0.85; }
+.ch5-btn-secondary { background: transparent; color: var(--primary); border-color: var(--primary); }
+.ch5-btn-secondary:hover { background: var(--primary); color: #000; }
+.ch5-related-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.9rem; }
+.related-cards { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.related-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; cursor: pointer; width: 175px; transition: transform 0.2s, box-shadow 0.2s; }
+.related-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.related-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.related-card-name { padding: 0.5rem 0.6rem; font-size: 0.82rem; font-weight: 600; color: var(--text); }
+
+/* ── No-results empty state ─────────────────────────────── */
+.no-results {
+  grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;
+}
+.no-results-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.no-results-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.no-results-sub { font-size: 0.88rem; color: var(--text-muted); }
+
+/* ── Sort select ─────────────────────────────────────────── */
+#sort-select {
+  padding: 0.6rem 1rem; border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  font-size: 0.88rem; background: rgba(255,255,255,0.07); color: var(--text);
+  cursor: pointer; transition: border-color 0.2s; flex-shrink: 0;
+}
+#sort-select:focus { outline: none; border-color: var(--primary); }
+#sort-select option { background: #1e2030; color: var(--text); }
+
+/* ── Back-to-top ─────────────────────────────────────────── */
+#back-to-top {
+  position: fixed; bottom: 2rem; right: 1.5rem; z-index: 1000;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--primary); color: #000;
+  border: none; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; transition: opacity 0.25s, transform 0.25s, background 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  opacity: 0; transform: translateY(12px); pointer-events: none;
+}
+#back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+#back-to-top:hover { opacity: 0.85; }
+
+/* ── Toast ───────────────────────────────────────────────── */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.18); padding: 0.6rem 1.2rem; border-radius: 999px;
+  font-size: 0.9rem; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 2000;
+  pointer-events: none; white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #main { padding: 0 1rem 5rem; }
+  .ch-land .ch-content { grid-template-columns: 1fr; padding: 2rem 1.5rem; gap: 1.5rem; }
+  .ch-land .ch-content .ch2-img { order: -1; }
+  .ch-experience .ch-content, .ch-visit .ch-content, .ch-gonow .ch-content { padding: 2rem 1.5rem; }
+  #story-progress { right: 0.5rem; }
+  #bucket-panel { right: 0.75rem; width: calc(100vw - 1.5rem); }
+  .filter-label { min-width: 2.5rem; font-size: 0.72rem; }
+  .vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip, .type-chip { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
+  .rt-card { width: 220px; padding: 0.75rem; }
+  .rt-card-name { font-size: 0.82rem; }
+  .road-trip-pill { font-size: 0.72rem; padding: 0.28rem 0.65rem; }
+  /* Picks banner: stack text + CTA vertically */
+  #picks-banner { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1.25rem; }
+  #picks-cta { align-self: stretch; text-align: center; justify-content: center; }
+  /* Swipe arena: viewport-relative height instead of fixed 560px */
+  #swipe-arena { height: min(520px, 65vh); }
+  #swipe-content.open { max-height: calc(65vh + 160px); }
+}
+@media (max-width: 600px) {
+  /* Season tabs: wrap into 2 rows instead of horizontal scroll */
+  #season-tabs { overflow-x: visible; flex-wrap: wrap; padding: 0.5rem 1rem; gap: 0.35rem; }
+  .season-tab { flex: 1 1 30%; justify-content: center; padding: 0.42rem 0.5rem; font-size: 0.82rem; white-space: nowrap; }
+}
+@media (max-width: 480px) {
+  #month-strip { grid-template-columns: repeat(6, 1fr); }
+  #attractions-grid { grid-template-columns: 1fr; }
+  #search-input { min-width: 0; }
+  .ch5-actions { flex-direction: column; align-items: stretch; }
+  .stats-grid { grid-template-columns: 1fr; }
+  #deck-buttons { gap: 0.5rem; margin-top: 1.75rem; }
+  .deck-btn { padding: 0.45rem 0.85rem; font-size: 0.82rem; }
+  /* Nav: prevent logo + badge overflow on small phones */
+  #main-nav { padding: 0 1rem; }
+  #main-nav h1 { font-size: 0.9rem; }
+  #trip-badge, .view-toggle { font-size: 0.72rem; padding: 0.22rem 0.6rem; }
+  #routes-body { grid-template-columns: 1fr; padding: 0.75rem; }
+  .route-card-img { height: 120px; }
+  /* Hero bottom: tighten spacing */
+  #hero-bottom { gap: 0.75rem; padding: 0 1rem; }
+  /* Swipe arena: even shorter on very small phones */
+  #swipe-arena { height: min(460px, 62vh); }
+  #swipe-content.open { max-height: calc(62vh + 160px); }
+}
+</style>
+</head>
+<body class="season-all">
+<div class="mesh-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+
+<!-- HERO -->
+<section id="hero">
+  <div id="hero-slides"></div>
+  <div id="hero-center">
+    <div id="hero-pre">Explore the United States</div>
+    <div id="hero-site-name">Wild America</div>
+    <div id="hero-divider"></div>
+    <div id="hero-tagline">300+ parks, trails & hidden gems to discover</div>
+    <div id="hero-stat">
+      <span>National Parks</span>
+      <span>State Parks</span>
+      <span>Scenic Drives</span>
+      <span>Road Trips</span>
+    </div>
+  </div>
+  <!-- Park label — small, bottom-left -->
+  <div id="hero-park-info"></div>
+  <!-- Hover hint — bottom-right -->
+  <div class="hero-click-hint">✦ Tap to explore</div>
+  <div id="hero-scroll-veil"></div>
+  <div id="hero-bottom">
+    <div id="hero-dots"></div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<div id="main-interface">
+  <nav id="main-nav">
+    <h1>Wild America</h1>
+    <div style="display:flex;gap:0.5rem;align-items:center">
+      <button id="view-parks" class="view-toggle active" onclick="setView('parks')">🏞 Parks</button>
+      <button id="view-routes" class="view-toggle" onclick="setView('routes')">🛣 Routes</button>
+      <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
+    </div>
+    <div id="bucket-panel" onclick="event.stopPropagation()">
+      <div id="bucket-panel-header">
+        <span id="bucket-panel-title">My Bucket List</span>
+        <button id="bucket-share" onclick="shareBucketList()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);font-size:0.72rem;padding:0.2rem 0.5rem;border-radius:6px;cursor:pointer;">🔗 Share</button>
+        <button id="bucket-panel-close" aria-label="Close bucket list" onclick="closeBucketPanel()">×</button>
+      </div>
+      <div id="bucket-tabs">
+        <button class="bucket-tab active" data-tab="trip" onclick="switchBucketTab('trip')">✈ My Trip</button>
+        <button class="bucket-tab" data-tab="favs" onclick="switchBucketTab('favs')">♥ Favorites</button>
+      </div>
+      <div id="bucket-body">
+        <div id="bucket-empty">Nothing here yet!</div>
+      </div>
+    </div>
+  </nav>
+  <div id="routes-panel">
+    <div id="routes-panel-header">
+      <span id="routes-panel-title">🛣 Road Trips</span>
+      <button id="routes-panel-close" onclick="closeRoutesPanel()">×</button>
+    </div>
+    <div id="routes-body"></div>
+  </div>
+
+  <div id="season-tabs">
+    <button class="season-tab active" data-season="all">🗺️ All Year</button>
+    <button class="season-tab" data-season="spring">🌸 Spring</button>
+    <button class="season-tab" data-season="summer">☀️ Summer</button>
+    <button class="season-tab" data-season="fall">🍂 Fall</button>
+    <button class="season-tab" data-season="winter">❄️ Winter</button>
+  </div>
+
+  <div id="main">
+    <div id="picks-banner" onclick="toggleSwipeDeck()">
+      <div class="picks-banner-text">
+        <div class="picks-banner-title">✨ Featured This Season</div>
+        <div class="picks-banner-sub">Top picks for <span id="picks-season-label">All Year</span></div>
+      </div>
+      <button id="picks-cta">Explore Picks →</button>
+    </div>
+    <div id="swipe-content">
+      <div id="swipe-inner">
+        <div id="swipe-arena"></div>
+        <div id="deck-buttons">
+          <button class="deck-btn deck-btn-skip" onclick="triggerSwipe('left')">← Skip</button>
+          <button class="deck-btn deck-btn-fav"  onclick="triggerSwipe('up')">★ Favorite</button>
+          <button class="deck-btn deck-btn-add"  onclick="triggerSwipe('right')">Add to Bucket →</button>
+        </div>
+      </div>
+    </div>
+
+    <section id="month-section">
+      <div id="month-strip"></div>
+    </section>
+
+    <section id="grid-section">
+      <div id="discovery-bar">
+        <div class="filter-row" style="gap:0.5rem">
+          <input type="text" id="search-input" placeholder="Search parks, states, activities…" style="flex:1;min-width:0;padding:0.5rem 1rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.9rem;background:rgba(255,255,255,0.07);color:var(--text)">
+          <select id="sort-select" style="padding:0.5rem 0.8rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.82rem;background:rgba(255,255,255,0.07);color:var(--text)">
+            <option value="default">Default order</option>
+            <option value="rating">★ Highest rated</option>
+            <option value="free">🎫 Free first</option>
+            <option value="name">A–Z</option>
+          </select>
+          <span id="results-info" style="font-size:0.85rem;color:var(--text-muted);white-space:nowrap">300 attractions</span>
+          <button id="clear-filters" style="display:none">✕ Clear all</button>
+        </div>
+        <div id="type-row" style="display:none">
+          <span class="filter-label">Type</span>
+          <button class="type-chip" data-type="np-loop">🏞 NP Loop</button>
+          <button class="type-chip" data-type="scenic-drive">🛣 Scenic Drive</button>
+          <button class="type-chip" data-type="weekender">🚗 Weekender</button>
+          <button class="type-chip" data-type="themed">🎯 Themed</button>
+          <button class="type-chip" data-type="coastal">🌊 Coastal</button>
+          <button class="type-chip" data-type="island">🏝 Island</button>
+        </div>
+        <div id="vibe-row">
+          <span class="filter-label">Vibe</span>
+          <button class="vibe-chip" data-vibe="adventure">🧗 Adventure</button>
+          <button class="vibe-chip" data-vibe="scenic">🌄 Scenic</button>
+          <button class="vibe-chip" data-vibe="wildlife">🐻 Wildlife</button>
+          <button class="vibe-chip" data-vibe="history">🏛 History</button>
+          <button class="vibe-chip" data-vibe="hidden">💎 Hidden Gems</button>
+          <button class="vibe-chip" data-vibe="family">👨‍👩‍👧 Family</button>
+        </div>
+        <div id="travel-row">
+          <span class="filter-label">From</span>
+          <select id="city-select">
+            <option value="">Your city…</option>
+            <option value="nyc">New York</option>
+            <option value="chi">Chicago</option>
+            <option value="la">Los Angeles</option>
+            <option value="bay">Bay Area</option>
+          </select>
+          <button class="travel-chip" data-hours="4">Under 4h</button>
+          <button class="travel-chip" data-hours="7">Under 7h</button>
+          <button class="travel-chip" data-hours="99">Any distance</button>
+        </div>
+        <div id="trip-row">
+          <span class="filter-label">Trip</span>
+          <button class="trip-chip" data-trip="half-day">⏰ Half Day</button>
+          <button class="trip-chip" data-trip="day-trip">☀️ Day Trip</button>
+          <button class="trip-chip" data-trip="long-weekend">🗓 Long Weekend</button>
+          <button class="trip-chip" data-trip="week-trip">🏕 Week Trip</button>
+        </div>
+        <div id="budget-row">
+          <span class="filter-label">Area cost</span>
+          <button class="budget-chip" data-budget="$">$ Budget</button>
+          <button class="budget-chip" data-budget="$$">$$ Mid</button>
+          <button class="budget-chip" data-budget="$$$">$$$ Premium</button>
+        </div>
+        <div id="region-row">
+          <span class="filter-label">Region</span>
+        </div>
+      </div>
+      <div id="attractions-grid"></div>
+    </section>
+  </div>
+</div>
+
+<div id="story-overlay">
+  <button id="story-close" onclick="closeStory()">× Close</button>
+  <div id="story-progress">
+    <div class="prog-dot active" data-ch="0" onclick="jumpToChapter(0)"></div>
+    <div class="prog-dot" data-ch="1" onclick="jumpToChapter(1)"></div>
+    <div class="prog-dot" data-ch="2" onclick="jumpToChapter(2)"></div>
+    <div class="prog-dot" data-ch="3" onclick="jumpToChapter(3)"></div>
+    <div class="prog-dot" data-ch="4" onclick="jumpToChapter(4)"></div>
+  </div>
+  <div id="chapters-scroll"></div>
+</div>
+
+<button id="back-to-top" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div id="toast"></div>
+<div id="map-modal" onclick="if(event.target===this)closeMap()">
+  <button id="map-modal-close" onclick="closeMap()">×</button>
+  <div id="map-container"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../shared/road_trips.js?v=2"></script>
+<script src="../shared/more_road_trips.js"></script>
+<script src="../shared/road_trip_details.js"></script>
+<script src="../shared/data.js"></script>
+<script src="../shared/data_page5.js"></script>
+<script src="../shared/data_page6.js"></script>
+<script src="../shared/data_page7.js"></script>
+<script src="../shared/data_page8.js"></script>
+<script src="../shared/data_catalog.js"></script>
+<script src="../shared/app.js"></script>
+<script>
+// ── Constants ──────────────────────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SEASON_MONTHS = { spring:[2,3,4], summer:[5,6,7], fall:[8,9,10], winter:[11,0,1] };
+const MONTH_TO_SEASON = { 0:'winter',1:'winter',2:'spring',3:'spring',4:'spring',5:'summer',6:'summer',7:'summer',8:'fall',9:'fall',10:'fall',11:'winter' };
+const SEASON_LABEL  = { all:'All Year', spring:'Spring', summer:'Summer', fall:'Fall', winter:'Winter' };
+const HERO_SLUGS = ['yosemite','grand-canyon','yellowstone','zion','glacier','great-smoky'];
+const ALL_ROUTES = (typeof ROAD_TRIPS !== 'undefined' ? ROAD_TRIPS : []).concat(typeof MORE_ROAD_TRIPS !== 'undefined' ? MORE_ROAD_TRIPS : []);
+const TYPE_LABELS = {'np-loop':'🏞 NP Loop','scenic-drive':'🛣 Scenic Drive','weekender':'🚗 Weekender','themed':'🎯 Themed','coastal':'🌊 Coastal','island':'🏝 Island'};
+const SEASON_MATCH_MONTHS = {spring:['mar','apr','may','spring'],summer:['jun','jul','aug','summer'],fall:['sep','oct','nov','fall','autumn'],winter:['dec','jan','feb','winter']};
+const attractionCatalog = globalThis.ATTRACTIONS_CATALOG || attractions;
+const DEFAULT_CARD_IMAGE = '../shared/images/yellowstone.jpg';
+
+// ── State ──────────────────────────────────────────────────
+let currentSeason = 'all';
+let activeMonth   = null;
+let searchQuery   = '';
+let itinerary = JSON.parse(localStorage.getItem('tourist_itinerary') || '[]');
+let favorites = JSON.parse(localStorage.getItem('tourist_favorites') || '[]');
+let bucketPanelOpen = false, bucketActiveTab = 'trip';
+let swipeDeckOpen = false;
+let deckAttractions = [], deckIndex = 0;
+let sortOrder = 'default';
+let currentView = 'parks';
+let selectedTypes = new Set();
+let activeVibes = new Set();
+let selectedRegions = new Set();
+let selectedBudgets = new Set();
+let selectedCity = '';
+let selectedTravelHours = new Set();
+let selectedTrips = new Set();
+let isDragging = false, dragStartX=0, dragStartY=0, dragCurrentX=0, dragCurrentY=0;
+let heroAttractions = [];
+
+// ── Utils ──────────────────────────────────────────────────
+function save() {
+  localStorage.setItem('tourist_itinerary', JSON.stringify(itinerary));
+  localStorage.setItem('tourist_favorites', JSON.stringify(favorites));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function updateTripBadge() {
+  document.getElementById('trip-badge').textContent = `My Bucket List (${itinerary.length})`;
+}
+function getAttractionImage(a) {
+  return a.image || `../shared/images/${a.slug}.jpg`;
+}
+
+// ROAD_TRIPS loaded from shared/road_trips.js
+// MORE_ROAD_TRIPS loaded from shared/more_road_trips.js
+
+// ── Bucket Panel ───────────────────────────────────────────
+function toggleBucketPanel(e) {
+  e && e.stopPropagation();
+  bucketPanelOpen = !bucketPanelOpen;
+  document.getElementById('bucket-panel').classList.toggle('open', bucketPanelOpen);
+  if (bucketPanelOpen) renderBucketPanel();
+}
+// ── Routes Panel ───────────────────────────────────────────
+let routesPanelOpen = false;
+function toggleRoutesPanel(e) {
+  e && e.stopPropagation();
+  routesPanelOpen = !routesPanelOpen;
+  document.getElementById('routes-panel').classList.toggle('open', routesPanelOpen);
+  if (routesPanelOpen) renderRoutesPanel();
+}
+function closeRoutesPanel() { routesPanelOpen = false; document.getElementById('routes-panel').classList.remove('open'); }
+function renderRoutesPanel() {
+  const body = document.getElementById('routes-body');
+  const usedSlugs = new Set();
+  body.innerHTML = ROAD_TRIPS.map(rt => {
+    const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+    const unique = matched.find(p => !usedSlugs.has(p.slug)) || matched[0];
+    if (unique) usedSlugs.add(unique.slug);
+    const heroImg = unique ? getAttractionImage(unique) : DEFAULT_CARD_IMAGE;
+    return `<div class="route-card" onclick="closeRoutesPanel();openRoadTripStory('${rt.id}')">
+      <div class="route-card-img">
+        <img src="${heroImg}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+        <div class="route-card-icon">${rt.icon}</div>
+        <div class="route-card-img-name">${rt.name}</div>
+      </div>
+      <div class="route-card-body">
+        <div class="route-card-desc">${rt.desc}</div>
+        <div class="route-card-meta">
+          <span class="route-card-tag">🚗 ${rt.distance}</span>
+          <span class="route-card-tag">📅 ${rt.days}</span>
+          <span class="route-card-tag">🌤 ${rt.season}</span>
+          <span class="route-card-tag">📍 ${matched.length} parks</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openRoadTripStory(tripId) {
+  const rt = ROAD_TRIPS.find(t => t.id === tripId);
+  if (!rt) return;
+  const parks = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+  const heroImg = parks.length ? getAttractionImage(parks[0]) : DEFAULT_CARD_IMAGE;
+  const d = (typeof ROAD_TRIP_DETAILS !== 'undefined' && ROAD_TRIP_DETAILS[rt.id]) || {};
+  const itinDays = d.itinerary || parks.map((p,i) => ({day:i+1, title:p.name, desc:p.state + ' · ' + (p.duration||'1–2 days')}));
+
+  document.body.style.overflow = 'hidden';
+  const scroll = document.getElementById('chapters-scroll');
+  scroll.innerHTML = `
+    <div class="chapter ch-discovery">
+      <div class="ch-bg" style="background-image:url('${heroImg}')"></div>
+      <div class="ch-overlay"></div>
+      <div class="ch-content">
+        <div class="ch1-label">${rt.icon} Road Trip</div>
+        <h2 class="ch1-title">${rt.name}</h2>
+        <p class="ch1-sub">🚗 ${rt.distance} &nbsp;·&nbsp; 📅 ${rt.days} &nbsp;·&nbsp; 🌤 ${rt.season}</p>
+      </div>
+    </div>
+    <div class="chapter ch-land">
+      <div class="ch-content">
+        <div class="ch2-text">
+          <div class="ch2-chapter-label">Chapter 2 · The Route</div>
+          <h2 class="ch2-title">${rt.name}</h2>
+          <p class="ch2-desc">${d.overview || rt.desc}</p>
+          <div class="rt-story-meta">
+            <span class="rt-story-tag">🚗 ${rt.distance}</span>
+            <span class="rt-story-tag">📅 ${rt.days}</span>
+            <span class="rt-story-tag">🌤 Best: ${d.bestMonths || rt.season}</span>
+            <span class="rt-story-tag">📍 ${parks.length} parks</span>
+          </div>
+          <h3 style="color:var(--text);font-size:0.95rem;margin:1rem 0 0.5rem">Day-by-Day Itinerary</h3>
+          <div class="rt-itinerary">${itinDays.map(day => `
+            <div class="rt-day">
+              <div class="rt-day-num">${day.day}</div>
+              <div class="rt-day-content">
+                <div class="rt-day-title">${day.title}</div>
+                <div class="rt-day-desc">${day.desc}</div>
+              </div>
+            </div>
+          `).join('')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="chapter ch-experience">
+      <div class="ch-content">
+        <div class="ch3-chapter-label">Chapter 3 · Parks Along the Way</div>
+        <h2 class="ch3-title">${parks.length} Destinations</h2>
+        <div id="rt-route-map" style="height:220px;border-radius:10px;margin-bottom:1rem;overflow:hidden"></div>
+        <div class="rt-parks-grid">${parks.map(p => `
+          <div class="rt-park-card" onclick="closeStory();setTimeout(()=>openStory(${p.id}),300)">
+            <img src="${getAttractionImage(p)}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+            <div class="rt-park-card-name">${p.name}</div>
+          </div>
+        `).join('')}</div>
+      </div>
+    </div>
+    <div class="chapter ch-visit">
+      <div class="ch-content">
+        <div class="ch4-chapter-label">Chapter 4 · Trip Tips</div>
+        <h2 class="ch4-title">Plan Your Trip</h2>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-label">Distance</div><div class="stat-value">${rt.distance}</div></div>
+          <div class="stat-box"><div class="stat-label">Duration</div><div class="stat-value">${rt.days}</div></div>
+          <div class="stat-box"><div class="stat-label">Best Season</div><div class="stat-value">${d.bestMonths || rt.season}</div></div>
+          <div class="stat-box"><div class="stat-label">Budget</div><div class="stat-value">${d.budget || '~$150/day'}</div></div>
+        </div>
+        ${d.tips ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🚗 Driving Tips</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.tips}</p></div>` : ''}
+        ${d.lodging ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🏨 Where to Stay</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.lodging}</p></div>` : ''}
+      </div>
+    </div>
+    <div class="chapter ch-gonow">
+      <div class="ch-content">
+        <div class="ch5-chapter-label">Chapter 5 · Go Plan It</div>
+        <h2 class="ch5-title">${rt.name}</h2>
+        <div class="ch5-rating"><span class="num">${parks.length} parks · ${rt.distance} · ${rt.days}</span></div>
+        <div class="ch5-actions">
+          <button class="ch5-btn ch5-btn-primary" onclick="addAllToTrip([${parks.map(p=>p.id).join(',')}])">+ Add All ${parks.length} Parks to Bucket</button>
+        </div>
+        ${d.highlights ? `<h3 style="color:var(--text);font-size:0.9rem;margin:1.5rem 0 0.5rem">Must-Do Highlights</h3><ul class="rt-highlights">${d.highlights.map(h => `<li>${h}</li>`).join('')}</ul>` : ''}
+      </div>
+    </div>`;
+
+  document.getElementById('story-overlay').classList.add('open');
+  jumpToChapter(0);
+
+  // Init route map with all park pins
+  setTimeout(async () => {
+    const mapEl = document.getElementById('rt-route-map');
+    if (!mapEl || typeof L === 'undefined') return;
+    const allCoords = [];
+    for (const p of parks) {
+      let c = geoCache[p.slug];
+      if (!c) {
+        try {
+          const q = encodeURIComponent(p.name + ', ' + p.state + ', USA');
+          const resp = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {headers:{'User-Agent':'WildAmericaApp'}});
+          const data = await resp.json();
+          if (data.length) { c = [parseFloat(data[0].lat), parseFloat(data[0].lon)]; geoCache[p.slug] = c; localStorage.setItem('geo_cache', JSON.stringify(geoCache)); }
+        } catch(e) {}
+      }
+      if (c) allCoords.push({coords: c, name: p.name});
+    }
+    if (!allCoords.length) { mapEl.style.display = 'none'; return; }
+    const rtMap = L.map(mapEl, {zoomControl: false, attributionControl: false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(rtMap);
+    const markers = allCoords.map((p, i) => L.marker(p.coords).addTo(rtMap).bindPopup(`<b>${i+1}. ${p.name}</b>`));
+    // Draw route line
+    if (allCoords.length > 1) {
+      L.polyline(allCoords.map(p => p.coords), {color: '#a78bfa', weight: 3, opacity: 0.7, dashArray: '8,6'}).addTo(rtMap);
+    }
+    // Fit bounds to show all markers
+    const bounds = L.latLngBounds(allCoords.map(p => p.coords));
+    rtMap.fitBounds(bounds, {padding: [30, 30]});
+    mapEl._leaflet = rtMap;
+  }, 500);
+
+  // 15% scroll skip for road trip story
+  let currentChapter = 0, skipLocked = false;
+  const chapters = scroll.querySelectorAll('.chapter');
+  scroll.addEventListener('scroll', function rtScroll() {
+    if (skipLocked) return;
+    const vh = scroll.clientHeight, sy = scroll.scrollTop;
+    const chapterStart = currentChapter * vh, offset = sy - chapterStart;
+    if (offset > vh * 0.15 && currentChapter < chapters.length - 1) {
+      skipLocked = true; currentChapter++;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    } else if (offset < -vh * 0.15 && currentChapter > 0) {
+      skipLocked = true; currentChapter--;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    }
+  }, { passive: true });
+}
+
+function addAllToTrip(ids) {
+  ids.forEach(id => { if (!itinerary.includes(id)) itinerary.push(id); });
+  save(); updateTripBadge(); renderGrid();
+  showToast(`✓ Added ${ids.length} parks to bucket!`);
+}
+
+function openBucketPanel() {
+  bucketPanelOpen = true;
+  document.getElementById('bucket-panel').classList.add('open');
+  renderBucketPanel();
+}
+function closeBucketPanel() {
+  bucketPanelOpen = false;
+  document.getElementById('bucket-panel').classList.remove('open');
+}
+function switchBucketTab(tab) {
+  bucketActiveTab = tab;
+  document.querySelectorAll('.bucket-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  renderBucketPanel();
+}
+function renderBucketPanel() {
+  const body  = document.getElementById('bucket-body');
+  const empty = document.getElementById('bucket-empty');
+  body.querySelectorAll('.bucket-item').forEach(el => el.remove());
+  const ids  = bucketActiveTab === 'trip' ? itinerary : favorites;
+  const list = ids.map(id => attractionCatalog.find(a => a.id === id)).filter(Boolean);
+  if (!list.length) {
+    empty.style.display = 'block';
+    empty.textContent = bucketActiveTab === 'trip'
+      ? "No trips planned yet — add from the grid!"
+      : "No favorites yet — ♥ a park to save it!";
+    return;
+  }
+  empty.style.display = 'none';
+  list.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'bucket-item';
+    item.innerHTML = `
+      <img src="${getAttractionImage(a)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'" alt="${a.name}">
+      <div class="bucket-item-info">
+        <div class="bucket-item-name">${a.name}</div>
+        <div class="bucket-item-sub">📍 ${a.state} · ★ ${a.rating}</div>
+      </div>
+      <button class="bucket-item-remove" title="Remove">×</button>`;
+    item.querySelector('.bucket-item-remove').addEventListener('click', e => {
+      e.stopPropagation();
+      if (bucketActiveTab === 'trip') { itinerary = itinerary.filter(x => x !== a.id); showToast('Removed from trip'); }
+      else { favorites = favorites.filter(x => x !== a.id); showToast('♡ Unfavorited'); }
+      save(); updateTripBadge(); renderBucketPanel(); renderGrid();
+    });
+    item.addEventListener('click', () => { closeBucketPanel(); openStory(a.id); });
+    body.insertBefore(item, empty);
+  });
+}
+document.addEventListener('click', (e) => {
+  if (bucketPanelOpen && !e.target.closest('#bucket-panel') && !e.target.closest('#trip-badge')) closeBucketPanel();
+  if (routesPanelOpen && !e.target.closest('#routes-panel') && !e.target.closest('#routes-badge')) closeRoutesPanel();
+});
+
+// ── Scroll Fade ────────────────────────────────────────────
+function initScrollFade() {
+  const center   = document.getElementById('hero-center');
+  const parkInfo = document.getElementById('hero-park-info');
+  const bottom   = document.getElementById('hero-bottom');
+  const veil     = document.getElementById('hero-scroll-veil');
+  let heroSkipped = false;
+  window.addEventListener('scroll', () => {
+    const vh = window.innerHeight, sy = window.scrollY;
+    const titleP = Math.min(sy / (vh * 0.3), 1);
+    center.style.opacity   = 1 - titleP;
+    center.style.transform = `translateY(${titleP * -25}px)`;
+    const elemP = Math.min(sy / (vh * 0.45), 1);
+    parkInfo.style.opacity = 1 - elemP;
+    bottom.style.opacity   = 1 - elemP * 1.5;
+    veil.style.opacity = Math.min(sy / (vh * 0.6), 1) * 0.75;
+    // At 40% scroll, smoothly skip to main content
+    if (!heroSkipped && sy > vh * 0.15) {
+      heroSkipped = true;
+      document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
+    }
+    // Reset when user scrolls back to top
+    if (sy < 10) heroSkipped = false;
+  }, { passive: true });
+}
+
+// ── Hero ───────────────────────────────────────────────────
+let heroIdx = 0;
+function initHero() {
+  heroAttractions = HERO_SLUGS.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+  const slidesEl   = document.getElementById('hero-slides');
+  const parkInfoEl = document.getElementById('hero-park-info');
+  const dotsEl     = document.getElementById('hero-dots');
+
+  heroAttractions.forEach((a, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
+    slide.innerHTML = `
+      <div class="hero-slide-bg" style="background-image:url('../shared/images/${a.slug}.jpg')"></div>
+      <div class="hero-overlay"></div>`;
+    slidesEl.appendChild(slide);
+
+    const dot = document.createElement('button');
+    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', e => { e.stopPropagation(); goSlide(i); });
+    dotsEl.appendChild(dot);
+
+    // Small park label
+    const label = document.createElement('div');
+    label.className = 'park-label-item' + (i === 0 ? ' active' : '');
+    label.innerHTML = `
+      <div class="park-label-name">${a.name}</div>
+      <div class="park-label-sub">📍 ${a.state} &nbsp;·&nbsp; ★ ${a.rating}</div>`;
+    parkInfoEl.appendChild(label);
+  });
+
+  document.getElementById('hero').addEventListener('click', () => {
+    if (heroAttractions[heroIdx]) openStory(heroAttractions[heroIdx].id);
+  });
+
+  function goSlide(idx) {
+    heroIdx = idx;
+    document.querySelectorAll('.hero-slide').forEach((s,i) => s.classList.toggle('active', i===idx));
+    document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+    parkInfoEl.querySelectorAll('.park-label-item').forEach((d,i) => d.classList.toggle('active', i===idx));
+  }
+  setInterval(() => goSlide((heroIdx + 1) % heroAttractions.length), 5000);
+}
+
+// ── Season ─────────────────────────────────────────────────
+function matchesSeason(a, season) {
+  if (season === 'all') return true;
+  const bt = (a.bestTime || '').toLowerCase();
+  if (/year.?round|all year/i.test(bt)) return true;
+  return SEASON_MONTHS[season].some(mi => bt.includes(MONTH_FULL[mi].toLowerCase().slice(0,3)));
+}
+function matchesMonth(a, mi) {
+  if (mi === null) return true;
+  const bt = (a.bestTime || '').toLowerCase();
+  if (/year.?round|all year/i.test(bt)) return true;
+  return bt.includes(MONTH_FULL[mi].toLowerCase().slice(0,3));
+}
+function setSeason(season, fromMonth) {
+  currentSeason = season;
+  document.body.className = `season-${season}`;
+  document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', t.dataset.season === season));
+  document.getElementById('picks-season-label').textContent = SEASON_LABEL[season];
+  if (!fromMonth) activeMonth = null;
+  if (swipeDeckOpen) {
+    swipeDeckOpen = false;
+    document.getElementById('swipe-content').classList.remove('open');
+    document.getElementById('picks-cta').textContent = 'Explore Picks →';
+  }
+  initSwipeDeck(); renderGrid(); renderMonthStrip();
+}
+function initSeasonTabs() {
+  document.querySelectorAll('.season-tab').forEach(tab => {
+    tab.addEventListener('click', () => { activeMonth = null; setSeason(tab.dataset.season, false); });
+  });
+}
+
+// ── Month Strip ────────────────────────────────────────────
+const SEASON_MONTH_CLASS = { spring:'season-spring', summer:'season-summer', fall:'season-fall', winter:'season-winter' };
+function renderMonthStrip() {
+  const strip = document.getElementById('month-strip');
+  strip.innerHTML = '';
+  MONTHS.forEach((m, i) => {
+    const cell = document.createElement('div');
+    const mSeason = MONTH_TO_SEASON[i];
+    cell.className = 'month-cell ' + SEASON_MONTH_CLASS[mSeason] + (activeMonth === i ? ' active' : '');
+    cell.textContent = m;
+    cell.addEventListener('click', () => {
+      if (activeMonth === i) { activeMonth = null; setSeason('all', true); }
+      else { activeMonth = i; setSeason(mSeason, true); }
+    });
+    strip.appendChild(cell);
+  });
+}
+
+// ── Card Grid ──────────────────────────────────────────────
+function firstSentence(text) {
+  // Mask periods inside abbreviations like U.S. so they don't split the sentence
+  const masked = (text || '').replace(/([A-Z])\.([A-Z])\./g, '$1\uffff$2\uffff');
+  const m = masked.match(/^[^.!?]+[.!?]/);
+  if (!m) return (text || '').slice(0, 120) + '…';
+  return text.slice(0, m[0].length);
+}
+
+// Difficulty icon helpers
+const ACT_ICONS = {'Hiking':'🥾','Camping':'🏕','Swimming':'🏊','Kayaking':'🛶','Fishing':'🎣','Wildlife Watching':'🦌','Photography':'📷','Skiing':'⛷','Rock Climbing':'🧗','Stargazing':'🌟','Cycling':'🚴','Bird Watching':'🦅','Horseback Riding':'🐎'};
+
+function normDifficulty(diff) {
+  if (!diff || diff === 'Varies') return { icon: '⚪', label: 'Varies' };
+  if (diff.includes('Strenuous') || diff === 'Hard' || diff === 'Challenging') return { icon: '🔴', label: diff };
+  if (diff.includes('Moderate')) return { icon: '🟡', label: diff };
+  if (diff === 'Easy') return { icon: '🟢', label: 'Easy' };
+  return { icon: '⚪', label: diff };
+}
+
+function buildInfoLine(a) {
+  const chips = [];
+  const { icon, label } = normDifficulty(a.difficulty);
+  chips.push(`<span class="chip">${icon} ${label}</span>`);
+  if (a.fee)      chips.push(`<span class="chip">🎫 ${a.fee}</span>`);
+  if (a.duration) chips.push(`<span class="chip">⏱ ${a.duration}</span>`);
+  if (a.bestTime) chips.push(`<span class="chip">📅 ${a.bestTime}</span>`);
+  if (a.rating)   chips.push(`<span class="chip">★ ${a.rating}</span>`);
+  if (a.lodgingCost) chips.push(`<span class="chip">🏨 ${a.lodgingCost}</span>`);
+  const crowd = getCrowdLevel(a);
+  chips.push(`<span class="chip">${crowd.icon} ${crowd.label}</span>`);
+  (a.activities || []).slice(0, 3).forEach(ac =>
+    chips.push(`<span class="chip">${ACT_ICONS[ac] || '🌿'} ${ac}</span>`)
+  );
+  return chips.join('');
+}
+
+function parseDuration(str) {
+  if (!str) return null;
+  const s = str.toLowerCase();
+  if (/hour/.test(s)) return [0.1, 0.2];
+  if (/^half\s*day$/.test(s)) return [0.5, 0.5];
+  if (/^half/.test(s)) { const m = s.match(/(\d+)/); return [0.5, m ? parseFloat(m[1]) : 1]; }
+  if (/^full\s*day$/.test(s)) return [1, 1];
+  const single = s.match(/^(\d+)\s*day/); if (single) return [+single[1], +single[1]];
+  const range = s.match(/(\d+)[–\-](\d+)\s*day/); if (range) return [+range[1], +range[2]];
+  return null;
+}
+const TRIP_MATCH = {
+  'half-day':     r => r[1] <= 0.5,
+  'day-trip':     r => r[1] <= 1,
+  'long-weekend': r => r[0] <= 3,
+  'week-trip':    r => r[0] <= 7,
+};
+function getCrowdLevel(a) {
+  const m = new Date().getMonth();
+  const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const bt = (a.bestTime||'').toLowerCase();
+  const inSeason = bt.includes(months[m]) || /year.?round|all year/i.test(bt);
+  const popular = (a.reviews||0) > 30000;
+  const mid = (a.reviews||0) > 15000;
+  if (popular && inSeason) return {icon:'🔴',label:'Busy now'};
+  if (mid || inSeason) return {icon:'🟡',label:'Moderate'};
+  return {icon:'🟢',label:'Quiet now'};
+}
+function getNearbyParks(a) {
+  const sameState = attractionCatalog.filter(x => x.state === a.state && x.id !== a.id).sort((x,y) => y.rating - x.rating);
+  const sameRegion = attractionCatalog.filter(x => x.region === a.region && x.state !== a.state && x.id !== a.id).sort((x,y) => y.rating - x.rating);
+  return [...sameState.slice(0, 3), ...sameRegion.slice(0, 2)].slice(0, 5);
+}
+function toggleRoadTrips() {
+  const scroll = document.getElementById('road-trips-scroll');
+  const btn = document.getElementById('road-trips-toggle');
+  const isOpen = !scroll.classList.contains('collapsed');
+  scroll.classList.toggle('collapsed', isOpen);
+  btn.textContent = isOpen ? '▸ Show' : '▾ Hide';
+}
+function renderRoadTrips() {
+  const container = document.getElementById('road-trips-scroll');
+  document.querySelector('.road-trips-count').textContent = ROAD_TRIPS.length + ' curated routes';
+  container.innerHTML = ROAD_TRIPS.map(rt => {
+    const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+    const thumbs = matched.slice(0,4).map(p => `<img class="rt-park-thumb" src="${getAttractionImage(p)}" alt="${p.name}" title="${p.name}" loading="lazy">`).join('');
+    const more = matched.length > 4 ? `<span class="rt-park-more">+${matched.length-4}</span>` : '';
+    return `<div class="rt-card" onclick="showRoadTripDetail('${rt.id}')">
+      <div class="rt-card-icon">${rt.icon}</div>
+      <div class="rt-card-name">${rt.name}</div>
+      <div class="rt-card-desc">${rt.desc}</div>
+      <div class="rt-card-parks">${thumbs}${more}</div>
+      <div class="rt-card-meta">
+        <span class="rt-card-tag">🚗 ${rt.distance}</span>
+        <span class="rt-card-tag">📅 ${rt.days}</span>
+        <span class="rt-card-tag">🌤 ${rt.season}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showRoadTripDetail(tripId) {
+  const rt = ROAD_TRIPS.find(t => t.id === tripId);
+  if (!rt) return;
+  const parks = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+  if (!parks.length) { showToast('No matching parks found'); return; }
+  // Close story if open
+  if (document.getElementById('story-overlay').classList.contains('open')) closeStory();
+  // Clear all filters
+  activeVibes.clear(); selectedBudgets.clear(); selectedTravelHours.clear(); selectedTrips.clear(); selectedRegions.clear(); selectedTypes.clear();
+  selectedCity = '';
+  document.querySelectorAll('.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip').forEach(b => b.classList.remove('active'));
+  document.getElementById('city-select').value = '';
+  searchQuery = ''; document.getElementById('search-input').value = '';
+  window._roadTripFilter = new Set(parks.map(p => p.id));
+  renderGrid();
+  document.getElementById('season-tabs').scrollIntoView({ behavior: 'smooth' });
+  showToast(`🚗 ${rt.name} — ${parks.length} parks`);
+}
+
+const VIBE_MATCH = {
+  adventure: a => {
+    const all = [...(a.activities||[]), ...(a.tags||[])].join(' ').toLowerCase();
+    return /climb|rafting|kayak|mountaineer|canyoneer|backpack|whitewater|surfing|sandboard|4wd|glacier travel/.test(all)
+        || /mountain|glacier|volcanic|alpine/.test(all);
+  },
+  scenic: a => {
+    const all = [...(a.activities||[]), ...(a.tags||[])].join(' ').toLowerCase();
+    return /photograph|scenic|waterfall|granite|overlook|foliage|stargazing|hoodoo|slot canyon|arch|aurora|northern lights/.test(all)
+        || /sunrise|sunset/.test(all);
+  },
+  wildlife: a => {
+    const all = [...(a.activities||[]), ...(a.tags||[])].join(' ').toLowerCase();
+    return /wildlife|bison|wolf|wolves|elk|condor|marine|whale|bird|firefly|wildflower/.test(all);
+  },
+  history: a => {
+    const all = [...(a.activities||[]), ...(a.tags||[])].join(' ').toLowerCase();
+    return /historic|unesco|petroglyph|native|civil war|president|foundational|19th century|archaeology|battlefield|cultural/.test(all);
+  },
+  hidden: a => (a.reviews || 0) < 15000,
+  family: a => a.accessibility === true && !/strenuous|extreme|hard|challenging/i.test(a.difficulty||''),
+};
+function initRegionSelect() {
+  const regions = [...new Set(attractionCatalog.map(a => a.region).filter(Boolean))].sort();
+  const row = document.getElementById('region-row');
+  regions.forEach(r => {
+    const btn = document.createElement('button');
+    btn.className = 'region-chip';
+    btn.dataset.region = r;
+    btn.textContent = r;
+    btn.addEventListener('click', () => {
+      selectedRegions.has(r) ? (selectedRegions.delete(r), btn.classList.remove('active'))
+                              : (selectedRegions.add(r), btn.classList.add('active'));
+      updateClearBtn();
+      renderGrid();
+    });
+    row.appendChild(btn);
+  });
+}
+
+// ── View switching ──────────────────────────────────────────
+function setView(view) {
+  currentView = view;
+  document.getElementById('view-parks').classList.toggle('active', view === 'parks');
+  document.getElementById('view-routes').classList.toggle('active', view === 'routes');
+  document.getElementById('vibe-row').style.display = view === 'parks' ? '' : 'none';
+  document.getElementById('trip-row').style.display = view === 'parks' ? '' : 'none';
+  document.getElementById('type-row').style.display = view === 'routes' ? '' : 'none';
+  renderGrid();
+}
+
+function routeMatchesSeason(rt, season) {
+  if (season === 'all') return true;
+  const raw = (rt.season || '').toLowerCase();
+  if (!raw) return false;
+  if (/year.?round/i.test(raw)) return true;
+  const SM = {spring:[2,3,4],summer:[5,6,7],fall:[8,9,10],winter:[11,0,1]};
+  const MN = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  const target = SM[season];
+  function mo(s){s=s.trim().toLowerCase().replace(/[^a-z]/g,'');for(const[k,v]of Object.entries(MN)){if(s.startsWith(k))return v;}return -1;}
+  function expand(a,b){const r=[];if(a<=b){for(let i=a;i<=b;i++)r.push(i);}else{for(let i=a;i<=11;i++)r.push(i);for(let i=0;i<=b;i++)r.push(i);}return r;}
+  for(let seg of raw.replace(/\b(late|early|mid|peak)\b/g,'').split(/\s*\/\s*/)){
+    if(['spring','summer','fall','winter'].some(s=>seg.includes(s)&&s===season))return true;
+    const parts=seg.split(/[–—]|-(?=[a-z])/).map(s=>s.trim()).filter(Boolean);
+    if(parts.length===2){const a=mo(parts[0]),b=mo(parts[1]);if(a!==-1&&b!==-1&&expand(a,b).some(m=>target.includes(m)))return true;}
+    else if(parts.length===1){const i=mo(parts[0]);if(i!==-1&&target.includes(i))return true;}
+  }
+  return false;
+}
+
+function renderRouteCards() {
+  const grid = document.getElementById('attractions-grid');
+  const info = document.getElementById('results-info');
+  let list = ALL_ROUTES.filter(rt => routeMatchesSeason(rt, currentSeason));
+  if (selectedTypes.size) list = list.filter(rt => selectedTypes.has(rt.tripType || 'np-loop'));
+  if (selectedRegions.size) list = list.filter(rt => selectedRegions.has(rt.region || 'Multi-Region'));
+  if (selectedBudgets.size) list = list.filter(rt => selectedBudgets.has(rt.avgCost || '$$'));
+  if (selectedCity && selectedTravelHours.size) {
+    const maxH = Math.max(...selectedTravelHours);
+    list = list.filter(rt => {
+      const m = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+      const avg = m.length ? m.reduce((s,p) => s + ((p.travelTime && p.travelTime[selectedCity]) || 99), 0) / m.length : 99;
+      return avg <= maxH;
+    });
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(rt => [rt.name, rt.desc, rt.region || '', ...(rt.parks || [])].join(' ').toLowerCase().includes(q));
+  }
+  info.textContent = `${list.length} route${list.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = '';
+  if (!list.length) {
+    grid.innerHTML = '<div class="no-results"><div class="no-results-icon">🔍</div><div class="no-results-title">No routes found</div><div class="no-results-sub">Try adjusting your filters</div></div>';
+    return;
+  }
+  const usedSlugs = new Set();
+  list.forEach((rt, i) => {
+    const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+    const unique = matched.find(p => !usedSlugs.has(p.slug)) || matched[0];
+    if (unique) usedSlugs.add(unique.slug);
+    const heroImg = unique ? getAttractionImage(unique) : DEFAULT_CARD_IMAGE;
+    const card = document.createElement('div');
+    card.className = 'att-card';
+    card.style.animationDelay = `${i * 0.03}s`;
+    card.innerHTML = `
+      <div class="att-card-img-wrap">
+        <img class="att-card-img" src="${heroImg}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'" alt="${rt.name}">
+        <span class="att-card-badge">${TYPE_LABELS[rt.tripType] || '🛣 Route'}</span>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:1.2rem 0.8rem 0.6rem;background:linear-gradient(transparent,rgba(0,0,0,0.7));z-index:1">
+          <div style="font-family:'Merriweather',serif;font-size:0.95rem;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.5);line-height:1.2">${rt.name}</div>
+        </div>
+      </div>
+      <div class="att-card-body">
+        <div class="att-card-blurb" style="font-style:normal;font-family:inherit;font-size:0.8rem;-webkit-line-clamp:2">${rt.desc}</div>
+        <div class="info-chips">
+          <span class="chip">🚗 ${rt.distance}</span>
+          <span class="chip">📅 ${rt.days}</span>
+          <span class="chip">🌤 ${rt.season}</span>
+          <span class="chip">📍 ${matched.length} parks</span>
+        </div>
+        <div class="att-card-actions">
+          <button class="btn-trip" onclick="event.stopPropagation();var ids=[${matched.map(p=>p.id).join(',')}];ids.forEach(function(id){if(!itinerary.includes(id))itinerary.push(id)});save();updateTripBadge();renderGrid();showToast('Added '+ids.length+' parks')">+ Bucket All</button>
+          <button class="btn-story">View Route</button>
+        </div>
+      </div>`;
+    card.addEventListener('click', () => openRoadTripStory(rt.id));
+    grid.appendChild(card);
+  });
+}
+
+function renderGrid() {
+  if (currentView === 'routes') { renderRouteCards(); return; }
+  const grid = document.getElementById('attractions-grid');
+  const info = document.getElementById('results-info');
+  let list;
+  if (window._roadTripFilter) {
+    list = attractionCatalog.filter(a => window._roadTripFilter.has(a.id));
+    window._roadTripFilter = null;
+  } else {
+    list = attractionCatalog.filter(a => matchesSeason(a, currentSeason) && matchesMonth(a, activeMonth));
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(a =>
+      a.name.toLowerCase().includes(q) || a.state.toLowerCase().includes(q) ||
+      a.region.toLowerCase().includes(q) || (a.category||'').toLowerCase().includes(q) ||
+      (a.activities||[]).some(ac => ac.toLowerCase().includes(q)) ||
+      (a.tags||[]).some(t => t.toLowerCase().includes(q))
+    );
+  }
+  if (activeVibes.size > 0) list = list.filter(a => [...activeVibes].some(v => VIBE_MATCH[v]?.(a)));
+  if (selectedRegions.size > 0) list = list.filter(a => selectedRegions.has(a.region));
+  if (selectedBudgets.size > 0) list = list.filter(a => selectedBudgets.has(a.lodgingCost));
+  if (selectedCity && selectedTravelHours.size > 0) {
+    const maxH = Math.max(...selectedTravelHours);
+    list = list.filter(a => a.travelTime && (a.travelTime[selectedCity] || 99) <= maxH);
+  }
+  if (selectedTrips.size > 0) list = list.filter(a => {
+    const r = parseDuration(a.duration); if (!r) return true;
+    return [...selectedTrips].some(t => TRIP_MATCH[t]?.(r));
+  });
+  if (sortOrder === 'rating') list.sort((a, b) => b.rating - a.rating);
+  else if (sortOrder === 'free') list.sort((a, b) => (a.fee === 'Free' ? -1 : 1) - (b.fee === 'Free' ? -1 : 1));
+  else if (sortOrder === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+  info.textContent = `${list.length} attraction${list.length !== 1 ? 's' : ''}`;
+  grid.innerHTML = '';
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="no-results"><div class="no-results-icon">🔍</div><div class="no-results-title">No parks found</div><div class="no-results-sub">Try adjusting your vibe, region, budget, or travel time filters</div></div>`;
+    return;
+  }
+  const bestMatchIds = new Set(currentSeason !== 'all'
+    ? attractionCatalog.filter(a => matchesSeason(a, currentSeason)).sort((a,b) => b.rating - a.rating).slice(0,5).map(a => a.id)
+    : []);
+  list.forEach(a => {
+    const isBest = bestMatchIds.has(a.id);
+    const inTrip = itinerary.includes(a.id);
+    const isFav  = favorites.includes(a.id);
+    const catKey = (a.category || 'Landmark').toLowerCase();
+    const card = document.createElement('div');
+    card.className = 'att-card' + (isBest ? ' best-match' : '');
+    card.innerHTML = `
+      <div class="att-card-img-wrap">
+        <img class="att-card-img" src="${getAttractionImage(a)}" alt="${a.name}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+        <span class="att-card-badge" data-cat="${catKey}">${a.category || 'Landmark'}</span>
+        ${isBest ? `<span class="best-badge">✨ Best Match</span>` : ''}
+        <button class="att-card-fav${isFav ? ' active' : ''}" data-id="${a.id}" aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${isFav ? '♥' : '♡'}</button>
+      </div>
+      <div class="att-card-body">
+        <div class="att-card-title">${a.name}</div>
+        <div class="att-card-loc">📍 ${a.state} · ${a.region}</div>
+        <div class="info-chips">${buildInfoLine(a)}</div>
+        <div class="att-card-blurb">${firstSentence(a.description)}</div>
+        <div class="att-card-actions">
+          <button class="btn-trip${inTrip ? ' active' : ''}" data-id="${a.id}">${inTrip ? '✓ In Bucket' : '+ Bucket'}</button>
+          <button class="btn-story" data-id="${a.id}">Read Story</button>
+          <button class="btn-map" data-id="${a.id}">🗺️</button>
+        </div>
+      </div>`;
+    card.querySelector('.att-card-fav').addEventListener('click', e => { e.stopPropagation(); toggleFav(a.id, card.querySelector('.att-card-fav')); });
+    card.querySelector('.btn-trip').addEventListener('click', e => { e.stopPropagation(); toggleTrip(a.id, card.querySelector('.btn-trip')); });
+    card.querySelector('.btn-story').addEventListener('click', e => { e.stopPropagation(); openStory(a.id); });
+    card.querySelector('.btn-map').addEventListener('click', e => { e.stopPropagation(); openMap(a.id); });
+    card.addEventListener('click', () => openStory(a.id));
+    card.style.animationDelay = `${grid.children.length * 0.03}s`;
+    grid.appendChild(card);
+  });
+}
+
+// ── Fav / Trip ─────────────────────────────────────────────
+function toggleFav(id, btn) {
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(x=>x!==id);
+    if(btn){btn.classList.remove('active');btn.textContent='♡';}
+    showToast('♡ Removed from favorites');
+  } else {
+    favorites.push(id);
+    if(btn){btn.classList.add('active');btn.textContent='♥';}
+    showToast('♥ Added to favorites!');
+  }
+  save(); updateTripBadge();
+  if (bucketPanelOpen) renderBucketPanel();
+}
+function toggleTrip(id, btn) {
+  if (itinerary.includes(id)) {
+    itinerary = itinerary.filter(x=>x!==id);
+    if(btn){btn.classList.remove('active');btn.textContent='+ Bucket';}
+    showToast('Removed from bucket');
+  } else {
+    itinerary.push(id);
+    if(btn){btn.classList.add('active');btn.textContent='✓ In Bucket';}
+    showToast('✓ Added to bucket!');
+  }
+  save(); updateTripBadge();
+  if (bucketPanelOpen) renderBucketPanel();
+}
+
+// ── Swipe Deck ─────────────────────────────────────────────
+function toggleSwipeDeck() {
+  swipeDeckOpen = !swipeDeckOpen;
+  document.getElementById('swipe-content').classList.toggle('open', swipeDeckOpen);
+  document.getElementById('picks-cta').textContent = swipeDeckOpen ? 'Hide ▴' : 'Explore Picks →';
+}
+function initSwipeDeck() {
+  deckAttractions = attractionCatalog.filter(a => matchesSeason(a, currentSeason)).sort((a,b) => b.rating - a.rating).slice(0, 10);
+  deckIndex = 0; renderDeck();
+}
+function renderDeck() {
+  const arena = document.getElementById('swipe-arena');
+  arena.innerHTML = '';
+  const done = document.createElement('div');
+  done.id = 'swipe-done'; done.style.display = 'none';
+  done.innerHTML = `<div class="done-icon">🎉</div><p>All picks seen!</p><button onclick="document.getElementById('grid-section').scrollIntoView({behavior:'smooth'})">See full grid ↓</button>`;
+  arena.appendChild(done);
+  if (deckIndex >= deckAttractions.length) { done.style.display = 'flex'; return; }
+  const show = deckAttractions.slice(deckIndex, deckIndex + 3);
+  show.reverse().forEach((a, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'swipe-card-wrapper'; wrapper.dataset.id = a.id;
+    const catKey = (a.category || 'Landmark').toLowerCase();
+    wrapper.innerHTML = `
+      <div class="swipe-card">
+        <div class="swipe-overlay like">ADDED ✓</div>
+        <div class="swipe-overlay skip">SKIP</div>
+        <div class="swipe-overlay fav">★ FAVE!</div>
+        <div style="position:relative">
+          <img class="swipe-card-img" src="${getAttractionImage(a)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+          <span class="att-card-badge" data-cat="${catKey}" style="position:absolute;top:0.6rem;left:0.6rem">${a.category || 'Landmark'}</span>
+        </div>
+        <div class="swipe-card-body">
+          <div class="swipe-card-title">${a.name}</div>
+          <div class="att-card-loc" style="margin-bottom:0.5rem">📍 ${a.state} · ${a.region}</div>
+          <div class="info-chips">${buildInfoLine(a)}</div>
+          <div class="att-card-blurb" style="margin-top:0.4rem">${firstSentence(a.description)}</div>
+        </div>
+      </div>`;
+    arena.insertBefore(wrapper, done);
+    if (i === show.length - 1) initDrag(wrapper, a);
+  });
+}
+function getTopCard() {
+  const w = document.getElementById('swipe-arena').querySelectorAll('.swipe-card-wrapper');
+  return w.length ? w[w.length - 1] : null;
+}
+function triggerSwipe(dir) {
+  const wrapper = getTopCard(); if (!wrapper) return;
+  const a = attractionCatalog.find(x => x.id === parseInt(wrapper.dataset.id));
+  if (a) doSwipe(dir, wrapper, a);
+}
+let activeWrapper = null, activeAttraction = null;
+function _dragMove(x, y) {
+  if (!isDragging || !activeWrapper) return;
+  dragCurrentX = x; dragCurrentY = y;
+  const dx = dragCurrentX - dragStartX, dy = dragCurrentY - dragStartY;
+  activeWrapper.style.transform = `translateX(${dx}px) translateY(${dy}px) rotate(${dx*0.07}deg)`;
+  const th = activeWrapper.offsetWidth * 0.3;
+  activeWrapper.querySelector('.swipe-overlay.like').style.opacity = dx > 20 ? Math.min((dx-20)/th, 1) : 0;
+  activeWrapper.querySelector('.swipe-overlay.skip').style.opacity = dx < -20 ? Math.min((-dx-20)/th, 1) : 0;
+  activeWrapper.querySelector('.swipe-overlay.fav').style.opacity  = dy < -30 ? Math.min((-dy-30)/th, 1) : 0;
+}
+function _dragEnd() {
+  if (!isDragging || !activeWrapper) return;
+  isDragging = false; activeWrapper.style.transition = '';
+  const dx = dragCurrentX - dragStartX, dy = dragCurrentY - dragStartY, th = activeWrapper.offsetWidth * 0.35;
+  if (dy < -th && Math.abs(dy) > Math.abs(dx)) doSwipe('up', activeWrapper, activeAttraction);
+  else if (dx > th) doSwipe('right', activeWrapper, activeAttraction);
+  else if (dx < -th) doSwipe('left', activeWrapper, activeAttraction);
+  else { activeWrapper.style.transform = ''; activeWrapper.querySelectorAll('.swipe-overlay').forEach(o => o.style.opacity = 0); }
+  activeWrapper = null;
+}
+document.addEventListener('mousemove', e => _dragMove(e.clientX, e.clientY));
+document.addEventListener('mouseup', _dragEnd);
+window.addEventListener('blur', () => { isDragging = false; activeWrapper = null; });
+function initDrag(wrapper, attraction) {
+  wrapper.addEventListener('mousedown', e => {
+    e.preventDefault();
+    isDragging = true; activeWrapper = wrapper; activeAttraction = attraction;
+    dragStartX = e.clientX; dragStartY = e.clientY; dragCurrentX = e.clientX; dragCurrentY = e.clientY;
+    wrapper.style.transition = 'none';
+  });
+  wrapper.addEventListener('touchstart', e => {
+    isDragging = true; activeWrapper = wrapper; activeAttraction = attraction;
+    dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY;
+    dragCurrentX = dragStartX; dragCurrentY = dragStartY;
+    wrapper.style.transition = 'none';
+  }, { passive: true });
+  wrapper.addEventListener('touchmove', e => {
+    if (isDragging) e.preventDefault();
+    _dragMove(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: false });
+  wrapper.addEventListener('touchend', _dragEnd);
+}
+function doSwipe(dir,wrapper,attraction){
+  if(dir==='right'){wrapper.classList.add('fly-right');if(!itinerary.includes(attraction.id)){itinerary.push(attraction.id);save();updateTripBadge();if(bucketPanelOpen)renderBucketPanel();}showToast('✓ Added to bucket!');}
+  else if(dir==='left'){wrapper.classList.add('fly-left');showToast('Skipped');}
+  else{wrapper.classList.add('fly-up');starBurst(wrapper);if(!favorites.includes(attraction.id)){favorites.push(attraction.id);save();updateTripBadge();}showToast('★ Added to favorites!');}
+  deckIndex++;
+  setTimeout(()=>{renderDeck();renderGrid();},450);
+}
+function starBurst(wrapper){
+  const rect=wrapper.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/3;
+  ['★','✦','✧','⭐','✨'].forEach((sym,i)=>{
+    const angle=(i/5)*Math.PI*2,dist=80+Math.random()*60;
+    const p=document.createElement('div');p.className='star-particle';p.textContent=sym;
+    p.style.cssText=`left:${cx}px;top:${cy}px;--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist-30}px;animation-delay:${i*0.05}s`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),800);
+  });
+}
+
+// ── Story Overlay ──────────────────────────────────────────
+function openStory(id){
+  const a=attractionCatalog.find(x=>x.id===id);if(!a)return;
+  document.body.style.overflow='hidden';
+  buildStory(a);
+  document.getElementById('story-overlay').classList.add('open');
+  jumpToChapter(0);
+}
+function closeStory(){
+  ['story-map','rt-route-map'].forEach(id => { const el = document.getElementById(id); if (el && el._leaflet) { el._leaflet.remove(); el._leaflet = null; } });
+  document.getElementById('story-overlay').classList.remove('open');document.body.style.overflow='';
+}
+function jumpToChapter(n){
+  const scroll=document.getElementById('chapters-scroll');
+  const chapters=scroll.querySelectorAll('.chapter');
+  if(chapters[n])chapters[n].scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.prog-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+}
+function buildStory(a){
+  const scroll=document.getElementById('chapters-scroll');
+  const actIcons={'Hiking':'🥾','Camping':'🏕️','Swimming':'🏊','Kayaking':'🛶','Fishing':'🎣','Wildlife Watching':'🦌','Photography':'📷','Skiing':'⛷️','Rock Climbing':'🧗','Stargazing':'🌟','Cycling':'🚴','Bird Watching':'🦅','Horseback Riding':'🐎'};
+  const parkTrips = ROAD_TRIPS.filter(rt => rt.parks.includes(a.slug));
+  const nearby = getNearbyParks(a);
+  const storyImage = getAttractionImage(a);
+  scroll.innerHTML=`
+    <div class="chapter ch-discovery">
+      <div class="ch-bg" style="background-image:url('${storyImage}')"></div>
+      <div class="ch-overlay"></div>
+      <div class="ch-content">
+        <div class="ch1-label">Chapter 1 · Discovery</div>
+        <h2 class="ch1-title">${a.name}</h2>
+        <p class="ch1-sub">📍 ${a.state} &nbsp;·&nbsp; ${a.region}</p>
+      </div>
+      <div class="ch-scroll-hint">↓ Scroll to explore</div>
+    </div>
+    <div class="chapter ch-land">
+      <div class="ch-content">
+        <div class="ch2-text">
+          <div class="ch2-chapter-label">Chapter 2 · The Land</div>
+          <h2 class="ch2-title">${a.name}</h2>
+          <p class="ch2-desc">${a.description}</p>
+          <div class="ch2-tags"><span class="ch2-tag">${a.category||'Landmark'}</span><span class="ch2-tag">${a.region}</span><span class="ch2-tag">${a.state}</span></div>
+        </div>
+        <img class="ch2-img" src="${storyImage}" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
+      </div>
+    </div>
+    <div class="chapter ch-experience">
+      <div class="ch-content">
+        <div class="ch3-chapter-label">Chapter 3 · Experience</div>
+        <h2 class="ch3-title">What Awaits You</h2>
+        <div class="activities-grid">${(a.activities||[]).map(act=>`<div class="activity-pill">${actIcons[act]||'🌿'} ${act}</div>`).join('')}</div>
+        <div class="ch3-info">
+          <div class="ch3-info-item"><div class="ch3-info-label">Difficulty</div><div class="ch3-info-value">${a.difficulty||'Varies'}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">Duration</div><div class="ch3-info-value">${a.duration||'1–2 days'}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">Accessibility</div><div class="ch3-info-value">${a.accessibility?'♿ Accessible':'Limited'}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chapter ch-visit">
+      <div class="ch-content">
+        <div class="ch4-chapter-label">Chapter 4 · Visit Notes</div>
+        <h2 class="ch4-title">Plan Your Visit</h2>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-label">Entrance Fee</div><div class="stat-value">${a.fee||'Free'}</div></div>
+          <div class="stat-box"><div class="stat-label">Best Time</div><div class="stat-value">${a.bestTime||'Year-round'}</div></div>
+          <div class="stat-box"><div class="stat-label">Duration</div><div class="stat-value">${a.duration||'1–2 days'}</div></div>
+          <div class="stat-box"><div class="stat-label">Difficulty</div><div class="stat-value">${a.difficulty||'Varies'}</div></div>
+        </div>
+        <div class="ch4-tags">${(a.tags||[]).map(t=>`<span class="ch4-tag">${t}</span>`).join('')}</div>
+        <div id="story-map" style="height:200px;border-radius:8px;margin-top:1rem;overflow:hidden"></div>
+      </div>
+    </div>
+    <div class="chapter ch-gonow">
+      <div class="ch-content">
+        <div class="ch5-chapter-label">Chapter 5 · Go Now</div>
+        <h2 class="ch5-title">${a.name}</h2>
+        <div class="ch5-rating"><span class="stars">${'★'.repeat(Math.round(a.rating))}</span><span class="num">${a.rating} · ${(a.reviews||0).toLocaleString()} reviews</span></div>
+        <div class="ch5-actions">
+          <button class="ch5-btn ch5-btn-primary" id="ch5-trip" onclick="storyTrip(${a.id})">${itinerary.includes(a.id)?'✓ In Bucket':'+ Add to Bucket'}</button>
+          <button class="ch5-btn ch5-btn-secondary" id="ch5-fav" onclick="storyFav(${a.id})">${favorites.includes(a.id)?'♥ Favorited':'♡ Favorite'}</button>
+        </div>
+        ${parkTrips.length?`<div class="ch5-related-title">🚗 Road Trips with ${a.name.split(' ')[0]}</div><div class="road-trip-pills">${parkTrips.map(rt=>`<button class="road-trip-pill" onclick="showRoadTripDetail('${rt.id}')">${rt.icon} ${rt.name}</button>`).join('')}</div>`:''}
+        ${nearby.length?`<div class="ch5-related-title">📍 Nearby Parks</div><div class="related-cards">${nearby.map(r=>`<div class="related-card" onclick="openStory(${r.id})"><img src="${getAttractionImage(r)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'"><div class="related-card-name">${r.name}</div></div>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const idx=Array.from(scroll.querySelectorAll('.chapter')).indexOf(e.target);
+        document.querySelectorAll('.prog-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+      }
+    });
+  },{root:scroll,threshold:0.5});
+  scroll.querySelectorAll('.chapter').forEach(ch=>obs.observe(ch));
+  // 25% scroll skip: when scrolled 25% into current chapter, snap to next
+  let currentChapter = 0;
+  let skipLocked = false;
+  const chapters = scroll.querySelectorAll('.chapter');
+  scroll.addEventListener('scroll', () => {
+    if (skipLocked) return;
+    const vh = scroll.clientHeight;
+    const sy = scroll.scrollTop;
+    const chapterStart = currentChapter * vh;
+    const offset = sy - chapterStart;
+    if (offset > vh * 0.15 && currentChapter < chapters.length - 1) {
+      skipLocked = true;
+      currentChapter++;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    } else if (offset < -vh * 0.15 && currentChapter > 0) {
+      skipLocked = true;
+      currentChapter--;
+      chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
+      document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
+      setTimeout(() => { skipLocked = false; }, 600);
+    }
+  }, { passive: true });
+
+  // Init inline map in Chapter 4
+  setTimeout(async () => {
+    const mapEl = document.getElementById('story-map');
+    if (!mapEl || typeof L === 'undefined') return;
+    let coords = geoCache[a.slug];
+    if (!coords) {
+      try {
+        const q = encodeURIComponent(a.name + ', ' + a.state + ', USA');
+        const resp = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {headers:{'User-Agent':'WildAmericaApp'}});
+        const data = await resp.json();
+        if (data.length) { coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)]; geoCache[a.slug] = coords; localStorage.setItem('geo_cache', JSON.stringify(geoCache)); }
+      } catch(e) {}
+    }
+    if (!coords) { mapEl.style.display = 'none'; return; }
+    const m = L.map(mapEl, {zoomControl:false, attributionControl:false}).setView(coords, 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(m);
+    L.marker(coords).addTo(m);
+    mapEl._leaflet = m;
+  }, 400);
+}
+function storyTrip(id){toggleTrip(id,null);const b=document.getElementById('ch5-trip');if(b)b.textContent=itinerary.includes(id)?'✓ In Bucket':'+ Add to Bucket';}
+function storyFav(id){toggleFav(id,null);const b=document.getElementById('ch5-fav');if(b)b.textContent=favorites.includes(id)?'♥ Favorited':'♡ Favorite';}
+
+// ── Map modal ──────────────────────────────────────────────
+let mapInstance = null;
+const geoCache = JSON.parse(localStorage.getItem('geo_cache') || '{}');
+async function openMap(attractionId) {
+  const a = attractionCatalog.find(x => x.id === attractionId);
+  if (!a) return;
+  document.getElementById('map-modal').classList.add('open');
+  let coords = geoCache[a.slug];
+  if (!coords) {
+    try {
+      const q = encodeURIComponent(a.name + ', ' + a.state + ', USA');
+      const resp = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {headers:{'User-Agent':'WildAmericaApp'}});
+      const data = await resp.json();
+      if (data.length) { coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)]; geoCache[a.slug] = coords; localStorage.setItem('geo_cache', JSON.stringify(geoCache)); }
+    } catch(e) {}
+  }
+  if (!coords) coords = [39.8, -98.5];
+  if (mapInstance) { mapInstance.remove(); }
+  mapInstance = L.map('map-container').setView(coords, 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(mapInstance);
+  L.marker(coords).addTo(mapInstance).bindPopup('<b>' + a.name + '</b><br>' + a.state).openPopup();
+}
+function closeMap() {
+  document.getElementById('map-modal').classList.remove('open');
+  if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+}
+
+// ── Share bucket list ──────────────────────────────────────
+function shareBucketList() {
+  if (!itinerary.length) { showToast('Add parks to your bucket first!'); return; }
+  const encoded = btoa(itinerary.join(','));
+  const url = location.origin + location.pathname + '?bucket=' + encoded;
+  navigator.clipboard.writeText(url).then(() => showToast('Trip link copied!'));
+}
+(function loadSharedBucket() {
+  const params = new URLSearchParams(location.search);
+  if (params.has('bucket')) {
+    try {
+      const ids = atob(params.get('bucket')).split(',').map(Number).filter(n => n > 0);
+      if (ids.length) { itinerary = ids; save(); }
+    } catch(e) {}
+  }
+})();
+
+// ── Keyboard ───────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (document.getElementById('story-overlay').classList.contains('open')) {
+    if (e.key==='Escape') closeStory();
+    const cur=parseInt(document.querySelector('.prog-dot.active')?.dataset.ch||'0');
+    if (e.key==='ArrowDown') jumpToChapter(Math.min(cur+1,4));
+    if (e.key==='ArrowUp')   jumpToChapter(Math.max(cur-1,0));
+    return;
+  }
+  if (e.key==='Escape'&&bucketPanelOpen){closeBucketPanel();return;}
+  if (e.key==='ArrowRight') triggerSwipe('right');
+  if (e.key==='ArrowLeft')  triggerSwipe('left');
+  if (e.key==='ArrowUp'&&!e.target.closest('input')) triggerSwipe('up');
+});
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  clearTimeout(window._st); window._st = setTimeout(renderGrid, 180);
+});
+document.getElementById('sort-select').addEventListener('change', e => {
+  sortOrder = e.target.value; renderGrid();
+});
+document.querySelectorAll('.vibe-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.vibe;
+    activeVibes.has(v) ? (activeVibes.delete(v), btn.classList.remove('active'))
+                       : (activeVibes.add(v), btn.classList.add('active'));
+    updateClearBtn();
+    renderGrid();
+  });
+});
+document.getElementById('clear-filters').addEventListener('click', () => {
+  activeVibes.clear(); selectedBudgets.clear(); selectedTravelHours.clear(); selectedTrips.clear(); selectedRegions.clear(); selectedTypes.clear();
+  selectedCity = '';
+  document.querySelectorAll('.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip').forEach(b => b.classList.remove('active'));
+  document.getElementById('clear-filters').style.display = 'none';
+  document.getElementById('city-select').value = '';
+  renderGrid();
+});
+document.querySelectorAll('.budget-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const b = btn.dataset.budget;
+    selectedBudgets.has(b) ? (selectedBudgets.delete(b), btn.classList.remove('active'))
+                           : (selectedBudgets.add(b), btn.classList.add('active'));
+    updateClearBtn();
+    renderGrid();
+  });
+});
+document.getElementById('city-select').addEventListener('change', e => {
+  selectedCity = e.target.value; renderGrid();
+});
+document.querySelectorAll('.travel-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const h = parseFloat(btn.dataset.hours);
+    selectedTravelHours.has(h) ? (selectedTravelHours.delete(h), btn.classList.remove('active'))
+                               : (selectedTravelHours.add(h), btn.classList.add('active'));
+    updateClearBtn();
+    renderGrid();
+  });
+});
+document.querySelectorAll('.trip-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.trip;
+    selectedTrips.has(t) ? (selectedTrips.delete(t), btn.classList.remove('active'))
+                         : (selectedTrips.add(t), btn.classList.add('active'));
+    updateClearBtn();
+    renderGrid();
+  });
+});
+document.querySelectorAll('.type-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.type;
+    selectedTypes.has(t) ? (selectedTypes.delete(t), btn.classList.remove('active'))
+                         : (selectedTypes.add(t), btn.classList.add('active'));
+    updateClearBtn(); renderGrid();
+  });
+});
+function updateClearBtn() {
+  const anyActive = activeVibes.size || selectedBudgets.size || selectedTravelHours.size || selectedTrips.size || selectedRegions.size || selectedTypes.size || selectedCity;
+  document.getElementById('clear-filters').style.display = anyActive ? '' : 'none';
+}
+document.getElementById('story-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('story-overlay')) closeStory();
+});
+window.addEventListener('scroll', () => {
+  document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 700);
+}, { passive: true });
+
+// ── 3D Tilt + Scroll Reveal ────────────────────────────────
+function initCardEffects() {
+  // 3D tilt on all cards
+  document.querySelectorAll('.att-card').forEach(card => {
+    // Add shine overlay if missing
+    if (!card.querySelector('.card-shine')) {
+      const shine = document.createElement('div');
+      shine.className = 'card-shine';
+      card.appendChild(shine);
+    }
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) rotateY(${x*10}deg) rotateX(${-y*10}deg) scale(1.02)`;
+      const shine = card.querySelector('.card-shine');
+      if (shine) shine.style.background = `radial-gradient(circle at ${(x+0.5)*100}% ${(y+0.5)*100}%, rgba(255,255,255,0.1), transparent 60%)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      const shine = card.querySelector('.card-shine');
+      if (shine) shine.style.background = '';
+    });
+  });
+  // Scroll reveal with stagger
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.att-card').forEach((card, i) => {
+    card.setAttribute('data-aos', '');
+    card.style.transitionDelay = `${(i % 12) * 0.05}s`;
+    revealObs.observe(card);
+  });
+}
+
+// Patch renderGrid to add effects after rendering
+const _origRenderGrid = renderGrid;
+// We'll call initCardEffects after each render via MutationObserver
+const gridObs = new MutationObserver(() => { setTimeout(initCardEffects, 50); });
+gridObs.observe(document.getElementById('attractions-grid'), { childList: true });
+
+// ── Init ───────────────────────────────────────────────────
+initHero();
+initScrollFade();
+initSeasonTabs();
+initRegionSelect();
+renderMonthStrip();
+renderGrid();
+initSwipeDeck();
+updateTripBadge();
+</script>
+</body>
+</html>
