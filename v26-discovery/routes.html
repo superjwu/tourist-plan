@@ -238,6 +238,19 @@ input[type="text"]:focus { outline: none; border-color: var(--primary); }
     <button class="f-chip" data-filter="cost" data-val="$$">$$ Mid</button>
     <button class="f-chip" data-filter="cost" data-val="$$$">$$$ Premium</button>
   </div>
+  <div class="filter-row">
+    <span class="filter-label">From</span>
+    <select id="city-select">
+      <option value="">Your city…</option>
+      <option value="nyc">New York</option>
+      <option value="chi">Chicago</option>
+      <option value="la">Los Angeles</option>
+      <option value="bay">Bay Area</option>
+    </select>
+    <button class="f-chip" data-filter="distance" data-val="4">Under 4h</button>
+    <button class="f-chip" data-filter="distance" data-val="7">Under 7h</button>
+    <button class="f-chip" data-filter="distance" data-val="99">Any distance</button>
+  </div>
 </div>
 
 <div id="routes-grid"></div>
@@ -272,8 +285,9 @@ function getAttractionImage(a) { return a.image || `../shared/images/${a.slug}.j
 const ALL_ROUTES = (typeof ROAD_TRIPS !== 'undefined' ? ROAD_TRIPS : []).concat(typeof MORE_ROAD_TRIPS !== 'undefined' ? MORE_ROAD_TRIPS : []);
 
 // ── State ──────────────────────────────────────────────────
-const filters = { tripType: new Set(), region: new Set(), length: new Set(), season: new Set(), cost: new Set() };
+const filters = { tripType: new Set(), region: new Set(), length: new Set(), season: new Set(), cost: new Set(), distance: new Set() };
 let searchQuery = '';
+let selectedCity = '';
 
 // ── Toast ──────────────────────────────────────────────────
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
@@ -304,6 +318,11 @@ function matchesFilters(rt) {
     if (filters.length.has('week') && d >= 4 && d <= 7) match = true;
     if (filters.length.has('extended') && d >= 8) match = true;
     if (!match) return false;
+  }
+  if (selectedCity && filters.distance.size) {
+    const maxH = Math.max(...[...filters.distance].map(Number));
+    const avgTime = matched.length ? matched.reduce((sum, p) => sum + ((p.travelTime && p.travelTime[selectedCity]) || 99), 0) / matched.length : 99;
+    if (avgTime > maxH) return false;
   }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -461,10 +480,14 @@ function openRoadTripStory(tripId) {
     mapEl._leaflet = rtMap;
   }, 400);
 
-  // 15% scroll skip
+  // Reset scroll to top
+  scroll.scrollTop = 0;
+
+  // Remove old scroll listener, add new one
+  if (window._rtScrollHandler) scroll.removeEventListener('scroll', window._rtScrollHandler);
   let currentChapter = 0, skipLocked = false;
   const chapters = scroll.querySelectorAll('.chapter');
-  scroll.addEventListener('scroll', () => {
+  window._rtScrollHandler = () => {
     if (skipLocked) return;
     const vh = scroll.clientHeight, sy = scroll.scrollTop;
     const offset = sy - currentChapter * vh;
@@ -477,7 +500,8 @@ function openRoadTripStory(tripId) {
       chapters[currentChapter].scrollIntoView({behavior:'smooth'});
       setTimeout(() => skipLocked = false, 600);
     }
-  }, {passive:true});
+  };
+  scroll.addEventListener('scroll', window._rtScrollHandler, {passive:true});
 }
 
 function closeStory() {
@@ -509,11 +533,16 @@ document.getElementById('search-input').addEventListener('input', e => {
   searchQuery = e.target.value.trim();
   clearTimeout(window._st); window._st = setTimeout(renderRoutes, 200);
 });
+document.getElementById('city-select').addEventListener('change', e => {
+  selectedCity = e.target.value;
+  renderRoutes();
+});
 
 function clearAll() {
   Object.values(filters).forEach(s => s.clear());
-  searchQuery = '';
+  searchQuery = ''; selectedCity = '';
   document.getElementById('search-input').value = '';
+  document.getElementById('city-select').value = '';
   document.querySelectorAll('.f-chip').forEach(b => b.classList.remove('active'));
   document.getElementById('clear-filters').style.display = 'none';
   renderRoutes();
