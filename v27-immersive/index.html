@@ -459,7 +459,7 @@ body.season-winter {
   background: rgba(255,255,255,0.05); backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
   overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
-  transition: transform 0.15s ease-out, box-shadow 0.3s, border-color 0.3s;
+  transition: transform 0.05s linear, box-shadow 0.3s, border-color 0.3s;
   transform-style: preserve-3d; position: relative;
 }
 .att-card .card-shine { position: absolute; inset: 0; border-radius: var(--radius); pointer-events: none; z-index: 10; opacity: 0; transition: opacity 0.3s; }
@@ -2151,7 +2151,7 @@ function initCardEffects() {
       const rect = card.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `perspective(800px) rotateY(${x*10}deg) rotateX(${-y*10}deg) scale(1.02)`;
+      card.style.transform = `perspective(600px) rotateY(${x*18}deg) rotateX(${-y*18}deg) scale(1.03)`;
       const shine = card.querySelector('.card-shine');
       if (shine) shine.style.background = `radial-gradient(circle at ${(x+0.5)*100}% ${(y+0.5)*100}%, rgba(255,255,255,0.1), transparent 60%)`;
     });
