@@ -6,9 +6,10 @@
 <title>Wild America — 300 US National Parks & Attractions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto; }
+html { scroll-behavior: auto; scroll-snap-type: y proximity; }
 
 /* ── Season Themes — vivid, distinct, medium-dark ──────── */
 body {
@@ -60,7 +61,7 @@ body.season-winter {
 #hero {
   position: sticky; top: 0; z-index: 1;
   height: 100vh; overflow: hidden; background: #000;
-  cursor: pointer;
+  cursor: pointer; scroll-snap-align: start;
 }
 #hero-slides { position: absolute; inset: 0; }
 .hero-slide {
@@ -173,6 +174,8 @@ body.season-winter {
   transition: all 0.25s;
 }
 #hero-cta:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+#hero-cta { animation: bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 
 /* Scroll veil */
 #hero-scroll-veil {
@@ -183,7 +186,7 @@ body.season-winter {
 /* ── Main Interface ──────────────────────────────────────── */
 #main-interface {
   position: relative; z-index: 2;
-  background: var(--bg);
+  background: var(--bg); scroll-snap-align: start;
   transition: background 0.5s ease;
   box-shadow: 0 -16px 56px rgba(0,0,0,0.55);
 }
@@ -436,6 +439,14 @@ body.season-winter {
   white-space: nowrap;
 }
 
+/* ── Map modal ──────────────────────────────────────────── */
+#map-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; }
+#map-modal.open { display: flex; }
+#map-container { width: min(90vw, 600px); height: min(70vh, 450px); border-radius: 12px; overflow: hidden; }
+#map-modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.2rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 2001; }
+.btn-map { background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--text-muted); font-size: 0.78rem; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.btn-map:hover { border-color: var(--primary); color: var(--text); }
+
 /* ── Road Trips section ─────────────────────────────────── */
 #road-trips-section { padding: 1rem 0 0.5rem; }
 .road-trips-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
@@ -454,6 +465,11 @@ body.season-winter {
 .road-trip-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
 .road-trip-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.85rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: var(--text); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
 .road-trip-pill:hover { border-color: var(--primary); background: rgba(255,255,255,0.12); }
+#road-trips-toggle { background: none; border: none; color: var(--primary); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; }
+#road-trips-scroll.collapsed { display: none; }
+.rt-card-parks { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }
+.rt-park-thumb { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+.rt-park-more { width: 36px; height: 36px; border-radius: 6px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; color: var(--text-muted); }
 
 /* ── Discovery bar ──────────────────────────────────────── */
 #discovery-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem; }
@@ -762,8 +778,9 @@ body.season-winter {
       <div class="road-trips-header">
         <h3>🛣 Popular Road Trips</h3>
         <span class="road-trips-count"></span>
+        <button id="road-trips-toggle" onclick="toggleRoadTrips()">▸ Show</button>
       </div>
-      <div id="road-trips-scroll"></div>
+      <div id="road-trips-scroll" class="collapsed"></div>
     </section>
 
     <section id="grid-section">
@@ -835,7 +852,12 @@ body.season-winter {
 
 <button id="back-to-top" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <div id="toast"></div>
+<div id="map-modal" onclick="if(event.target===this)closeMap()">
+  <button id="map-modal-close" onclick="closeMap()">×</button>
+  <div id="map-container"></div>
+</div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../shared/data.js"></script>
 <script src="../shared/data_page5.js"></script>
 <script src="../shared/data_page6.js"></script>
@@ -1150,17 +1172,26 @@ function getNearbyParks(a) {
   const sameRegion = attractionCatalog.filter(x => x.region === a.region && x.state !== a.state && x.id !== a.id).sort((x,y) => y.rating - x.rating);
   return [...sameState.slice(0, 3), ...sameRegion.slice(0, 2)].slice(0, 5);
 }
+function toggleRoadTrips() {
+  const scroll = document.getElementById('road-trips-scroll');
+  const btn = document.getElementById('road-trips-toggle');
+  const isOpen = !scroll.classList.contains('collapsed');
+  scroll.classList.toggle('collapsed', isOpen);
+  btn.textContent = isOpen ? '▸ Show' : '▾ Hide';
+}
 function renderRoadTrips() {
   const container = document.getElementById('road-trips-scroll');
   document.querySelector('.road-trips-count').textContent = ROAD_TRIPS.length + ' curated routes';
   container.innerHTML = ROAD_TRIPS.map(rt => {
     const matched = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+    const thumbs = matched.slice(0,4).map(p => `<img class="rt-park-thumb" src="${getAttractionImage(p)}" alt="${p.name}" title="${p.name}" loading="lazy">`).join('');
+    const more = matched.length > 4 ? `<span class="rt-park-more">+${matched.length-4}</span>` : '';
     return `<div class="rt-card" onclick="showRoadTripDetail('${rt.id}')">
       <div class="rt-card-icon">${rt.icon}</div>
       <div class="rt-card-name">${rt.name}</div>
       <div class="rt-card-desc">${rt.desc}</div>
+      <div class="rt-card-parks">${thumbs}${more}</div>
       <div class="rt-card-meta">
-        <span class="rt-card-tag">📍 ${matched.length} parks</span>
         <span class="rt-card-tag">🚗 ${rt.distance}</span>
         <span class="rt-card-tag">📅 ${rt.days}</span>
         <span class="rt-card-tag">🌤 ${rt.season}</span>
@@ -1280,11 +1311,13 @@ function renderGrid() {
         <div class="att-card-actions">
           <button class="btn-trip${inTrip ? ' active' : ''}" data-id="${a.id}">${inTrip ? '✓ In Bucket' : '+ Bucket'}</button>
           <button class="btn-story" data-id="${a.id}">Read Story</button>
+          <button class="btn-map" data-id="${a.id}">🗺️</button>
         </div>
       </div>`;
     card.querySelector('.att-card-fav').addEventListener('click', e => { e.stopPropagation(); toggleFav(a.id, card.querySelector('.att-card-fav')); });
     card.querySelector('.btn-trip').addEventListener('click', e => { e.stopPropagation(); toggleTrip(a.id, card.querySelector('.btn-trip')); });
     card.querySelector('.btn-story').addEventListener('click', e => { e.stopPropagation(); openStory(a.id); });
+    card.querySelector('.btn-map').addEventListener('click', e => { e.stopPropagation(); openMap(a.id); });
     card.addEventListener('click', () => openStory(a.id));
     grid.appendChild(card);
   });
@@ -1523,6 +1556,33 @@ function buildStory(a){
 }
 function storyTrip(id){toggleTrip(id,null);const b=document.getElementById('ch5-trip');if(b)b.textContent=itinerary.includes(id)?'✓ In Bucket':'+ Add to Bucket';}
 function storyFav(id){toggleFav(id,null);const b=document.getElementById('ch5-fav');if(b)b.textContent=favorites.includes(id)?'♥ Favorited':'♡ Favorite';}
+
+// ── Map modal ──────────────────────────────────────────────
+let mapInstance = null;
+const geoCache = JSON.parse(localStorage.getItem('geo_cache') || '{}');
+async function openMap(attractionId) {
+  const a = attractionCatalog.find(x => x.id === attractionId);
+  if (!a) return;
+  document.getElementById('map-modal').classList.add('open');
+  let coords = geoCache[a.slug];
+  if (!coords) {
+    try {
+      const q = encodeURIComponent(a.name + ', ' + a.state + ', USA');
+      const resp = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {headers:{'User-Agent':'WildAmericaApp'}});
+      const data = await resp.json();
+      if (data.length) { coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)]; geoCache[a.slug] = coords; localStorage.setItem('geo_cache', JSON.stringify(geoCache)); }
+    } catch(e) {}
+  }
+  if (!coords) coords = [39.8, -98.5];
+  if (mapInstance) { mapInstance.remove(); }
+  mapInstance = L.map('map-container').setView(coords, 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(mapInstance);
+  L.marker(coords).addTo(mapInstance).bindPopup('<b>' + a.name + '</b><br>' + a.state).openPopup();
+}
+function closeMap() {
+  document.getElementById('map-modal').classList.remove('open');
+  if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+}
 
 // ── Share bucket list ──────────────────────────────────────
 function shareBucketList() {
