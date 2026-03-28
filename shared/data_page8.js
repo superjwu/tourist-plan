@@ -1719,5 +1719,26 @@ const attractionsPage8 = [
       "la": 6,
       "bay": 6.5
     }
+  },
+  {
+    "id": 305,
+    "name": "Lake Tahoe",
+    "slug": "lake-tahoe",
+    "state": "California / Nevada",
+    "region": "Pacific West",
+    "category": "Recreation Area",
+    "description": "Straddling the California-Nevada border at 6,225 feet, Lake Tahoe is the largest alpine lake in North America and one of the clearest bodies of water on Earth — you can see down 70 feet on a calm day. Ringed by granite peaks of the Sierra Nevada, the lake's cobalt-blue color shifts from emerald to sapphire with the light. In winter it transforms into a world-class ski destination; in summer, beaches, kayaking, and the Tahoe Rim Trail draw millions.",
+    "rating": 4.8,
+    "reviews": 42000,
+    "fee": "Free (beach/parking fees vary)",
+    "bestTime": "June–September, December–March",
+    "duration": "2–4 days",
+    "activities": ["Hiking", "Swimming", "Kayaking", "Skiing", "Photography", "Cycling"],
+    "difficulty": "Easy to Moderate",
+    "accessibility": true,
+    "image": "../shared/images/lake-tahoe.jpg",
+    "tags": ["Alpine Lake", "Sierra Nevada", "Skiing", "Beaches", "Crystal Clear Water"],
+    "lodgingCost": "$$$",
+    "travelTime": { "nyc": 6.5, "chi": 5, "la": 2.5, "bay": 3 }
   }
 ];
