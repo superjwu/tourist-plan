@@ -969,6 +969,7 @@ function initScrollFade() {
   const parkInfo = document.getElementById('hero-park-info');
   const bottom   = document.getElementById('hero-bottom');
   const veil     = document.getElementById('hero-scroll-veil');
+  let heroSkipped = false;
   window.addEventListener('scroll', () => {
     const vh = window.innerHeight, sy = window.scrollY;
     const titleP = Math.min(sy / (vh * 0.3), 1);
@@ -978,6 +979,13 @@ function initScrollFade() {
     parkInfo.style.opacity = 1 - elemP;
     bottom.style.opacity   = 1 - elemP * 1.5;
     veil.style.opacity = Math.min(sy / (vh * 0.6), 1) * 0.75;
+    // At 40% scroll, smoothly skip to main content
+    if (!heroSkipped && sy > vh * 0.4) {
+      heroSkipped = true;
+      document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
+    }
+    // Reset when user scrolls back to top
+    if (sy < 10) heroSkipped = false;
   }, { passive: true });
 }
 
