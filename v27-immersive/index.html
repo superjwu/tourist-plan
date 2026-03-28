@@ -459,15 +459,13 @@ body.season-winter {
   background: rgba(255,255,255,0.05); backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
   overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
-  transition: transform 0.05s linear, box-shadow 0.3s, border-color 0.3s;
-  transform-style: preserve-3d; position: relative;
+  transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s;
+  position: relative;
 }
-.att-card .card-shine { position: absolute; inset: 0; border-radius: var(--radius); pointer-events: none; z-index: 10; opacity: 0; transition: opacity 0.3s; }
-.att-card:hover .card-shine { opacity: 1; }
 /* Scroll reveal */
 .att-card[data-aos] { opacity: 0; transform: translateY(30px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
 .att-card[data-aos].visible { opacity: 1; transform: translateY(0); }
-.att-card:hover { box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(167,139,250,0.1); border-color: var(--primary); }
+.att-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(167,139,250,0.1); border-color: var(--primary); }
 .att-card:hover .att-card-img { transform: scale(1.05); }
 .att-card-img { transition: transform 0.4s ease-out; }
 .att-card.best-match { border-color: rgba(255,255,255,0.25); }
@@ -2161,36 +2159,11 @@ window.addEventListener('scroll', () => {
 })();
 
 // ── 3D Tilt + Scroll Reveal ────────────────────────────────
-function initCardEffects() {
-  // 3D tilt on all cards
-  document.querySelectorAll('.att-card').forEach(card => {
-    // Add shine overlay if missing
-    if (!card.querySelector('.card-shine')) {
-      const shine = document.createElement('div');
-      shine.className = 'card-shine';
-      card.appendChild(shine);
-    }
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      card.style.transform = `perspective(600px) rotateY(${x*18}deg) rotateX(${-y*18}deg) scale(1.03)`;
-      const shine = card.querySelector('.card-shine');
-      if (shine) shine.style.background = `radial-gradient(circle at ${(x+0.5)*100}% ${(y+0.5)*100}%, rgba(255,255,255,0.1), transparent 60%)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-      const shine = card.querySelector('.card-shine');
-      if (shine) shine.style.background = '';
-    });
-  });
-  // Scroll reveal with stagger
+// Scroll reveal with stagger
+function initScrollReveal() {
   const revealObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        revealObs.unobserve(e.target);
-      }
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
     });
   }, { threshold: 0.1 });
   document.querySelectorAll('.att-card').forEach((card, i) => {
@@ -2199,11 +2172,7 @@ function initCardEffects() {
     revealObs.observe(card);
   });
 }
-
-// Patch renderGrid to add effects after rendering
-const _origRenderGrid = renderGrid;
-// We'll call initCardEffects after each render via MutationObserver
-const gridObs = new MutationObserver(() => { setTimeout(initCardEffects, 50); });
+const gridObs = new MutationObserver(() => { setTimeout(initScrollReveal, 50); });
 gridObs.observe(document.getElementById('attractions-grid'), { childList: true });
 
 // ── Init ───────────────────────────────────────────────────
