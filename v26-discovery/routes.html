@@ -40,6 +40,30 @@ body {
 .nav-btn-outline { background: none; color: var(--primary); border: 1.5px solid var(--primary); }
 .nav-btn:hover { opacity: 0.85; }
 
+/* ── Bucket Panel ────────────────────────────────────────── */
+#bucket-panel {
+  position: absolute; top: calc(var(--nav-h) + 0.5rem); right: 1.5rem;
+  width: 300px; max-height: 440px; background: var(--bg-alt);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); z-index: 300;
+  display: none; flex-direction: column; overflow: hidden;
+}
+#bucket-panel.open { display: flex; }
+#bucket-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+#bucket-panel-title { font-family: 'Merriweather', serif; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+#bucket-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.bucket-tab { flex: 1; padding: 0.55rem; background: none; border: none; font-size: 0.86rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
+.bucket-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+#bucket-body { overflow-y: auto; flex: 1; padding: 0.5rem; position: relative; }
+#bucket-empty { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
+.bucket-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem; border-radius: 8px; transition: background 0.15s; }
+.bucket-item:hover { background: rgba(255,255,255,0.04); }
+.bucket-item img { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.bucket-item-info { flex: 1; min-width: 0; }
+.bucket-item-name { font-size: 0.85rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bucket-item-sub { font-size: 0.72rem; color: var(--text-muted); }
+.bucket-item-remove { background: none; border: none; color: var(--text-muted); font-size: 1rem; cursor: pointer; padding: 0.2rem; flex-shrink: 0; }
+
 /* ── Page Header ─────────────────────────────────────────── */
 #page-header {
   text-align: center; padding: 2.5rem 1.5rem 1.5rem;
@@ -182,8 +206,23 @@ input[type="text"]:focus { outline: none; border-color: var(--primary); }
 <nav id="main-nav">
   <h1>Wild America</h1>
   <div style="display:flex;gap:0.5rem;align-items:center">
-    <a href="index.html" class="nav-btn nav-btn-outline">🏞 Parks</a>
+    <a href="index.html#main-interface" class="nav-btn nav-btn-outline">🏞 Parks</a>
     <span class="nav-btn nav-btn-primary">🛣 Routes</span>
+    <button id="trip-badge" class="nav-btn nav-btn-outline" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
+  </div>
+  <div id="bucket-panel" onclick="event.stopPropagation()">
+    <div id="bucket-panel-header">
+      <span id="bucket-panel-title">My Bucket List</span>
+      <button id="bucket-share" onclick="shareBucketList()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);font-size:0.72rem;padding:0.2rem 0.5rem;border-radius:6px;cursor:pointer;">🔗 Share</button>
+      <button id="bucket-panel-close" onclick="closeBucketPanel()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;">×</button>
+    </div>
+    <div id="bucket-tabs">
+      <button class="bucket-tab active" data-tab="trip" onclick="switchBucketTab('trip')">✈ My Trip</button>
+      <button class="bucket-tab" data-tab="favs" onclick="switchBucketTab('favs')">♥ Favorites</button>
+    </div>
+    <div id="bucket-body">
+      <div id="bucket-empty">Nothing here yet!</div>
+    </div>
   </div>
 </nav>
 
@@ -319,10 +358,18 @@ function matchesFilters(rt) {
     if (filters.length.has('extended') && d >= 8) match = true;
     if (!match) return false;
   }
-  if (selectedCity && filters.distance.size) {
-    const maxH = Math.max(...[...filters.distance].map(Number));
+  if (selectedCity) {
     const avgTime = matched.length ? matched.reduce((sum, p) => sum + ((p.travelTime && p.travelTime[selectedCity]) || 99), 0) / matched.length : 99;
-    if (avgTime > maxH) return false;
+    // Distance filter
+    if (filters.distance.size) {
+      const maxH = Math.max(...[...filters.distance].map(Number));
+      if (avgTime > maxH) return false;
+    }
+    // Length filter also considers reachability from selected city
+    if (filters.length.size) {
+      const maxReach = filters.length.has('weekend') ? 7 : filters.length.has('week') ? 10 : 99;
+      if (avgTime > maxReach) return false;
+    }
   }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -374,7 +421,39 @@ function renderRoutes() {
 // ── Story overlay ──────────────────────────────────────────
 const geoCache = JSON.parse(localStorage.getItem('geo_cache') || '{}');
 let itinerary = JSON.parse(localStorage.getItem('tourist_itinerary') || '[]');
-function save() { localStorage.setItem('tourist_itinerary', JSON.stringify(itinerary)); }
+let favorites = JSON.parse(localStorage.getItem('tourist_favorites') || '[]');
+let bucketPanelOpen = false, bucketActiveTab = 'trip';
+function save() { localStorage.setItem('tourist_itinerary', JSON.stringify(itinerary)); localStorage.setItem('tourist_favorites', JSON.stringify(favorites)); }
+function updateTripBadge() { document.getElementById('trip-badge').textContent = `My Bucket List (${itinerary.length})`; }
+function toggleBucketPanel(e) { e && e.stopPropagation(); bucketPanelOpen = !bucketPanelOpen; document.getElementById('bucket-panel').classList.toggle('open', bucketPanelOpen); if (bucketPanelOpen) renderBucketPanel(); }
+function closeBucketPanel() { bucketPanelOpen = false; document.getElementById('bucket-panel').classList.remove('open'); }
+function switchBucketTab(tab) { bucketActiveTab = tab; document.querySelectorAll('.bucket-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab)); renderBucketPanel(); }
+function renderBucketPanel() {
+  const body = document.getElementById('bucket-body');
+  const empty = document.getElementById('bucket-empty');
+  body.querySelectorAll('.bucket-item').forEach(el => el.remove());
+  const ids = bucketActiveTab === 'trip' ? itinerary : favorites;
+  const list = ids.map(id => attractionCatalog.find(a => a.id === id)).filter(Boolean);
+  if (!list.length) { empty.style.display = 'block'; empty.textContent = bucketActiveTab === 'trip' ? 'No trips planned yet!' : 'No favorites yet!'; return; }
+  empty.style.display = 'none';
+  list.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'bucket-item';
+    item.innerHTML = `<img src="${getAttractionImage(a)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'"><div class="bucket-item-info"><div class="bucket-item-name">${a.name}</div><div class="bucket-item-sub">📍 ${a.state} · ★ ${a.rating}</div></div><button class="bucket-item-remove" title="Remove">×</button>`;
+    item.querySelector('.bucket-item-remove').addEventListener('click', e => {
+      e.stopPropagation();
+      if (bucketActiveTab === 'trip') itinerary = itinerary.filter(x => x !== a.id);
+      else favorites = favorites.filter(x => x !== a.id);
+      save(); updateTripBadge(); renderBucketPanel();
+    });
+    body.insertBefore(item, empty);
+  });
+}
+function shareBucketList() {
+  if (!itinerary.length) { showToast('Add parks to your bucket first!'); return; }
+  const url = location.origin + '/v26-discovery/index.html?bucket=' + btoa(itinerary.join(','));
+  navigator.clipboard.writeText(url).then(() => showToast('Trip link copied!'));
+}
 
 function openRoadTripStory(tripId) {
   const rt = ALL_ROUTES.find(t => t.id === tripId);
@@ -513,7 +592,7 @@ function closeStory() {
 
 function addAllToTrip(ids) {
   ids.forEach(id => { if (!itinerary.includes(id)) itinerary.push(id); });
-  save(); showToast(`✓ Added ${ids.length} parks to bucket!`);
+  save(); updateTripBadge(); showToast(`✓ Added ${ids.length} parks to bucket!`);
 }
 
 // ── Filter chip listeners ──────────────────────────────────
@@ -550,10 +629,15 @@ function clearAll() {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('story-overlay').classList.contains('open')) closeStory();
+  if (e.key === 'Escape' && bucketPanelOpen) closeBucketPanel();
+});
+document.addEventListener('click', e => {
+  if (bucketPanelOpen && !e.target.closest('#bucket-panel') && !e.target.closest('#trip-badge')) closeBucketPanel();
 });
 
 // ── Init ───────────────────────────────────────────────────
 renderRoutes();
+updateTripBadge();
 </script>
 </body>
 </html>

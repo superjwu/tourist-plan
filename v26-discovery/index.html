@@ -547,8 +547,8 @@ body.season-winter {
 .rt-park-more { width: 36px; height: 36px; border-radius: 6px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; color: var(--text-muted); }
 
 /* ── Discovery bar ──────────────────────────────────────── */
-#discovery-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem; }
-#vibe-row, #travel-row, #budget-row, #trip-row, #region-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+#discovery-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem; max-width: 1200px; }
+#vibe-row, #travel-row, #budget-row, #trip-row, #region-row, .filter-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
 .filter-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); min-width: 3.5rem; flex-shrink: 0; }
 .vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip {
   display: inline-flex; align-items: center; gap: 0.3rem;
@@ -873,6 +873,16 @@ body.season-winter {
 
     <section id="grid-section">
       <div id="discovery-bar">
+        <div class="filter-row" style="gap:0.5rem">
+          <input type="text" id="search-input" placeholder="Search parks, states, activities…" style="flex:1;min-width:0;padding:0.5rem 1rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.9rem;background:rgba(255,255,255,0.07);color:var(--text)">
+          <select id="sort-select" style="padding:0.5rem 0.8rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.82rem;background:rgba(255,255,255,0.07);color:var(--text)">
+            <option value="default">Default order</option>
+            <option value="rating">★ Highest rated</option>
+            <option value="free">🎫 Free first</option>
+            <option value="name">A–Z</option>
+          </select>
+          <span id="results-info" style="font-size:0.85rem;color:var(--text-muted);white-space:nowrap">300 attractions</span>
+        </div>
         <div id="vibe-row">
           <span class="filter-label">Vibe</span>
           <button class="vibe-chip" data-vibe="adventure">🧗 Adventure</button>
@@ -912,16 +922,6 @@ body.season-winter {
         <div id="region-row">
           <span class="filter-label">Region</span>
         </div>
-      </div>
-      <div id="grid-controls">
-        <input type="text" id="search-input" placeholder="Search parks, states, activities…">
-        <select id="sort-select">
-          <option value="default">Default order</option>
-          <option value="rating">★ Highest rated</option>
-          <option value="free">🎫 Free first</option>
-          <option value="name">A–Z</option>
-        </select>
-        <span id="results-info">300 attractions</span>
       </div>
       <div id="attractions-grid"></div>
     </section>
