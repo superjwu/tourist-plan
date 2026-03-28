@@ -393,8 +393,9 @@ body.season-winter {
 
 .att-card {
   background: var(--bg-card); border: 1px solid var(--card-border); border-radius: var(--radius);
-  overflow: hidden; cursor: pointer;
+  overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  animation: cardIn 0.3s ease-out both;
 }
 .att-card:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--primary), var(--shadow-lg); border-color: var(--primary); }
 .att-card.best-match { border-color: rgba(255,255,255,0.25); }
@@ -438,7 +439,7 @@ body.season-winter {
 .att-card-fav.active { background: rgba(239,68,68,0.82); }
 
 /* Card body */
-.att-card-body { padding: 0.85rem 1rem 0.9rem; }
+.att-card-body { padding: 0.85rem 1rem 0.9rem; display: flex; flex-direction: column; flex: 1; }
 .att-card-title { font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; font-family: 'Merriweather', serif; line-height: 1.3; }
 .att-card-loc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.45rem; }
 
@@ -456,6 +457,15 @@ body.season-winter {
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+/* ── Road trips link ────────────────────────────────────── */
+#road-trips-link {
+  padding: 0.5rem 1rem; margin-bottom: 0.75rem; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.8rem; color: var(--primary); text-align: center;
+  transition: all 0.2s;
+}
+#road-trips-link:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
 
 /* ── Map modal ──────────────────────────────────────────── */
 #map-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; }
@@ -533,7 +543,8 @@ body.season-winter {
   font-style: normal;
 }
 
-.att-card-actions { display: flex; gap: 0.5rem; }
+.att-card-actions { display: flex; gap: 0.5rem; margin-top: auto; padding-top: 0.5rem; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 .btn-trip {
   flex: 1; padding: 0.42rem 0.7rem; border-radius: 999px;
   border: 1.5px solid var(--primary); background: transparent; color: var(--primary);
@@ -841,6 +852,7 @@ body.season-winter {
           <span class="filter-label">Region</span>
         </div>
       </div>
+      <div id="road-trips-link" onclick="openBucketPanel();switchBucketTab('routes')">🛣 21 curated road trips available — tap to explore</div>
       <div id="grid-controls">
         <input type="text" id="search-input" placeholder="Search parks, states, activities…">
         <select id="sort-select">
@@ -936,6 +948,11 @@ function toggleBucketPanel(e) {
   bucketPanelOpen = !bucketPanelOpen;
   document.getElementById('bucket-panel').classList.toggle('open', bucketPanelOpen);
   if (bucketPanelOpen) renderBucketPanel();
+}
+function openBucketPanel() {
+  bucketPanelOpen = true;
+  document.getElementById('bucket-panel').classList.add('open');
+  renderBucketPanel();
 }
 function closeBucketPanel() {
   bucketPanelOpen = false;
@@ -1370,6 +1387,7 @@ function renderGrid() {
     card.querySelector('.btn-story').addEventListener('click', e => { e.stopPropagation(); openStory(a.id); });
     card.querySelector('.btn-map').addEventListener('click', e => { e.stopPropagation(); openMap(a.id); });
     card.addEventListener('click', () => openStory(a.id));
+    card.style.animationDelay = `${grid.children.length * 0.03}s`;
     grid.appendChild(card);
   });
 }
