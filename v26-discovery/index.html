@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wild America — 300 US National Parks & Attractions</title>
+<title>Wild America — 300+ US Parks & Attractions to Discover</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -99,19 +99,47 @@ body.season-winter {
   will-change: opacity, transform;
   pointer-events: none;
 }
+#hero-pre {
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  color: rgba(255,255,255,0.5);
+  font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  margin-bottom: 0.75rem;
+}
 #hero-site-name {
   font-family: 'Merriweather', serif;
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
-  font-weight: 700; line-height: 1;
-  color: #fff; letter-spacing: -0.01em;
-  text-shadow: 0 4px 32px rgba(0,0,0,0.7);
-  margin-bottom: 0.5rem;
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  font-weight: 700; line-height: 0.95;
+  color: #fff; letter-spacing: -0.02em;
+  text-shadow: 0 4px 40px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.1);
+  margin-bottom: 0.6rem;
+  background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+}
+#hero-divider {
+  width: 60px; height: 2px; border-radius: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  margin: 0.5rem 0 0.75rem;
 }
 #hero-tagline {
-  font-size: clamp(0.95rem, 2vw, 1.2rem);
-  color: rgba(255,255,255,0.7);
-  font-weight: 400; letter-spacing: 0.15em; text-transform: uppercase;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  color: rgba(255,255,255,0.75);
+  font-weight: 300; letter-spacing: 0.08em;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+}
+#hero-stat {
+  margin-top: 1.2rem;
+  display: flex; gap: 1.5rem; align-items: center;
+}
+#hero-stat span {
+  font-size: clamp(0.72rem, 1.3vw, 0.82rem);
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
 /* Park label — small, bottom-right, single line */
@@ -697,8 +725,16 @@ body.season-winter {
 <section id="hero">
   <div id="hero-slides"></div>
   <div id="hero-center">
-    <div id="hero-site-name">🌿 Wild America</div>
-    <div id="hero-tagline">100 Places to Discover</div>
+    <div id="hero-pre">Explore the United States</div>
+    <div id="hero-site-name">Wild America</div>
+    <div id="hero-divider"></div>
+    <div id="hero-tagline">300+ parks, trails & hidden gems to discover</div>
+    <div id="hero-stat">
+      <span>National Parks</span>
+      <span>State Parks</span>
+      <span>Scenic Drives</span>
+      <span>Road Trips</span>
+    </div>
   </div>
   <!-- Park label — small, bottom-left -->
   <div id="hero-park-info"></div>
@@ -713,7 +749,7 @@ body.season-winter {
 <!-- MAIN -->
 <div id="main-interface">
   <nav id="main-nav">
-    <h1>🌿 Wild America</h1>
+    <h1>Wild America</h1>
     <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
     <div id="bucket-panel" onclick="event.stopPropagation()">
       <div id="bucket-panel-header">
