@@ -796,15 +796,11 @@ body.season-winter {
   #swipe-arena { height: min(460px, 62vh); }
   #swipe-content.open { max-height: calc(62vh + 160px); }
 }
-/* ── Custom Cursor: Glow Orb + Trail ─────────────────────── */
-@media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-orb{position:fixed;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,rgba(220,200,255,0.6),rgba(180,160,255,0) 70%);filter:blur(2px);mix-blend-mode:screen;pointer-events:none;z-index:9999;transition:width 0.25s,height 0.25s,filter 0.25s,background 0.25s}
-#cursor-orb.hover{width:56px;height:56px;filter:blur(4px);background:radial-gradient(circle,rgba(255,255,255,0.55),rgba(200,180,255,0) 70%)}
+/* ── Cursor Trail ────────────────────────────────────────── */
 #cursor-trail{position:fixed;inset:0;pointer-events:none;z-index:9998}
 </style>
 </head>
 <body class="season-all">
-<div id="cursor-orb"></div>
 <canvas id="cursor-trail"></canvas>
 <div class="mesh-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
 
@@ -2144,9 +2140,8 @@ window.addEventListener('scroll', () => {
   document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 700);
 }, { passive: true });
 
-// ── Glow Orb Cursor + Trail ────────────────────────────────
+// ── Cursor Trail ───────────────────────────────────────────
 (function(){
-  const orb = document.getElementById('cursor-orb');
   const canvas = document.getElementById('cursor-trail');
   const ctx = canvas.getContext('2d');
   const particles = [];
@@ -2154,23 +2149,8 @@ window.addEventListener('scroll', () => {
   resize(); window.addEventListener('resize', resize);
 
   document.addEventListener('mousemove', e => {
-    const s = orb.classList.contains('hover') ? 26 : 14;
-    orb.style.left = e.clientX - s + 'px';
-    orb.style.top = e.clientY - s + 'px';
     particles.push({ x: e.clientX, y: e.clientY, a: 0.35, r: 5, hue: 240 + Math.random() * 40 });
     if (particles.length > 120) particles.shift();
-  });
-
-  // Hover state on interactive elements
-  document.addEventListener('mouseover', e => {
-    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn')) {
-      orb.classList.add('hover');
-    }
-  });
-  document.addEventListener('mouseout', e => {
-    if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn')) {
-      orb.classList.remove('hover');
-    }
   });
 
   function animate() {
