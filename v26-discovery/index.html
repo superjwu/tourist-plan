@@ -980,7 +980,7 @@ function initScrollFade() {
     bottom.style.opacity   = 1 - elemP * 1.5;
     veil.style.opacity = Math.min(sy / (vh * 0.6), 1) * 0.75;
     // At 40% scroll, smoothly skip to main content
-    if (!heroSkipped && sy > vh * 0.25) {
+    if (!heroSkipped && sy > vh * 0.15) {
       heroSkipped = true;
       document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
     }
@@ -1583,13 +1583,13 @@ function buildStory(a){
     const sy = scroll.scrollTop;
     const chapterStart = currentChapter * vh;
     const offset = sy - chapterStart;
-    if (offset > vh * 0.25 && currentChapter < chapters.length - 1) {
+    if (offset > vh * 0.15 && currentChapter < chapters.length - 1) {
       skipLocked = true;
       currentChapter++;
       chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
       document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
       setTimeout(() => { skipLocked = false; }, 600);
-    } else if (offset < -vh * 0.25 && currentChapter > 0) {
+    } else if (offset < -vh * 0.15 && currentChapter > 0) {
       skipLocked = true;
       currentChapter--;
       chapters[currentChapter].scrollIntoView({ behavior: 'smooth' });
