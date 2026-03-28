@@ -798,8 +798,8 @@ body.season-winter {
 }
 /* ── Custom Cursor: Glow Orb + Trail ─────────────────────── */
 @media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-orb{position:fixed;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,0.9),rgba(167,139,250,0) 70%);filter:blur(1px);mix-blend-mode:screen;pointer-events:none;z-index:9999;transition:width 0.25s,height 0.25s,filter 0.25s,background 0.25s}
-#cursor-orb.hover{width:52px;height:52px;filter:blur(3px);background:radial-gradient(circle,rgba(255,255,255,0.7),rgba(167,139,250,0) 70%)}
+#cursor-orb{position:fixed;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,rgba(220,200,255,0.6),rgba(180,160,255,0) 70%);filter:blur(2px);mix-blend-mode:screen;pointer-events:none;z-index:9999;transition:width 0.25s,height 0.25s,filter 0.25s,background 0.25s}
+#cursor-orb.hover{width:56px;height:56px;filter:blur(4px);background:radial-gradient(circle,rgba(255,255,255,0.55),rgba(200,180,255,0) 70%)}
 #cursor-trail{position:fixed;inset:0;pointer-events:none;z-index:9998}
 </style>
 </head>
@@ -2157,8 +2157,8 @@ window.addEventListener('scroll', () => {
     const s = orb.classList.contains('hover') ? 26 : 14;
     orb.style.left = e.clientX - s + 'px';
     orb.style.top = e.clientY - s + 'px';
-    particles.push({ x: e.clientX, y: e.clientY, a: 0.5, r: 4, hue: 260 + Math.random() * 30 });
-    if (particles.length > 50) particles.shift();
+    particles.push({ x: e.clientX, y: e.clientY, a: 0.35, r: 5, hue: 240 + Math.random() * 40 });
+    if (particles.length > 120) particles.shift();
   });
 
   // Hover state on interactive elements
@@ -2177,12 +2177,12 @@ window.addEventListener('scroll', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
-      p.a -= 0.012; p.r *= 0.97;
+      p.a -= 0.005; p.r *= 0.985;
       if (p.a <= 0) { particles.splice(i, 1); continue; }
       ctx.globalAlpha = p.a;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 75%, 70%, ${p.a})`;
+      ctx.fillStyle = `hsla(${p.hue}, 80%, 80%, ${p.a})`;
       ctx.fill();
     }
     requestAnimationFrame(animate);
