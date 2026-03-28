@@ -2027,10 +2027,6 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ── Init ───────────────────────────────────────────────────
-// Skip hero if navigated from routes page (hash present)
-if (location.hash) {
-  document.getElementById('hero').style.display = 'none';
-}
 initHero();
 initScrollFade();
 initSeasonTabs();
