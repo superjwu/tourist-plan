@@ -980,7 +980,7 @@ function initScrollFade() {
     bottom.style.opacity   = 1 - elemP * 1.5;
     veil.style.opacity = Math.min(sy / (vh * 0.6), 1) * 0.75;
     // At 40% scroll, smoothly skip to main content
-    if (!heroSkipped && sy > vh * 0.4) {
+    if (!heroSkipped && sy > vh * 0.25) {
       heroSkipped = true;
       document.getElementById('main-interface').scrollIntoView({ behavior: 'smooth' });
     }
