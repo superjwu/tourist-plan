@@ -837,6 +837,7 @@ body.season-winter {
       <button id="view-parks" class="view-toggle active" onclick="setView('parks')">🏞 Parks</button>
       <button id="view-routes" class="view-toggle" onclick="setView('routes')">🛣 Scenic Routes</button>
       <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
+      <button id="lang-toggle" onclick="toggleLang()" style="background:none;border:1.5px solid rgba(255,255,255,0.15);color:var(--text-muted);font-size:0.78rem;font-weight:600;padding:0.25rem 0.7rem;border-radius:999px;cursor:pointer;transition:all 0.2s">中文</button>
     </div>
     <div id="bucket-panel" onclick="event.stopPropagation()">
       <div id="bucket-panel-header">
@@ -987,6 +988,7 @@ body.season-winter {
 <script src="../shared/data_page7.js"></script>
 <script src="../shared/data_page8.js"></script>
 <script src="../shared/data_catalog.js"></script>
+<script src="../shared/i18n.js"></script>
 <script src="../shared/app.js"></script>
 <script>
 // ── Constants ──────────────────────────────────────────────
@@ -1638,6 +1640,7 @@ function renderRouteCards() {
           <span class="chip">📅 ${rt.days}</span>
           <span class="chip">🌤 ${rt.season}</span>
           <span class="chip">📍 ${matched.length} parks</span>
+          <span class="chip">💰 ~$${calcRouteCost(rt, selectedCity).total}/pp</span>
         </div>
         <div class="att-card-actions">
           <button class="btn-trip" onclick="event.stopPropagation();var ids=[${matched.map(p=>p.id).join(',')}];ids.forEach(function(id){if(!itinerary.includes(id))itinerary.push(id)});save();updateTripBadge();renderGrid();showToast('Added '+ids.length+' parks')">+ Bucket All</button>
@@ -1707,14 +1710,15 @@ function renderGrid() {
         <button class="att-card-fav${isFav ? ' active' : ''}" data-id="${a.id}" aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${isFav ? '♥' : '♡'}</button>
       </div>
       <div class="att-card-body">
-        <div class="att-card-title">${a.name}</div>
+        <div class="att-card-title">${getParkName(a)}</div>
         <div class="att-card-loc">📍 ${a.state} · ${a.region}</div>
         <div class="info-chips">${buildInfoLine(a)}</div>
-        <div class="att-card-blurb">${firstSentence(a.description)}</div>
+        <div class="att-card-blurb">${firstSentence(getParkDesc(a))}</div>
         <div class="att-card-actions">
           <button class="btn-trip${inTrip ? ' active' : ''}" data-id="${a.id}">${inTrip ? '✓ In Bucket' : '+ Bucket'}</button>
           <button class="btn-story" data-id="${a.id}">Read Story</button>
           <button class="btn-map" data-id="${a.id}">🗺️</button>
+          <a href="${getWebsiteUrl(a)}" target="_blank" rel="noopener" class="btn-map" onclick="event.stopPropagation()" style="text-decoration:none">🔗</a>
         </div>
       </div>`;
     card.querySelector('.att-card-fav').addEventListener('click', e => { e.stopPropagation(); toggleFav(a.id, card.querySelector('.att-card-fav')); });
@@ -1791,7 +1795,7 @@ function renderDeck() {
           <div class="swipe-card-title">${a.name}</div>
           <div class="att-card-loc" style="margin-bottom:0.5rem">📍 ${a.state} · ${a.region}</div>
           <div class="info-chips">${buildInfoLine(a)}</div>
-          <div class="att-card-blurb" style="margin-top:0.4rem">${firstSentence(a.description)}</div>
+          <div class="att-card-blurb" style="margin-top:0.4rem">${firstSentence(getParkDesc(a))}</div>
         </div>
       </div>`;
     arena.insertBefore(wrapper, done);
@@ -2139,6 +2143,72 @@ document.getElementById('story-overlay').addEventListener('click', e => {
 window.addEventListener('scroll', () => {
   document.getElementById('back-to-top').classList.toggle('visible', window.scrollY > 700);
 }, { passive: true });
+
+// ── Language Toggle ────────────────────────────────────────
+let currentLang = localStorage.getItem('wild_lang') || 'en';
+function t(key) {
+  if (typeof I18N === 'undefined') return key;
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.en && I18N.en[key]) || key;
+}
+function getParkName(a) {
+  if (currentLang === 'zh' && typeof PARK_NAMES_ZH !== 'undefined' && PARK_NAMES_ZH[a.slug]) {
+    return PARK_NAMES_ZH[a.slug] + ' (' + a.name + ')';
+  }
+  return a.name;
+}
+function getParkDesc(a) {
+  if (currentLang === 'zh' && typeof PARK_DESC_ZH !== 'undefined' && PARK_DESC_ZH[a.slug]) {
+    return PARK_DESC_ZH[a.slug];
+  }
+  return a.description;
+}
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'zh' : 'en';
+  localStorage.setItem('wild_lang', currentLang);
+  document.getElementById('lang-toggle').textContent = currentLang === 'en' ? '中文' : 'English';
+  // Update nav buttons
+  document.getElementById('view-parks').textContent = t('parks');
+  document.getElementById('view-routes').textContent = t('scenic_routes');
+  // Update season tabs
+  document.querySelectorAll('.season-tab').forEach(tab => {
+    const s = tab.dataset.season;
+    const labels = {all:t('all_year'),spring:t('spring'),summer:t('summer'),fall:t('fall'),winter:t('winter')};
+    tab.textContent = labels[s] || s;
+  });
+  // Re-render grid
+  renderGrid();
+}
+// Apply saved language on load
+if (currentLang === 'zh') {
+  document.getElementById('lang-toggle').textContent = 'English';
+}
+
+// ── Website URL Helper ─────────────────────────────────────
+function getWebsiteUrl(a) {
+  if (a.parkCode) return 'https://www.nps.gov/' + a.parkCode + '/';
+  if (a.website) return a.website;
+  return 'https://www.google.com/search?q=' + encodeURIComponent(a.name);
+}
+
+// ── Route Cost Calculator ──────────────────────────────────
+function calcRouteCost(rt, fromCity) {
+  const parks = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
+  const distMiles = parseInt(rt.distance) || 500;
+  const days = parseInt(rt.days) || 5;
+  const nights = Math.max(days - 1, 1);
+  const gas = Math.round(distMiles / 25 * 3.5);
+  const fees = 80;
+  const lodgingRate = {'$':80,'$$':150,'$$$':250};
+  const avgLodging = parks.length ? parks.reduce((s,p) => s + (lodgingRate[p.lodgingCost]||150), 0) / parks.length : 150;
+  const lodging = Math.round(nights * avgLodging);
+  const food = days * 50;
+  let flight = 0;
+  if (fromCity) {
+    const avgTime = parks.length ? parks.reduce((s,p) => s + ((p.travelTime&&p.travelTime[fromCity])||6), 0) / parks.length : 6;
+    flight = Math.round(avgTime < 4 ? 200 : avgTime < 7 ? 350 : 500);
+  }
+  return {gas, fees, lodging, food, flight, total: gas+fees+lodging+food+flight};
+}
 
 // ── Cursor: Blend Invert ───────────────────────────────────
 (function(){
