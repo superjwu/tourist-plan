@@ -907,48 +907,48 @@ body.season-winter {
           <button id="clear-filters" style="display:none">✕ Clear all</button>
         </div>
         <div id="type-row" style="display:none">
-          <span class="filter-label">Type</span>
-          <button class="type-chip" data-type="np-loop">🏞 NP Loop</button>
-          <button class="type-chip" data-type="scenic-drive">🛣 Scenic Drive</button>
-          <button class="type-chip" data-type="weekender">🚗 Weekender</button>
-          <button class="type-chip" data-type="themed">🎯 Themed</button>
-          <button class="type-chip" data-type="coastal">🌊 Coastal</button>
-          <button class="type-chip" data-type="island">🏝 Island</button>
+          <span class="filter-label" data-i18n="type">Type</span>
+          <button class="type-chip" data-type="np-loop" data-i18n="np_loop">🏞 NP Loop</button>
+          <button class="type-chip" data-type="scenic-drive" data-i18n="scenic_drive">🛣 Scenic Drive</button>
+          <button class="type-chip" data-type="weekender" data-i18n="weekender">🚗 Weekender</button>
+          <button class="type-chip" data-type="themed" data-i18n="themed">🎯 Themed</button>
+          <button class="type-chip" data-type="coastal" data-i18n="coastal">🌊 Coastal</button>
+          <button class="type-chip" data-type="island" data-i18n="island">🏝 Island</button>
         </div>
         <div id="vibe-row">
-          <span class="filter-label">Vibe</span>
-          <button class="vibe-chip" data-vibe="adventure">🧗 Adventure</button>
-          <button class="vibe-chip" data-vibe="scenic">🌄 Scenic</button>
-          <button class="vibe-chip" data-vibe="wildlife">🐻 Wildlife</button>
-          <button class="vibe-chip" data-vibe="history">🏛 History</button>
-          <button class="vibe-chip" data-vibe="hidden">💎 Hidden Gems</button>
-          <button class="vibe-chip" data-vibe="family">👨‍👩‍👧 Family</button>
+          <span class="filter-label" data-i18n="vibe">Vibe</span>
+          <button class="vibe-chip" data-vibe="adventure" data-i18n="adventure">🧗 Adventure</button>
+          <button class="vibe-chip" data-vibe="scenic" data-i18n="scenic">🌄 Scenic</button>
+          <button class="vibe-chip" data-vibe="wildlife" data-i18n="wildlife">🐻 Wildlife</button>
+          <button class="vibe-chip" data-vibe="history" data-i18n="history">🏛 History</button>
+          <button class="vibe-chip" data-vibe="hidden" data-i18n="hidden_gems">💎 Hidden Gems</button>
+          <button class="vibe-chip" data-vibe="family" data-i18n="family">👨‍👩‍👧 Family</button>
         </div>
         <div id="travel-row">
-          <span class="filter-label">From</span>
+          <span class="filter-label" data-i18n="from">From</span>
           <select id="city-select">
-            <option value="">Your city…</option>
-            <option value="nyc">New York</option>
-            <option value="chi">Chicago</option>
-            <option value="la">Los Angeles</option>
-            <option value="bay">Bay Area</option>
+            <option value="" data-i18n="your_city">Your city…</option>
+            <option value="nyc" data-i18n="nyc">New York</option>
+            <option value="chi" data-i18n="chi">Chicago</option>
+            <option value="la" data-i18n="la">Los Angeles</option>
+            <option value="bay" data-i18n="bay">Bay Area</option>
           </select>
-          <button class="travel-chip" data-hours="4">Under 4h</button>
-          <button class="travel-chip" data-hours="7">Under 7h</button>
-          <button class="travel-chip" data-hours="99">Any distance</button>
+          <button class="travel-chip" data-hours="4" data-i18n="under_4h">Under 4h</button>
+          <button class="travel-chip" data-hours="7" data-i18n="under_7h">Under 7h</button>
+          <button class="travel-chip" data-hours="99" data-i18n="any_distance">Any distance</button>
         </div>
         <div id="trip-row">
-          <span class="filter-label">Trip</span>
-          <button class="trip-chip" data-trip="half-day">⏰ Half Day</button>
-          <button class="trip-chip" data-trip="day-trip">☀️ Day Trip</button>
-          <button class="trip-chip" data-trip="long-weekend">🗓 Long Weekend</button>
-          <button class="trip-chip" data-trip="week-trip">🏕 Week Trip</button>
+          <span class="filter-label" data-i18n="trip">Trip</span>
+          <button class="trip-chip" data-trip="half-day" data-i18n="half_day">⏰ Half Day</button>
+          <button class="trip-chip" data-trip="day-trip" data-i18n="day_trip">☀️ Day Trip</button>
+          <button class="trip-chip" data-trip="long-weekend" data-i18n="long_weekend">🗓 Long Weekend</button>
+          <button class="trip-chip" data-trip="week-trip" data-i18n="week_trip">🏕 Week Trip</button>
         </div>
         <div id="budget-row">
-          <span class="filter-label">Area cost</span>
-          <button class="budget-chip" data-budget="$">$ Budget</button>
-          <button class="budget-chip" data-budget="$$">$$ Mid</button>
-          <button class="budget-chip" data-budget="$$$">$$$ Premium</button>
+          <span class="filter-label" data-i18n="area_cost">Area cost</span>
+          <button class="budget-chip" data-budget="$" data-i18n="budget">$ Budget</button>
+          <button class="budget-chip" data-budget="$$" data-i18n="mid">$$ Mid</button>
+          <button class="budget-chip" data-budget="$$$" data-i18n="premium">$$$ Premium</button>
         </div>
         <div id="region-row">
           <span class="filter-label">Region</span>
@@ -2162,26 +2162,31 @@ function getParkDesc(a) {
   }
   return a.description;
 }
-function toggleLang() {
-  currentLang = currentLang === 'en' ? 'zh' : 'en';
-  localStorage.setItem('wild_lang', currentLang);
+function applyLang() {
   document.getElementById('lang-toggle').textContent = currentLang === 'en' ? '中文' : 'English';
-  // Update nav buttons
   document.getElementById('view-parks').textContent = t('parks');
   document.getElementById('view-routes').textContent = t('scenic_routes');
-  // Update season tabs
+  // Season tabs
   document.querySelectorAll('.season-tab').forEach(tab => {
     const s = tab.dataset.season;
     const labels = {all:t('all_year'),spring:t('spring'),summer:t('summer'),fall:t('fall'),winter:t('winter')};
     tab.textContent = labels[s] || s;
   });
-  // Re-render grid
+  // All elements with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const translated = t(key);
+    if (translated !== key) el.textContent = translated;
+  });
+}
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'zh' : 'en';
+  localStorage.setItem('wild_lang', currentLang);
+  applyLang();
   renderGrid();
 }
 // Apply saved language on load
-if (currentLang === 'zh') {
-  document.getElementById('lang-toggle').textContent = 'English';
-}
+setTimeout(applyLang, 100);
 
 // ── Website URL Helper ─────────────────────────────────────
 function getWebsiteUrl(a) {
