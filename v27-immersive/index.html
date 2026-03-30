@@ -796,8 +796,8 @@ body.season-winter {
 }
 /* ── Custom Cursor: Blend Invert ──────────────────────────── */
 @media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-blend{position:fixed;width:20px;height:20px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s}
-#cursor-blend.hover{width:40px;height:40px}
+#cursor-blend{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s}
+#cursor-blend.hover{width:28px;height:28px}
 </style>
 </head>
 <body class="season-all">
@@ -2144,7 +2144,7 @@ window.addEventListener('scroll', () => {
 (function(){
   const el = document.getElementById('cursor-blend');
   document.addEventListener('mousemove', e => {
-    const s = el.classList.contains('hover') ? 20 : 10;
+    const s = el.classList.contains('hover') ? 14 : 6;
     el.style.left = e.clientX - s + 'px';
     el.style.top = e.clientY - s + 'px';
   });
