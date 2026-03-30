@@ -630,3 +630,38 @@ function getParkNameZh(slug, englishName) {
 function getParkDescZh(slug) {
   return PARK_DESC_ZH[slug] || null;
 }
+
+// ─── Route name translations ────────────────────────────────────────────────
+const ROUTE_NAMES_ZH = {
+  'utah-mighty-5':'犹他五大国家公园环线','glacier-yellowstone-teton':'冰川·黄石·大提顿之旅',
+  'pnw-loop':'太平洋西北环线','blue-ridge':'蓝岭公路之旅','pch':'太平洋海岸公路',
+  'sw-canyon':'西南峡谷之旅','ca-parks':'加州国家公园环线','rocky-mountain':'落基山环线',
+  'new-england':'新英格兰赏秋之旅','florida-keys':'佛罗里达群岛与大沼泽地',
+  'alaska':'阿拉斯加国家公园之旅','hawaii':'夏威夷跳岛之旅',
+  'going-sun':'向阳大道','beartooth':'熊牙公路','cascade-loop':'喀斯喀特环线',
+  'crater-oregon':'火山口湖与俄勒冈海岸','skyline-drive':'天际线大道',
+  'route-66':'66号公路','yosemite-tahoe':'优胜美地与太浩湖环线',
+  'texas-hill':'德州丘陵乡村','so-cal-desert':'南加州沙漠环线',
+  'arizona-grand-circle':'亚利桑那大环线','montana-wilderness':'蒙大拿荒野之旅',
+  'oregon-trail':'俄勒冈小径','washington-cascade':'华盛顿喀斯喀特之旅',
+  'socal-coast':'南加州海岸线','norcal-parks':'北加州国家公园',
+  'sd-black-hills':'南达科他黑山之旅','florida-parks':'佛罗里达国家公园',
+  'virginia-heritage':'弗吉尼亚遗产之旅','colorado-front-range':'科罗拉多前山之旅',
+  'hana-highway':'哈纳公路','million-dollar-highway':'百万美元公路',
+  'natchez-trace':'纳奇兹小径','kancamagus':'坎卡马格斯公路',
+  'trail-ridge-road':'小径岭公路','overseas-highway':'跨海公路',
+  'nyc-to-acadia':'纽约到阿卡迪亚','la-to-joshua-tree':'洛杉矶到约书亚树',
+  'chicago-to-starved-rock':'芝加哥到星岩','denver-to-rmnp':'丹佛到落基山',
+  'seattle-to-olympic':'西雅图到奥林匹克','sf-to-yosemite':'旧金山到优胜美地',
+  'portland-to-crater-lake':'波特兰到火山口湖','miami-to-everglades':'迈阿密到大沼泽地',
+  'dc-to-shenandoah':'华盛顿到谢南多厄','boston-to-white-mountains':'波士顿到白山',
+  'volcano-circuit':'火山环线','waterfall-trail':'瀑布之旅','dark-sky-tour':'暗夜观星之旅',
+  'civil-war-trail':'内战遗迹之旅','ancient-ruins':'古代遗址之旅',
+  'great-lakes-loop':'五大湖环线',
+};
+function getRouteName(rt) {
+  if (typeof currentLang !== 'undefined' && currentLang === 'zh' && ROUTE_NAMES_ZH[rt.id]) {
+    return ROUTE_NAMES_ZH[rt.id] + ' (' + rt.name + ')';
+  }
+  return rt.name;
+}

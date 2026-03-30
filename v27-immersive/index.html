@@ -999,7 +999,9 @@ const MONTH_TO_SEASON = { 0:'winter',1:'winter',2:'spring',3:'spring',4:'spring'
 const SEASON_LABEL  = { all:'All Year', spring:'Spring', summer:'Summer', fall:'Fall', winter:'Winter' };
 const HERO_SLUGS = ['yellowstone','zion','yosemite','grand-canyon','glacier','great-smoky'];
 const ALL_ROUTES = (typeof ROAD_TRIPS !== 'undefined' ? ROAD_TRIPS : []).concat(typeof MORE_ROAD_TRIPS !== 'undefined' ? MORE_ROAD_TRIPS : []);
-const TYPE_LABELS = {'np-loop':'🏞 NP Loop','scenic-drive':'🛣 Scenic Drive','weekender':'🚗 Weekender','themed':'🎯 Themed','coastal':'🌊 Coastal','island':'🏝 Island'};
+const TYPE_LABELS_EN = {'np-loop':'🏞 NP Loop','scenic-drive':'🛣 Scenic Drive','weekender':'🚗 Weekender','themed':'🎯 Themed','coastal':'🌊 Coastal','island':'🏝 Island'};
+const TYPE_LABELS_ZH = {'np-loop':'🏞 国家公园环线','scenic-drive':'🛣 自驾风景路','weekender':'🚗 周末短途','themed':'🎯 主题路线','coastal':'🌊 海岸线','island':'🏝 海岛'};
+const TYPE_LABELS = new Proxy({}, { get: (_, k) => (typeof currentLang !== 'undefined' && currentLang === 'zh' ? TYPE_LABELS_ZH[k] : TYPE_LABELS_EN[k]) });
 const SEASON_MATCH_MONTHS = {spring:['mar','apr','may','spring'],summer:['jun','jul','aug','summer'],fall:['sep','oct','nov','fall','autumn'],winter:['dec','jan','feb','winter']};
 const attractionCatalog = globalThis.ATTRACTIONS_CATALOG || attractions;
 const DEFAULT_CARD_IMAGE = '../shared/images/yellowstone.jpg';
@@ -1610,10 +1612,11 @@ function renderRouteCards() {
     const q = searchQuery.toLowerCase();
     list = list.filter(rt => [rt.name, rt.desc, rt.region || '', ...(rt.parks || [])].join(' ').toLowerCase().includes(q));
   }
-  info.textContent = `${list.length} route${list.length !== 1 ? 's' : ''}`;
+  const routeWord = currentLang === 'zh' ? '条路线' : (list.length !== 1 ? 'routes' : 'route');
+  info.textContent = `${list.length} ${routeWord}`;
   grid.innerHTML = '';
   if (!list.length) {
-    grid.innerHTML = '<div class="no-results"><div class="no-results-icon">🔍</div><div class="no-results-title">No routes found</div><div class="no-results-sub">Try adjusting your filters</div></div>';
+    grid.innerHTML = `<div class="no-results"><div class="no-results-icon">🔍</div><div class="no-results-title">${t('no_routes_found')}</div><div class="no-results-sub">${t('try_adjust')}</div></div>`;
     return;
   }
   const usedSlugs = new Set();
@@ -1622,6 +1625,9 @@ function renderRouteCards() {
     const unique = matched.find(p => !usedSlugs.has(p.slug)) || matched[0];
     if (unique) usedSlugs.add(unique.slug);
     const heroImg = unique ? getAttractionImage(unique) : DEFAULT_CARD_IMAGE;
+    const rtName = typeof getRouteName === 'function' ? getRouteName(rt) : rt.name;
+    const parksLabel = currentLang === 'zh' ? `📍 ${matched.length} 个景点` : `📍 ${matched.length} parks`;
+    const costLabel = `💰 ~$${calcRouteCost(rt, selectedCity).total}/${currentLang === 'zh' ? '人' : 'pp'}`;
     const card = document.createElement('div');
     card.className = 'att-card';
     card.style.animationDelay = `${i * 0.03}s`;
@@ -1630,7 +1636,7 @@ function renderRouteCards() {
         <img class="att-card-img" src="${heroImg}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'" alt="${rt.name}">
         <span class="att-card-badge">${TYPE_LABELS[rt.tripType] || '🛣 Route'}</span>
         <div style="position:absolute;bottom:0;left:0;right:0;padding:1.2rem 0.8rem 0.6rem;background:linear-gradient(transparent,rgba(0,0,0,0.7));z-index:1">
-          <div style="font-family:'Merriweather',serif;font-size:0.95rem;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.5);line-height:1.2">${rt.name}</div>
+          <div style="font-family:'Merriweather',serif;font-size:0.95rem;font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.5);line-height:1.2">${rtName}</div>
         </div>
       </div>
       <div class="att-card-body">
@@ -1639,12 +1645,12 @@ function renderRouteCards() {
           <span class="chip">🚗 ${rt.distance}</span>
           <span class="chip">📅 ${rt.days}</span>
           <span class="chip">🌤 ${rt.season}</span>
-          <span class="chip">📍 ${matched.length} parks</span>
-          <span class="chip">💰 ~$${calcRouteCost(rt, selectedCity).total}/pp</span>
+          <span class="chip">${parksLabel}</span>
+          <span class="chip">${costLabel}</span>
         </div>
         <div class="att-card-actions">
-          <button class="btn-trip" onclick="event.stopPropagation();var ids=[${matched.map(p=>p.id).join(',')}];ids.forEach(function(id){if(!itinerary.includes(id))itinerary.push(id)});save();updateTripBadge();renderGrid();showToast('Added '+ids.length+' parks')">+ Bucket All</button>
-          <button class="btn-story">View Route</button>
+          <button class="btn-trip" onclick="event.stopPropagation();var ids=[${matched.map(p=>p.id).join(',')}];ids.forEach(function(id){if(!itinerary.includes(id))itinerary.push(id)});save();updateTripBadge();renderGrid();showToast('${currentLang==='zh'?'已添加':'Added'} '+ids.length+' ${currentLang==='zh'?'个景点':'parks'}')">${t('bucket_all')}</button>
+          <button class="btn-story">${t('view_route')}</button>
         </div>
       </div>`;
     card.addEventListener('click', () => openRoadTripStory(rt.id));
