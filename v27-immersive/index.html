@@ -295,6 +295,16 @@ body.season-winter {
 .rt-highlights li { padding: 0.4rem 0; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); }
 .rt-highlights li::before { content: '✦ '; color: var(--primary); }
 
+/* ── Reviews ─────────────────────────────────────────────── */
+.reviews-section { margin-top: 1.5rem; text-align: left; }
+.reviews-title { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }
+.review { padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.review:last-child { border-bottom: none; }
+.review-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+.review-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+.review-stars { font-size: 0.72rem; color: #f59e0b; }
+.review-text { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
 /* ── Bucket Dropdown ─────────────────────────────────────── */
 #bucket-panel {
   position: absolute;
@@ -988,6 +998,7 @@ body.season-winter {
 <script src="../shared/data_page7.js"></script>
 <script src="../shared/data_page8.js"></script>
 <script src="../shared/data_catalog.js"></script>
+<script src="../shared/reviews.js"></script>
 <script src="../shared/i18n.js"></script>
 <script src="../shared/app.js"></script>
 <script>
@@ -1958,6 +1969,7 @@ function buildStory(a){
           <button class="ch5-btn ch5-btn-primary" id="ch5-trip" onclick="storyTrip(${a.id})">${itinerary.includes(a.id)?'✓ In Bucket':'+ Add to Bucket'}</button>
           <button class="ch5-btn ch5-btn-secondary" id="ch5-fav" onclick="storyFav(${a.id})">${favorites.includes(a.id)?'♥ Favorited':'♡ Favorite'}</button>
         </div>
+        ${(typeof PARK_REVIEWS!=='undefined'&&PARK_REVIEWS[a.slug])?`<div class="reviews-section"><div class="reviews-title">${currentLang==='zh'?'游客评价':'Visitor Reviews'}</div>${PARK_REVIEWS[a.slug].map(r=>`<div class="review"><div class="review-header"><span class="review-name">${r.name}</span><span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></div><div class="review-text">${r.text}</div></div>`).join('')}</div>`:''}
         ${parkTrips.length?`<div class="ch5-related-title">🚗 Road Trips with ${a.name.split(' ')[0]}</div><div class="road-trip-pills">${parkTrips.map(rt=>`<button class="road-trip-pill" onclick="showRoadTripDetail('${rt.id}')">${rt.icon} ${rt.name}</button>`).join('')}</div>`:''}
         ${nearby.length?`<div class="ch5-related-title">📍 Nearby Parks</div><div class="related-cards">${nearby.map(r=>`<div class="related-card" onclick="openStory(${r.id})"><img src="${getAttractionImage(r)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'"><div class="related-card-name">${r.name}</div></div>`).join('')}</div>`:''}
       </div>
