@@ -7,9 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto; }
+html { scroll-behavior: smooth; }
 
 /* ── Gradient Mesh Background ────────────────────────────── */
 .mesh-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
@@ -24,11 +25,15 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 16px; line-height: 1.6;
   --text: #f0f0f0;
-  --text-muted: rgba(255,255,255,0.55);
+  --text-muted: rgba(255,255,255,0.65);
   --card-bg: rgba(255,255,255,0.07);
   --card-border: rgba(255,255,255,0.11);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.15);
   --shadow-md: 0 4px 20px rgba(0,0,0,0.35);
   --shadow-lg: 0 8px 40px rgba(0,0,0,0.45);
+  --danger: #ef4444;
+  --t-fast: 0.15s; --t-normal: 0.25s; --t-slow: 0.4s;
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --radius: 14px;
   --nav-h: 56px;
   color: var(--text);
@@ -180,7 +185,7 @@ body.season-winter {
 .hero-click-hint {
   position: absolute; bottom: 9rem; right: 2rem; z-index: 5;
   font-size: 0.78rem; color: rgba(255,255,255,0.5);
-  background: rgba(0,0,0,0.3); backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.3); backdrop-filter: blur(8px);
   padding: 0.25rem 0.75rem; border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.12);
   opacity: 0; transition: opacity 0.3s;
@@ -242,7 +247,7 @@ body.season-winter {
 .view-toggle {
   font-size: 0.82rem; font-weight: 700; padding: 0.3rem 0.85rem; border-radius: 999px;
   cursor: pointer; transition: all 0.3s; white-space: nowrap; text-decoration: none;
-  background: none; color: var(--text-muted); border: 1.5px solid rgba(255,255,255,0.15);
+  background: none; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15);
 }
 .view-toggle:hover { border-color: var(--primary); color: var(--text); }
 .view-toggle.active { background: var(--primary); color: #000; border-color: var(--primary); }
@@ -263,10 +268,11 @@ body.season-winter {
 #routes-panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; padding: 0.3rem 0.5rem; }
 #routes-body { overflow-y: auto; flex: 1; padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; align-content: start; }
 .route-card {
-  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
-  overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s;
+  background: rgba(255,255,255,0.05); backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s;
 }
-.route-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+.route-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(167,139,250,0.1); border-color: var(--primary); }
 .route-card-img { position: relative; height: 160px; overflow: hidden; }
 .route-card-img img { width: 100%; height: 100%; object-fit: cover; }
 .route-card-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.65)); }
@@ -314,7 +320,7 @@ body.season-winter {
   background: var(--bg-alt);
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 14px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+  box-shadow: var(--shadow-lg);
   z-index: 300; overflow: hidden;
   transform: translateY(-8px); opacity: 0; pointer-events: none;
   transition: transform 0.22s cubic-bezier(0.32,0.72,0,1), opacity 0.22s;
@@ -347,7 +353,7 @@ body.season-winter {
 /* ── Season Tabs ─────────────────────────────────────────── */
 #season-tabs {
   position: sticky; top: var(--nav-h); z-index: 190;
-  background: rgba(0,0,0,0.4); backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255,255,255,0.07);
   display: flex; gap: 0.25rem; padding: 0.5rem 1.5rem;
   overflow-x: auto; scrollbar-width: none;
@@ -357,7 +363,7 @@ body.season-winter {
 .season-tab {
   display: flex; align-items: center; gap: 0.4rem;
   padding: 0.4rem 1rem; border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.05); color: var(--text-muted);
   font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap;
   transition: all 0.25s;
@@ -372,7 +378,7 @@ body.season-winter {
 #picks-banner {
   margin: 2rem 0 0;
   background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-  border: 1.5px solid rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.13);
   border-radius: 18px; padding: 1.4rem 1.75rem;
   cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   position: relative; overflow: hidden;
@@ -383,10 +389,11 @@ body.season-winter {
   background: conic-gradient(from var(--angle, 0deg), var(--primary), transparent 40%, var(--primary));
   opacity: 0; z-index: 0; transition: opacity 0.3s;
   animation: rotateBorder 3s linear infinite;
+  animation-play-state: paused;
 }
 @property --angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 @keyframes rotateBorder { to { --angle: 360deg; } }
-#picks-banner:hover::before { opacity: 0.3; }
+#picks-banner:hover::before { opacity: 0.3; animation-play-state: running; }
 #picks-banner:hover { border-color: var(--primary); }
 #picks-banner > * { position: relative; z-index: 1; }
 .picks-banner-title { font-family: 'Merriweather', serif; font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
@@ -421,7 +428,7 @@ body.season-winter {
 .swipe-card-wrapper.fly-left  { transform: translateX(-160%) rotate(-20deg) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
 .swipe-card-wrapper.fly-up    { transform: translateY(-130%) scale(0.85) !important; opacity: 0 !important; transition: transform 0.45s ease, opacity 0.45s ease !important; }
 #deck-buttons { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
-.deck-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.25rem; border-radius: 999px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1.5px solid; }
+.deck-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.25rem; border-radius: 999px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; }
 .deck-btn-skip { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-muted); }
 .deck-btn-skip:hover { background: rgba(255,255,255,0.12); color: var(--text); }
 .deck-btn-fav  { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.1); color: #fbbf24; }
@@ -439,7 +446,7 @@ body.season-winter {
   display: flex; align-items: center; justify-content: center;
   padding: 0.55rem 0.1rem; border-radius: 10px;
   background: var(--bg-alt); cursor: pointer;
-  transition: all 0.2s; border: 1.5px solid transparent;
+  transition: all 0.2s; border: 1px solid transparent;
   font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
 }
 .month-cell:hover { border-color: var(--primary); color: var(--text); }
@@ -455,7 +462,7 @@ body.season-winter {
 #search-input {
   flex: 1; min-width: 200px;
   padding: 0.6rem 1rem; border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.12);
   font-size: 0.95rem; background: rgba(255,255,255,0.07); color: var(--text);
   transition: border-color 0.2s;
 }
@@ -519,13 +526,13 @@ body.season-winter {
 .att-card-fav.active { background: rgba(239,68,68,0.82); }
 
 /* Card body */
-.att-card-body { padding: 0.85rem 1rem 0.9rem; display: flex; flex-direction: column; flex: 1; }
+.att-card-body { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
 .att-card-title { font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; font-family: 'Merriweather', serif; line-height: 1.3; }
 .att-card-loc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.45rem; }
 
 /* Chip-style info pills */
 .info-chips {
-  display: flex; flex-wrap: wrap; gap: 0.3rem;
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
   margin-bottom: 0.5rem;
 }
 .chip {
@@ -562,13 +569,18 @@ body.season-winter {
 .rt-card-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .rt-card-tag { font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); }
 .road-trip-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-.road-trip-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.85rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15); color: var(--text); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+.road-trip-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.85rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--text); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
 .road-trip-pill:hover { border-color: var(--primary); background: rgba(255,255,255,0.12); }
 #road-trips-toggle { background: none; border: none; color: var(--primary); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.4rem; }
 #road-trips-scroll.collapsed { display: none; }
 .rt-card-parks { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }
 .rt-park-thumb { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
 .rt-park-more { width: 36px; height: 36px; border-radius: 6px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 0.68rem; color: var(--text-muted); }
+/* ── Swiper: story overlay road-trips strip ─────────────── */
+.rt-swiper { width: 100%; overflow: hidden; margin: 0.5rem 0 1rem; }
+.rt-swiper .swiper-slide { width: auto; }
+.rt-swiper .swiper-button-prev, .rt-swiper .swiper-button-next { color: var(--primary); }
+.rt-swiper .swiper-button-prev:after, .rt-swiper .swiper-button-next:after { font-size: 1rem; }
 
 /* ── Discovery bar ──────────────────────────────────────── */
 #discovery-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem; max-width: 1200px; }
@@ -576,20 +588,20 @@ body.season-winter {
 .filter-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); min-width: 3.5rem; flex-shrink: 0; }
 .vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip, .type-chip {
   display: inline-flex; align-items: center; gap: 0.3rem;
-  padding: 0.32rem 0.85rem; border-radius: 999px; cursor: pointer;
+  padding: 0.45rem 0.9rem; border-radius: 999px; cursor: pointer;
   font-size: 0.82rem; font-weight: 500; line-height: 1.3;
-  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
   color: var(--text-muted); transition: all 0.18s; white-space: nowrap;
 }
 .vibe-chip:hover, .budget-chip:hover, .travel-chip:hover, .trip-chip:hover, .region-chip:hover, .type-chip:hover { border-color: var(--primary); color: var(--text); }
 .vibe-chip.active, .budget-chip.active, .travel-chip.active, .trip-chip.active, .region-chip.active, .type-chip.active {
-  background: var(--primary); color: #000; border-color: var(--primary); font-weight: 600;
+  background: var(--primary); color: #000; border-color: var(--primary);
 }
-#clear-filters { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0.35rem 0.85rem; border-radius: 999px; transition: all 0.2s; white-space: nowrap; }
-#clear-filters:hover { border-color: #ef4444; color: #ef4444; }
+#clear-filters { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0.35rem 0.85rem; border-radius: 999px; transition: all var(--t-fast); white-space: nowrap; }
+#clear-filters:hover { border-color: var(--danger); color: var(--danger); }
 #city-select, #region-select {
   padding: 0.32rem 0.75rem; border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.12);
   font-size: 0.82rem; background: rgba(255,255,255,0.06); color: var(--text);
   cursor: pointer; transition: border-color 0.2s;
 }
@@ -618,7 +630,7 @@ body.season-winter {
 @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 .btn-trip {
   flex: 1; padding: 0.42rem 0.7rem; border-radius: 999px;
-  border: 1.5px solid var(--primary); background: transparent; color: var(--primary);
+  border: 1px solid var(--primary); background: transparent; color: var(--primary);
   font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
 .btn-trip:hover, .btn-trip.active { background: var(--primary); color: #000; }
@@ -640,16 +652,16 @@ body.season-winter {
   position: fixed; top: 1rem; left: 1rem; z-index: 1100;
   background: rgba(0,0,0,0.6); color: #fff; border: none;
   border-radius: 999px; padding: 0.45rem 1rem;
-  font-size: 0.9rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px);
 }
 #story-close:hover { background: rgba(0,0,0,0.85); }
 #story-progress {
   position: fixed; right: 1.2rem; top: 50%; transform: translateY(-50%);
   z-index: 1100; display: flex; flex-direction: column; gap: 0.65rem;
 }
-.prog-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); cursor: pointer; transition: all 0.2s; }
+.prog-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); cursor: pointer; transition: all 0.2s; }
 .prog-dot.active { background: var(--primary); border-color: var(--primary); transform: scale(1.4); animation: dotPulse 2s ease infinite; }
-@keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); } 50% { box-shadow: 0 0 0 5px rgba(255,255,255,0); } }
+@keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 0 6px rgba(255,255,255,0.15); } }
 #chapters-scroll { height: 100vh; overflow-y: scroll; scrollbar-width: none; }
 #chapters-scroll::-webkit-scrollbar { display: none; }
 .chapter { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
@@ -687,14 +699,21 @@ body.season-winter {
 .ch3-info-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.25rem; }
 .ch3-info-value { font-size: 1rem; font-weight: 700; color: var(--primary); transition: color 0.3s; }
 
-.ch-visit { background: #FAF6EE; }
+.ch-visit { background: var(--bg-alt, #FAF6EE); }
 .ch-visit .ch-content { padding: 3rem 4rem; width: 100%; max-width: 700px; }
-.ch4-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8B6914; margin-bottom: 0.65rem; }
-.ch4-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: #2D1B00; }
+.ch4-chapter-label { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary, #8B6914); margin-bottom: 0.65rem; }
+.ch4-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: var(--text, #2D1B00); }
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
 .stat-box { background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
 .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8B6914; margin-bottom: 0.3rem; }
 .stat-value { font-size: 1.05rem; font-weight: 700; color: #2D1B00; }
+.cost-breakdown { margin-top: 1.2rem; background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+.cost-breakdown h3 { font-size: 0.9rem; color: #2D1B00; margin-bottom: 0.75rem; }
+.cost-row { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.82rem; color: #5a4a2f; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.cost-row:last-child { border-bottom: none; }
+.cost-row.cost-total { font-weight: 700; color: #2D1B00; font-size: 0.9rem; border-top: 2px solid #8B6914; padding-top: 0.6rem; margin-top: 0.3rem; }
+.cost-row .cost-label { display: flex; align-items: center; gap: 0.4rem; }
+.cost-note { font-size: 0.72rem; color: #8B6914; margin-top: 0.5rem; font-style: italic; }
 .ch4-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .ch4-tag { background: #EFE8D4; padding: 0.28rem 0.65rem; border-radius: 999px; font-size: 0.8rem; color: #5C4A20; }
 
@@ -729,7 +748,7 @@ body.season-winter {
 /* ── Sort select ─────────────────────────────────────────── */
 #sort-select {
   padding: 0.6rem 1rem; border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.12);
   font-size: 0.88rem; background: rgba(255,255,255,0.07); color: var(--text);
   cursor: pointer; transition: border-color 0.2s; flex-shrink: 0;
 }
@@ -760,6 +779,10 @@ body.season-winter {
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  #attractions-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .hero-slide img { object-position: center; }
+}
 @media (max-width: 768px) {
   #main { padding: 0 1rem 5rem; }
   .ch-land .ch-content { grid-template-columns: 1fr; padding: 2rem 1.5rem; gap: 1.5rem; }
@@ -768,7 +791,7 @@ body.season-winter {
   #story-progress { right: 0.5rem; }
   #bucket-panel { right: 0.75rem; width: calc(100vw - 1.5rem); }
   .filter-label { min-width: 2.5rem; font-size: 0.72rem; }
-  .vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip, .type-chip { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
+  .vibe-chip, .budget-chip, .travel-chip, .trip-chip, .region-chip, .type-chip { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
   .rt-card { width: 220px; padding: 0.75rem; }
   .rt-card-name { font-size: 0.82rem; }
   .road-trip-pill { font-size: 0.72rem; padding: 0.28rem 0.65rem; }
@@ -806,7 +829,7 @@ body.season-winter {
 }
 /* ── Custom Cursor: Blend Invert ──────────────────────────── */
 @media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-blend{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s}
+#cursor-blend{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s,opacity 0.6s ease}
 #cursor-blend.hover{width:28px;height:28px}
 </style>
 </head>
@@ -847,7 +870,7 @@ body.season-winter {
       <button id="view-parks" class="view-toggle active" onclick="setView('parks')">🏞 Parks</button>
       <button id="view-routes" class="view-toggle" onclick="setView('routes')">🛣 Scenic Routes</button>
       <button id="trip-badge" onclick="toggleBucketPanel(event)">My Bucket List (0)</button>
-      <button id="lang-toggle" onclick="toggleLang()" style="background:none;border:1.5px solid rgba(255,255,255,0.15);color:var(--text-muted);font-size:0.78rem;font-weight:600;padding:0.25rem 0.7rem;border-radius:999px;cursor:pointer;transition:all 0.2s">中文</button>
+      <button id="lang-toggle" onclick="toggleLang()" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);font-size:0.78rem;font-weight:600;padding:0.25rem 0.7rem;border-radius:999px;cursor:pointer;transition:all 0.2s">中文</button>
     </div>
     <div id="bucket-panel" onclick="event.stopPropagation()">
       <div id="bucket-panel-header">
@@ -906,8 +929,8 @@ body.season-winter {
     <section id="grid-section">
       <div id="discovery-bar">
         <div class="filter-row" style="gap:0.5rem">
-          <input type="text" id="search-input" placeholder="Search parks, states, activities…" style="flex:1;min-width:0;padding:0.5rem 1rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.9rem;background:rgba(255,255,255,0.07);color:var(--text)">
-          <select id="sort-select" style="padding:0.5rem 0.8rem;border-radius:999px;border:1.5px solid rgba(255,255,255,0.12);font-size:0.82rem;background:rgba(255,255,255,0.07);color:var(--text)">
+          <input type="text" id="search-input" placeholder="Search parks, states, activities…" style="flex:1;min-width:0;padding:0.5rem 1rem;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:0.9rem;background:rgba(255,255,255,0.07);color:var(--text)">
+          <select id="sort-select" style="padding:0.5rem 0.8rem;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:0.82rem;background:rgba(255,255,255,0.07);color:var(--text)">
             <option value="default">Default order</option>
             <option value="rating">★ Highest rated</option>
             <option value="free">🎫 Free first</option>
@@ -988,10 +1011,12 @@ body.season-winter {
   <div id="map-container"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../shared/road_trips.js?v=2"></script>
 <script src="../shared/more_road_trips.js"></script>
 <script src="../shared/road_trip_details.js"></script>
+<script src="../shared/road_trip_details_zh.js"></script>
 <script src="../shared/data.js"></script>
 <script src="../shared/data_page5.js"></script>
 <script src="../shared/data_page6.js"></script>
@@ -999,6 +1024,7 @@ body.season-winter {
 <script src="../shared/data_page8.js"></script>
 <script src="../shared/data_catalog.js"></script>
 <script src="../shared/reviews.js"></script>
+<script src="../shared/reviews_zh.js"></script>
 <script src="../shared/i18n.js"></script>
 <script src="../shared/app.js"></script>
 <script>
@@ -1036,6 +1062,7 @@ let selectedCity = '';
 let selectedTravelHours = new Set();
 let selectedTrips = new Set();
 let isDragging = false, dragStartX=0, dragStartY=0, dragCurrentX=0, dragCurrentY=0;
+let _storyScrollController = null;
 let heroAttractions = [];
 
 // ── Utils ──────────────────────────────────────────────────
@@ -1086,14 +1113,14 @@ function renderRoutesPanel() {
       <div class="route-card-img">
         <img src="${heroImg}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
         <div class="route-card-icon">${rt.icon}</div>
-        <div class="route-card-img-name">${rt.name}</div>
+        <div class="route-card-img-name">${getRouteName(rt)}</div>
       </div>
       <div class="route-card-body">
-        <div class="route-card-desc">${rt.desc}</div>
+        <div class="route-card-desc">${currentLang==='zh'&&globalThis.ROUTE_DESC_ZH?.[rt.id]?globalThis.ROUTE_DESC_ZH[rt.id]:rt.desc}</div>
         <div class="route-card-meta">
           <span class="route-card-tag">🚗 ${rt.distance}</span>
           <span class="route-card-tag">📅 ${rt.days}</span>
-          <span class="route-card-tag">🌤 ${rt.season}</span>
+          <span class="route-card-tag">🌤 ${currentLang==='zh'&&globalThis.SEASON_ZH?.[rt.season]?globalThis.SEASON_ZH[rt.season]:rt.season}</span>
           <span class="route-card-tag">📍 ${matched.length} parks</span>
         </div>
       </div>
@@ -1102,12 +1129,14 @@ function renderRoutesPanel() {
 }
 
 function openRoadTripStory(tripId) {
-  const rt = ROAD_TRIPS.find(t => t.id === tripId);
+  const rt = ALL_ROUTES.find(t => t.id === tripId);
   if (!rt) return;
   const parks = rt.parks.map(s => attractionCatalog.find(a => a.slug === s)).filter(Boolean);
   const heroImg = parks.length ? getAttractionImage(parks[0]) : DEFAULT_CARD_IMAGE;
-  const d = (typeof ROAD_TRIP_DETAILS !== 'undefined' && ROAD_TRIP_DETAILS[rt.id]) || {};
-  const itinDays = d.itinerary || parks.map((p,i) => ({day:i+1, title:p.name, desc:p.state + ' · ' + (p.duration||'1–2 days')}));
+  const dEn = (typeof ROAD_TRIP_DETAILS !== 'undefined' && ROAD_TRIP_DETAILS[rt.id]) || {};
+  const dZh = (typeof ROAD_TRIP_DETAILS_ZH !== 'undefined' && ROAD_TRIP_DETAILS_ZH[rt.id]) || {};
+  const d = currentLang === 'zh' && Object.keys(dZh).length ? dZh : dEn;
+  const itinDays = d.itinerary || parks.map((p,i) => ({day:i+1, title:currentLang==='zh'&&typeof getParkNameZh==='function'?getParkNameZh(p.slug)||p.name:p.name, desc:p.state + ' · ' + (p.duration||'1–2 days')}));
 
   document.body.style.overflow = 'hidden';
   const scroll = document.getElementById('chapters-scroll');
@@ -1116,24 +1145,24 @@ function openRoadTripStory(tripId) {
       <div class="ch-bg" style="background-image:url('${heroImg}')"></div>
       <div class="ch-overlay"></div>
       <div class="ch-content">
-        <div class="ch1-label">${rt.icon} Road Trip</div>
-        <h2 class="ch1-title">${rt.name}</h2>
-        <p class="ch1-sub">🚗 ${rt.distance} &nbsp;·&nbsp; 📅 ${rt.days} &nbsp;·&nbsp; 🌤 ${rt.season}</p>
+        <div class="ch1-label">${rt.icon} ${currentLang==='zh'?'自驾路线':'Road Trip'}</div>
+        <h2 class="ch1-title">${currentLang==='zh'&&globalThis.ROUTE_NAMES_ZH?.[rt.id]?globalThis.ROUTE_NAMES_ZH[rt.id]:rt.name}</h2>
+        <p class="ch1-sub">🚗 ${rt.distance} &nbsp;·&nbsp; 📅 ${rt.days} &nbsp;·&nbsp; 🌤 ${currentLang==='zh'&&globalThis.SEASON_ZH?.[rt.season]?globalThis.SEASON_ZH[rt.season]:rt.season}</p>
       </div>
     </div>
     <div class="chapter ch-land">
       <div class="ch-content">
         <div class="ch2-text">
-          <div class="ch2-chapter-label">Chapter 2 · The Route</div>
-          <h2 class="ch2-title">${rt.name}</h2>
-          <p class="ch2-desc">${d.overview || rt.desc}</p>
+          <div class="ch2-chapter-label">${currentLang==='zh'?'第二章 · 路线介绍':'Chapter 2 · The Route'}</div>
+          <h2 class="ch2-title">${currentLang==='zh'&&globalThis.ROUTE_NAMES_ZH?.[rt.id]?globalThis.ROUTE_NAMES_ZH[rt.id]:rt.name}</h2>
+          <p class="ch2-desc">${currentLang==='zh'&&globalThis.ROUTE_DESC_ZH?.[rt.id]?globalThis.ROUTE_DESC_ZH[rt.id]:(d.overview||rt.desc)}</p>
           <div class="rt-story-meta">
             <span class="rt-story-tag">🚗 ${rt.distance}</span>
             <span class="rt-story-tag">📅 ${rt.days}</span>
-            <span class="rt-story-tag">🌤 Best: ${d.bestMonths || rt.season}</span>
+            <span class="rt-story-tag">🌤 ${currentLang==='zh'?'最佳时间：':'Best: '}${currentLang==='zh'&&globalThis.SEASON_ZH?.[d.bestMonths||rt.season]?globalThis.SEASON_ZH[d.bestMonths||rt.season]:(d.bestMonths||rt.season)}</span>
             <span class="rt-story-tag">📍 ${parks.length} parks</span>
           </div>
-          <h3 style="color:var(--text);font-size:0.95rem;margin:1rem 0 0.5rem">Day-by-Day Itinerary</h3>
+          <h3 style="color:var(--text);font-size:0.95rem;margin:1rem 0 0.5rem">${currentLang==='zh'?'每日行程规划':'Day-by-Day Itinerary'}</h3>
           <div class="rt-itinerary">${itinDays.map(day => `
             <div class="rt-day">
               <div class="rt-day-num">${day.day}</div>
@@ -1148,45 +1177,59 @@ function openRoadTripStory(tripId) {
     </div>
     <div class="chapter ch-experience">
       <div class="ch-content">
-        <div class="ch3-chapter-label">Chapter 3 · Parks Along the Way</div>
-        <h2 class="ch3-title">${parks.length} Destinations</h2>
+        <div class="ch3-chapter-label">${currentLang==='zh'?'第三章 · 沿途景点':'Chapter 3 · Parks Along the Way'}</div>
+        <h2 class="ch3-title">${currentLang==='zh'?parks.length+' 个目的地':parks.length+' Destinations'}</h2>
         <div id="rt-route-map" style="height:220px;border-radius:10px;margin-bottom:1rem;overflow:hidden"></div>
         <div class="rt-parks-grid">${parks.map(p => `
-          <div class="rt-park-card" onclick="closeStory();setTimeout(()=>openStory(${p.id}),300)">
+          <div class="rt-park-card" onclick="openStory(${p.id})">
             <img src="${getAttractionImage(p)}" loading="lazy" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
-            <div class="rt-park-card-name">${p.name}</div>
+            <div class="rt-park-card-name">${currentLang==='zh'&&typeof getParkNameZh==='function'?getParkNameZh(p.slug)||p.name:p.name}</div>
           </div>
         `).join('')}</div>
       </div>
     </div>
     <div class="chapter ch-visit">
       <div class="ch-content">
-        <div class="ch4-chapter-label">Chapter 4 · Trip Tips</div>
-        <h2 class="ch4-title">Plan Your Trip</h2>
+        <div class="ch4-chapter-label">${currentLang==='zh'?'第四章 · 旅行贴士':'Chapter 4 · Trip Tips'}</div>
+        <h2 class="ch4-title">${currentLang==='zh'?'规划您的旅程':'Plan Your Trip'}</h2>
         <div class="stats-grid">
-          <div class="stat-box"><div class="stat-label">Distance</div><div class="stat-value">${rt.distance}</div></div>
-          <div class="stat-box"><div class="stat-label">Duration</div><div class="stat-value">${rt.days}</div></div>
-          <div class="stat-box"><div class="stat-label">Best Season</div><div class="stat-value">${d.bestMonths || rt.season}</div></div>
-          <div class="stat-box"><div class="stat-label">Budget</div><div class="stat-value">${d.budget || '~$150/day'}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'总里程':'Distance'}</div><div class="stat-value">${rt.distance}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'行程天数':'Duration'}</div><div class="stat-value">${rt.days}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'最佳季节':'Best Season'}</div><div class="stat-value">${d.bestMonths || rt.season}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'预算':'Budget'}</div><div class="stat-value">${d.budget || '~$150/day'}</div></div>
         </div>
-        ${d.tips ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🚗 Driving Tips</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.tips}</p></div>` : ''}
-        ${d.lodging ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🏨 Where to Stay</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.lodging}</p></div>` : ''}
+        ${(() => {
+          const cost = calcRouteCost(rt, selectedCity);
+          return `<div class="cost-breakdown">
+            <h3>${currentLang==='zh'?'💰 费用明细（每人）':'💰 Cost Breakdown (per person)'}</h3>
+            <div class="cost-row"><span class="cost-label">⛽ ${currentLang==='zh'?'油费':'Gas'}</span><span>$${cost.gas}</span></div>
+            <div class="cost-row"><span class="cost-label">🎫 ${currentLang==='zh'?'公园年卡':'Annual Park Pass'}</span><span>$${cost.fees}</span></div>
+            <div class="cost-row"><span class="cost-label">🏨 ${currentLang==='zh'?'住宿':'Lodging'}</span><span>$${cost.lodging}</span></div>
+            <div class="cost-row"><span class="cost-label">🍔 ${currentLang==='zh'?'餐饮':'Food'}</span><span>$${cost.food}</span></div>
+            ${cost.flight ? `<div class="cost-row"><span class="cost-label">✈️ ${currentLang==='zh'?'机票':'Flight'}</span><span>$${cost.flight}</span></div>` : ''}
+            <div class="cost-row cost-total"><span>${currentLang==='zh'?'总计估算':'Estimated Total'}</span><span>$${cost.total}</span></div>
+            ${!selectedCity ? `<p class="cost-note">${currentLang==='zh'?'选择出发城市可计算机票费用':'Select a departure city to include flight costs'}</p>` : ''}
+          </div>`;
+        })()}
+        ${d.tips ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🚗 ${currentLang==='zh'?'驾驶建议':'Driving Tips'}</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.tips}</p></div>` : ''}
+        ${d.lodging ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🏨 ${currentLang==='zh'?'住宿推荐':'Where to Stay'}</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.lodging}</p></div>` : ''}
       </div>
     </div>
     <div class="chapter ch-gonow">
       <div class="ch-content">
-        <div class="ch5-chapter-label">Chapter 5 · Go Plan It</div>
-        <h2 class="ch5-title">${rt.name}</h2>
-        <div class="ch5-rating"><span class="num">${parks.length} parks · ${rt.distance} · ${rt.days}</span></div>
+        <div class="ch5-chapter-label">${currentLang==='zh'?'第五章 · 出发计划':'Chapter 5 · Go Plan It'}</div>
+        <h2 class="ch5-title">${currentLang==='zh'&&globalThis.ROUTE_NAMES_ZH?.[rt.id]?globalThis.ROUTE_NAMES_ZH[rt.id]:rt.name}</h2>
+        <div class="ch5-rating"><span class="num">${currentLang==='zh'?parks.length+' 个公园':parks.length+' parks'} · ${rt.distance} · ${rt.days}</span></div>
         <div class="ch5-actions">
-          <button class="ch5-btn ch5-btn-primary" onclick="addAllToTrip([${parks.map(p=>p.id).join(',')}])">+ Add All ${parks.length} Parks to Bucket</button>
+          <button class="ch5-btn ch5-btn-primary" onclick="addAllToTrip([${parks.map(p=>p.id).join(',')}])">${currentLang==='zh'?'+ 全部加入收藏':'+ Add All '+parks.length+' Parks to Bucket'}</button>
         </div>
-        ${d.highlights ? `<h3 style="color:var(--text);font-size:0.9rem;margin:1.5rem 0 0.5rem">Must-Do Highlights</h3><ul class="rt-highlights">${d.highlights.map(h => `<li>${h}</li>`).join('')}</ul>` : ''}
+        ${d.highlights ? `<h3 style="color:var(--text);font-size:0.9rem;margin:1.5rem 0 0.5rem">${currentLang==='zh'?'精华亮点':'Must-Do Highlights'}</h3><ul class="rt-highlights">${d.highlights.map(h => `<li>${h}</li>`).join('')}</ul>` : ''}
       </div>
     </div>`;
 
   document.getElementById('story-overlay').classList.add('open');
-  jumpToChapter(0);
+  scroll.scrollTop=0;
+  document.querySelectorAll('.prog-dot').forEach((d,i)=>d.classList.toggle('active',i===0));
 
   // Init route map with all park pins
   setTimeout(async () => {
@@ -1220,6 +1263,8 @@ function openRoadTripStory(tripId) {
   }, 500);
 
   // 15% scroll skip for road trip story
+  if (_storyScrollController) _storyScrollController.abort();
+  _storyScrollController = new AbortController();
   let currentChapter = 0, skipLocked = false;
   const chapters = scroll.querySelectorAll('.chapter');
   scroll.addEventListener('scroll', function rtScroll() {
@@ -1237,7 +1282,7 @@ function openRoadTripStory(tripId) {
       document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
       setTimeout(() => { skipLocked = false; }, 600);
     }
-  }, { passive: true });
+  }, { passive: true, signal: _storyScrollController.signal });
 }
 
 function addAllToTrip(ids) {
@@ -1583,6 +1628,7 @@ function setView(view) {
   document.getElementById('trip-row').style.display = view === 'parks' ? '' : 'none';
   document.getElementById('type-row').style.display = view === 'routes' ? '' : 'none';
   renderGrid();
+  document.getElementById('main-interface').scrollIntoView({behavior:'instant'});
 }
 
 function routeMatchesSeason(rt, season) {
@@ -1651,11 +1697,11 @@ function renderRouteCards() {
         </div>
       </div>
       <div class="att-card-body">
-        <div class="att-card-blurb" style="font-style:normal;font-family:inherit;font-size:0.8rem;-webkit-line-clamp:2">${rt.desc}</div>
+        <div class="att-card-blurb" style="font-style:normal;font-family:inherit;font-size:0.8rem;-webkit-line-clamp:2">${currentLang==='zh'&&globalThis.ROUTE_DESC_ZH?.[rt.id]?globalThis.ROUTE_DESC_ZH[rt.id]:rt.desc}</div>
         <div class="info-chips">
           <span class="chip">🚗 ${rt.distance}</span>
           <span class="chip">📅 ${rt.days}</span>
-          <span class="chip">🌤 ${rt.season}</span>
+          <span class="chip">🌤 ${currentLang==='zh'&&globalThis.SEASON_ZH?.[rt.season]?globalThis.SEASON_ZH[rt.season]:rt.season}</span>
           <span class="chip">${parksLabel}</span>
           <span class="chip">${costLabel}</span>
         </div>
@@ -1893,12 +1939,15 @@ function openStory(id){
   const a=attractionCatalog.find(x=>x.id===id);if(!a)return;
   document.body.style.overflow='hidden';
   buildStory(a);
+  const scroll=document.getElementById('chapters-scroll');
+  scroll.scrollTop=0;
   document.getElementById('story-overlay').classList.add('open');
-  jumpToChapter(0);
+  document.querySelectorAll('.prog-dot').forEach((d,i)=>d.classList.toggle('active',i===0));
 }
 function closeStory(){
   ['story-map','rt-route-map'].forEach(id => { const el = document.getElementById(id); if (el && el._leaflet) { el._leaflet.remove(); el._leaflet = null; } });
   document.getElementById('story-overlay').classList.remove('open');document.body.style.overflow='';
+  document.getElementById('main-interface').scrollIntoView({behavior:'instant'});
 }
 function jumpToChapter(n){
   const scroll=document.getElementById('chapters-scroll');
@@ -1917,18 +1966,18 @@ function buildStory(a){
       <div class="ch-bg" style="background-image:url('${storyImage}')"></div>
       <div class="ch-overlay"></div>
       <div class="ch-content">
-        <div class="ch1-label">Chapter 1 · Discovery</div>
-        <h2 class="ch1-title">${a.name}</h2>
+        <div class="ch1-label">${currentLang==='zh'?'第一章 · 探索发现':'Chapter 1 · Discovery'}</div>
+        <h2 class="ch1-title">${currentLang==='zh'&&typeof getParkNameZh==='function'?getParkNameZh(a.slug)||a.name:a.name}</h2>
         <p class="ch1-sub">📍 ${a.state} &nbsp;·&nbsp; ${a.region}</p>
       </div>
-      <div class="ch-scroll-hint">↓ Scroll to explore</div>
+      <div class="ch-scroll-hint">${currentLang==='zh'?'↓ 向下滚动探索':'↓ Scroll to explore'}</div>
     </div>
     <div class="chapter ch-land">
       <div class="ch-content">
         <div class="ch2-text">
-          <div class="ch2-chapter-label">Chapter 2 · The Land</div>
-          <h2 class="ch2-title">${a.name}</h2>
-          <p class="ch2-desc">${a.description}</p>
+          <div class="ch2-chapter-label">${currentLang==='zh'?'第二章 · 自然之境':'Chapter 2 · The Land'}</div>
+          <h2 class="ch2-title">${currentLang==='zh'&&typeof getParkNameZh==='function'?getParkNameZh(a.slug)||a.name:a.name}</h2>
+          <p class="ch2-desc">${currentLang==='zh'&&typeof getParkDescZh==='function'?getParkDescZh(a.slug)||a.description:a.description}</p>
           <div class="ch2-tags"><span class="ch2-tag">${a.category||'Landmark'}</span><span class="ch2-tag">${a.region}</span><span class="ch2-tag">${a.state}</span></div>
         </div>
         <img class="ch2-img" src="${storyImage}" onerror="this.src='${DEFAULT_CARD_IMAGE}'">
@@ -1936,25 +1985,25 @@ function buildStory(a){
     </div>
     <div class="chapter ch-experience">
       <div class="ch-content">
-        <div class="ch3-chapter-label">Chapter 3 · Experience</div>
-        <h2 class="ch3-title">What Awaits You</h2>
+        <div class="ch3-chapter-label">${currentLang==='zh'?'第三章 · 体验活动':'Chapter 3 · Experience'}</div>
+        <h2 class="ch3-title">${currentLang==='zh'?'不可错过的体验':'What Awaits You'}</h2>
         <div class="activities-grid">${(a.activities||[]).map(act=>`<div class="activity-pill">${actIcons[act]||'🌿'} ${act}</div>`).join('')}</div>
         <div class="ch3-info">
-          <div class="ch3-info-item"><div class="ch3-info-label">Difficulty</div><div class="ch3-info-value">${a.difficulty||'Varies'}</div></div>
-          <div class="ch3-info-item"><div class="ch3-info-label">Duration</div><div class="ch3-info-value">${a.duration||'1–2 days'}</div></div>
-          <div class="ch3-info-item"><div class="ch3-info-label">Accessibility</div><div class="ch3-info-value">${a.accessibility?'♿ Accessible':'Limited'}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">${currentLang==='zh'?'难度':'Difficulty'}</div><div class="ch3-info-value">${a.difficulty||(currentLang==='zh'?'因人而异':'Varies')}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">${currentLang==='zh'?'时长':'Duration'}</div><div class="ch3-info-value">${a.duration||'1–2 days'}</div></div>
+          <div class="ch3-info-item"><div class="ch3-info-label">${currentLang==='zh'?'无障碍':'Accessibility'}</div><div class="ch3-info-value">${a.accessibility?(currentLang==='zh'?'♿ 无障碍通行':'♿ Accessible'):(currentLang==='zh'?'有限':'Limited')}</div></div>
         </div>
       </div>
     </div>
     <div class="chapter ch-visit">
       <div class="ch-content">
-        <div class="ch4-chapter-label">Chapter 4 · Visit Notes</div>
-        <h2 class="ch4-title">Plan Your Visit</h2>
+        <div class="ch4-chapter-label">${currentLang==='zh'?'第四章 · 游览攻略':'Chapter 4 · Visit Notes'}</div>
+        <h2 class="ch4-title">${currentLang==='zh'?'规划您的旅程':'Plan Your Visit'}</h2>
         <div class="stats-grid">
-          <div class="stat-box"><div class="stat-label">Entrance Fee</div><div class="stat-value">${a.fee||'Free'}</div></div>
-          <div class="stat-box"><div class="stat-label">Best Time</div><div class="stat-value">${a.bestTime||'Year-round'}</div></div>
-          <div class="stat-box"><div class="stat-label">Duration</div><div class="stat-value">${a.duration||'1–2 days'}</div></div>
-          <div class="stat-box"><div class="stat-label">Difficulty</div><div class="stat-value">${a.difficulty||'Varies'}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'门票':'Entrance Fee'}</div><div class="stat-value">${a.fee||'Free'}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'最佳时间':'Best Time'}</div><div class="stat-value">${a.bestTime||'Year-round'}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'时长':'Duration'}</div><div class="stat-value">${a.duration||'1–2 days'}</div></div>
+          <div class="stat-box"><div class="stat-label">${currentLang==='zh'?'难度':'Difficulty'}</div><div class="stat-value">${a.difficulty||(currentLang==='zh'?'因人而异':'Varies')}</div></div>
         </div>
         <div class="ch4-tags">${(a.tags||[]).map(t=>`<span class="ch4-tag">${t}</span>`).join('')}</div>
         <div id="story-map" style="height:200px;border-radius:8px;margin-top:1rem;overflow:hidden"></div>
@@ -1962,16 +2011,16 @@ function buildStory(a){
     </div>
     <div class="chapter ch-gonow">
       <div class="ch-content">
-        <div class="ch5-chapter-label">Chapter 5 · Go Now</div>
-        <h2 class="ch5-title">${a.name}</h2>
-        <div class="ch5-rating"><span class="stars">${'★'.repeat(Math.round(a.rating))}</span><span class="num">${a.rating} · ${(a.reviews||0).toLocaleString()} reviews</span></div>
+        <div class="ch5-chapter-label">${currentLang==='zh'?'第五章 · 即刻出发':'Chapter 5 · Go Now'}</div>
+        <h2 class="ch5-title">${currentLang==='zh'&&typeof getParkNameZh==='function'?getParkNameZh(a.slug)||a.name:a.name}</h2>
+        <div class="ch5-rating"><span class="stars">${'★'.repeat(Math.round(a.rating))}</span><span class="num">${a.rating} · ${(a.reviews||0).toLocaleString()} ${currentLang==='zh'?'条评价':'reviews'}</span></div>
         <div class="ch5-actions">
           <button class="ch5-btn ch5-btn-primary" id="ch5-trip" onclick="storyTrip(${a.id})">${itinerary.includes(a.id)?'✓ In Bucket':'+ Add to Bucket'}</button>
           <button class="ch5-btn ch5-btn-secondary" id="ch5-fav" onclick="storyFav(${a.id})">${favorites.includes(a.id)?'♥ Favorited':'♡ Favorite'}</button>
         </div>
-        ${(typeof PARK_REVIEWS!=='undefined'&&PARK_REVIEWS[a.slug])?`<div class="reviews-section"><div class="reviews-title">${currentLang==='zh'?'游客评价':'Visitor Reviews'}</div>${PARK_REVIEWS[a.slug].map(r=>`<div class="review"><div class="review-header"><span class="review-name">${r.name}</span><span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></div><div class="review-text">${r.text}</div></div>`).join('')}</div>`:''}
-        ${parkTrips.length?`<div class="ch5-related-title">🚗 Road Trips with ${a.name.split(' ')[0]}</div><div class="road-trip-pills">${parkTrips.map(rt=>`<button class="road-trip-pill" onclick="showRoadTripDetail('${rt.id}')">${rt.icon} ${rt.name}</button>`).join('')}</div>`:''}
-        ${nearby.length?`<div class="ch5-related-title">📍 Nearby Parks</div><div class="related-cards">${nearby.map(r=>`<div class="related-card" onclick="openStory(${r.id})"><img src="${getAttractionImage(r)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'"><div class="related-card-name">${r.name}</div></div>`).join('')}</div>`:''}
+        ${(typeof PARK_REVIEWS!=='undefined'&&PARK_REVIEWS[a.slug])?(()=>{const revs=currentLang==='zh'&&typeof PARK_REVIEWS_ZH!=='undefined'&&PARK_REVIEWS_ZH[a.slug]?PARK_REVIEWS_ZH[a.slug]:PARK_REVIEWS[a.slug];return `<div class="reviews-section"><div class="reviews-title">${currentLang==='zh'?'游客评价':'Visitor Reviews'}</div>${revs.map(r=>`<div class="review"><div class="review-header"><span class="review-name">${r.name}</span><span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span></div><div class="review-text">${r.text}</div></div>`).join('')}</div>`;})():''}
+        ${parkTrips.length?`<div class="ch5-related-title">🚗 Road Trips with ${a.name.split(' ')[0]}</div><div class="swiper rt-swiper"><div class="swiper-wrapper">${parkTrips.map(rt=>`<div class="swiper-slide"><div class="rt-card" onclick="openRoadTripStory('${rt.id}')"><div class="rt-card-icon">${rt.icon}</div><div class="rt-card-name">${rt.name}</div><div class="rt-card-desc">${rt.desc}</div><div class="rt-card-meta"><span class="rt-card-tag">🚗 ${rt.distance}</span><span class="rt-card-tag">📅 ${rt.days}</span><span class="rt-card-tag">🌤 ${rt.season}</span></div></div></div>`).join('')}</div><div class="swiper-button-prev"></div><div class="swiper-button-next"></div></div>`:''}
+        ${nearby.length?`<div class="ch5-related-title">${currentLang==='zh'?'📍 附近公园':'📍 Nearby Parks'}</div><div class="related-cards">${nearby.map(r=>`<div class="related-card" onclick="openStory(${r.id})"><img src="${getAttractionImage(r)}" onerror="this.src='${DEFAULT_CARD_IMAGE}'"><div class="related-card-name">${currentLang==='zh'&&typeof getParkNameZh==='function'?getParkNameZh(r.slug)||r.name:r.name}</div></div>`).join('')}</div>`:''}
       </div>
     </div>`;
   const obs=new IntersectionObserver(entries=>{
@@ -1984,6 +2033,8 @@ function buildStory(a){
   },{root:scroll,threshold:0.5});
   scroll.querySelectorAll('.chapter').forEach(ch=>obs.observe(ch));
   // 25% scroll skip: when scrolled 25% into current chapter, snap to next
+  if (_storyScrollController) _storyScrollController.abort();
+  _storyScrollController = new AbortController();
   let currentChapter = 0;
   let skipLocked = false;
   const chapters = scroll.querySelectorAll('.chapter');
@@ -2006,7 +2057,7 @@ function buildStory(a){
       document.querySelectorAll('.prog-dot').forEach((d,i) => d.classList.toggle('active', i === currentChapter));
       setTimeout(() => { skipLocked = false; }, 600);
     }
-  }, { passive: true });
+  }, { passive: true, signal: _storyScrollController.signal });
 
   // Init inline map in Chapter 4
   setTimeout(async () => {
@@ -2027,6 +2078,16 @@ function buildStory(a){
     L.marker(coords).addTo(m);
     mapEl._leaflet = m;
   }, 400);
+
+  // Init Swiper for road trips strip
+  if(typeof Swiper !== 'undefined') {
+    new Swiper('.rt-swiper', {
+      slidesPerView: 'auto',
+      spaceBetween: 16,
+      freeMode: true,
+      navigation: { nextEl: '.rt-swiper .swiper-button-next', prevEl: '.rt-swiper .swiper-button-prev' }
+    });
+  }
 }
 function storyTrip(id){toggleTrip(id,null);const b=document.getElementById('ch5-trip');if(b)b.textContent=itinerary.includes(id)?'✓ In Bucket':'+ Add to Bucket';}
 function storyFav(id){toggleFav(id,null);const b=document.getElementById('ch5-fav');if(b)b.textContent=favorites.includes(id)?'♥ Favorited':'♡ Favorite';}
@@ -2236,10 +2297,21 @@ function calcRouteCost(rt, fromCity) {
 // ── Cursor: Blend Invert ───────────────────────────────────
 (function(){
   const el = document.getElementById('cursor-blend');
+  let hideTimer;
+  function showCursor(){
+    el.style.opacity='1';
+    clearTimeout(hideTimer);
+    hideTimer=setTimeout(()=>{el.style.opacity='0';},3000);
+  }
   document.addEventListener('mousemove', e => {
     const s = el.classList.contains('hover') ? 14 : 6;
     el.style.left = e.clientX - s + 'px';
     el.style.top = e.clientY - s + 'px';
+    showCursor();
+  });
+  document.addEventListener('mouseleave', ()=>{
+    clearTimeout(hideTimer);
+    el.style.opacity='0';
   });
   document.addEventListener('mouseover', e => {
     if (e.target.closest('a,button,.att-card,.season-tab,.vibe-chip,.budget-chip,.travel-chip,.trip-chip,.region-chip,.type-chip,.deck-btn'))
