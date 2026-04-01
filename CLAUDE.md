@@ -7,16 +7,16 @@ A single-page vanilla HTML/CSS/JS tourism website for discovering 245+ US nation
 ```bash
 cd /home/ubuntu/claude/tourist_plan
 python3 -m http.server 8888
-# Open http://localhost:8888/v27-immersive/index.html
+# Open http://localhost:8888/v25-immersive/index.html
 ```
 
 ## Directory Structure
 ```
 tourist_plan/
-├── v27-immersive/          # Latest version (active development)
+├── v25-immersive/          # Latest version (active development)
 │   ├── index.html          # Main app (~130KB, single file with inline CSS+JS)
 │   └── routes.html         # Deprecated — routes merged into index.html
-├── v26-discovery/          # Previous version (functional, not actively maintained)
+├── v1-v24/                 # Previous versions (24 older UI experiments)
 ├── shared/                 # Data files shared across versions
 │   ├── data.js             # 105 attractions (IDs 1-105)
 │   ├── data_page5.js       # Attractions 106-155 (page naming is legacy)
