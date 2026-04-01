@@ -43,30 +43,30 @@ body {
 /* Each season clearly distinct */
 body.season-all    {
   --bg: #1e2030; --bg-alt: #272a40; --bg-card: #2a2e48;
-  --primary: #a78bfa; --primary-dark: #7c3aed; --accent: #c4b5fd;
+  --primary: #a78bfa; --primary-dark: #7c3aed; --accent: #c4b5fd; --primary-text: #000; --primary-glow: rgba(167,139,250,0.3);
   background: #1e2030;
 }
 body.season-spring {
   /* Cherry blossom pink — sakura season */
   --bg: #1f0d16; --bg-alt: #2e1222; --bg-card: #3a162b;
-  --primary: #f472b6; --primary-dark: #db2777; --accent: #fbcfe8;
+  --primary: #f472b6; --primary-dark: #db2777; --accent: #fbcfe8; --primary-text: #000; --primary-glow: rgba(244,114,182,0.3);
   background: #1f0d16;
 }
 body.season-summer {
   /* Vivid green — lush forests */
   --bg: #0a1f0a; --bg-alt: #122212; --bg-card: #162b16;
-  --primary: #22c55e; --primary-dark: #16a34a; --accent: #86efac;
+  --primary: #22c55e; --primary-dark: #16a34a; --accent: #86efac; --primary-text: #000; --primary-glow: rgba(34,197,94,0.3);
   background: #0a1f0a;
 }
 body.season-fall {
   --bg: #2a1200; --bg-alt: #3a1a00; --bg-card: #462100;
-  --primary: #f97316; --primary-dark: #c2410c; --accent: #fdba74;
+  --primary: #f97316; --primary-dark: #c2410c; --accent: #fdba74; --primary-text: #000; --primary-glow: rgba(249,115,22,0.3);
   background: #2a1200;
 }
 body.season-winter {
   /* Deep icy navy — distinct from summer's sky blue */
   --bg: #070e1a; --bg-alt: #0d1a2e; --bg-card: #112238;
-  --primary: #bfdbfe; --primary-dark: #3b82f6; --accent: #e0f2fe;
+  --primary: #bfdbfe; --primary-dark: #3b82f6; --accent: #e0f2fe; --primary-text: #000; --primary-glow: rgba(191,219,254,0.3);
   background: #070e1a;
 }
 
@@ -114,7 +114,7 @@ body.season-winter {
 }
 #hero-pre {
   font-size: clamp(0.7rem, 1.5vw, 0.85rem);
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.7);
   font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase;
   text-shadow: 0 1px 8px rgba(0,0,0,0.5);
   margin-bottom: 0.75rem;
@@ -150,7 +150,7 @@ body.season-winter {
 }
 #hero-stat span {
   font-size: clamp(0.72rem, 1.3vw, 0.82rem);
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.65);
   letter-spacing: 0.05em;
   text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
@@ -237,7 +237,7 @@ body.season-winter {
   color: var(--primary); flex: 1; transition: color 0.3s;
 }
 #trip-badge {
-  background: var(--primary); color: #000;
+  background: var(--primary); color: var(--primary-text);
   font-size: 0.82rem; font-weight: 700;
   padding: 0.3rem 0.85rem; border-radius: 999px;
   cursor: pointer; transition: background 0.3s; white-space: nowrap;
@@ -250,7 +250,7 @@ body.season-winter {
   background: none; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.15);
 }
 .view-toggle:hover { border-color: var(--primary); color: var(--text); }
-.view-toggle.active { background: var(--primary); color: #000; border-color: var(--primary); }
+.view-toggle.active { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
 
 /* ── Routes Panel ────────────────────────────────────────── */
 #routes-panel {
@@ -272,7 +272,7 @@ body.season-winter {
   border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
   overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s;
 }
-.route-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(167,139,250,0.1); border-color: var(--primary); }
+.route-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px var(--primary-glow); border-color: var(--primary); }
 .route-card-img { position: relative; height: 160px; overflow: hidden; }
 .route-card-img img { width: 100%; height: 100%; object-fit: cover; }
 .route-card-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.65)); }
@@ -288,7 +288,7 @@ body.season-winter {
 .rt-story-tag { padding: 0.3rem 0.75rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 0.82rem; color: var(--text-muted); }
 .rt-itinerary { display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0; }
 .rt-day { display: flex; gap: 0.75rem; align-items: flex-start; }
-.rt-day-num { flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--primary); color: #000; font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; }
+.rt-day-num { flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--primary); color: var(--primary-text); font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; }
 .rt-day-content { flex: 1; }
 .rt-day-title { font-weight: 600; color: var(--text); font-size: 0.9rem; }
 .rt-day-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
@@ -369,7 +369,7 @@ body.season-winter {
   transition: all 0.25s;
 }
 .season-tab:hover { border-color: var(--primary); color: var(--text); }
-.season-tab.active { background: var(--primary); color: #000; border-color: var(--primary); }
+.season-tab.active { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
 
 /* ── Main ─────────────────────────────────────────────────── */
 #main { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 5rem; }
@@ -398,7 +398,7 @@ body.season-winter {
 #picks-banner > * { position: relative; z-index: 1; }
 .picks-banner-title { font-family: 'Merriweather', serif; font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
 .picks-banner-sub { font-size: 0.9rem; color: var(--text-muted); }
-#picks-cta { background: var(--primary); color: #000; border: none; border-radius: 999px; padding: 0.6rem 1.4rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0; box-shadow: 0 0 24px rgba(167,139,250,0.3); }
+#picks-cta { background: var(--primary); color: var(--primary-text); border: none; border-radius: 999px; padding: 0.6rem 1.4rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0; box-shadow: 0 0 24px var(--primary-glow, rgba(167,139,250,0.3)); }
 #picks-cta:hover { opacity: 0.88; transform: scale(1.03); }
 
 /* Swipe deck */
@@ -409,7 +409,7 @@ body.season-winter {
 #swipe-done { display: none; flex-direction: column; align-items: center; gap: 0.75rem; text-align: center; }
 #swipe-done .done-icon { font-size: 2.5rem; }
 #swipe-done p { color: var(--text-muted); font-size: 0.95rem; }
-#swipe-done button { background: var(--primary); color: #000; border: none; border-radius: 999px; padding: 0.55rem 1.5rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+#swipe-done button { background: var(--primary); color: var(--primary-text); border: none; border-radius: 999px; padding: 0.55rem 1.5rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
 .swipe-card-wrapper { position: absolute; width: min(400px, 90vw); transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.35s; }
 .swipe-card-wrapper:nth-child(2) { z-index: 30; }
 .swipe-card-wrapper:nth-child(3) { z-index: 20; transform: scale(0.96) translateY(12px); opacity: 0.65; pointer-events: none; }
@@ -433,7 +433,7 @@ body.season-winter {
 .deck-btn-skip:hover { background: rgba(255,255,255,0.12); color: var(--text); }
 .deck-btn-fav  { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.1); color: #fbbf24; }
 .deck-btn-fav:hover  { background: rgba(251,191,36,0.2); }
-.deck-btn-add  { border-color: var(--primary); background: var(--primary); color: #000; }
+.deck-btn-add  { border-color: var(--primary); background: var(--primary); color: var(--primary-text); }
 .deck-btn-add:hover  { opacity: 0.85; }
 
 .star-particle { position: fixed; pointer-events: none; z-index: 9999; font-size: 1.4rem; animation: starFly 0.7s ease-out forwards; }
@@ -450,7 +450,7 @@ body.season-winter {
   font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
 }
 .month-cell:hover { border-color: var(--primary); color: var(--text); }
-.month-cell.active { background: var(--primary); color: #000; border-color: var(--primary); }
+.month-cell.active { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
 .month-cell.season-spring { border-color: rgba(244,114,182,0.4); }
 .month-cell.season-summer { border-color: rgba(34,197,94,0.35); }
 .month-cell.season-fall   { border-color: rgba(249,115,22,0.35); }
@@ -482,7 +482,7 @@ body.season-winter {
 /* Scroll reveal */
 .att-card[data-aos] { opacity: 0; transform: translateY(30px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
 .att-card[data-aos].visible { opacity: 1; transform: translateY(0); }
-.att-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(167,139,250,0.1); border-color: var(--primary); }
+.att-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--primary), 0 20px 40px rgba(0,0,0,0.4), 0 0 30px var(--primary-glow); border-color: var(--primary); }
 .att-card:hover .att-card-img { transform: scale(1.05); }
 .att-card-img { transition: transform 0.4s ease-out; }
 .att-card.best-match { border-color: rgba(255,255,255,0.25); }
@@ -492,7 +492,7 @@ body.season-winter {
 /* Category badge — color coded by type */
 .att-card-badge {
   position: absolute; top: 0.6rem; left: 0.6rem;
-  font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
   padding: 0.2rem 0.55rem; border-radius: 6px;
   backdrop-filter: blur(4px);
 }
@@ -503,16 +503,16 @@ body.season-winter {
 .att-card-badge[data-cat="national recreation area"] { background: rgba(49,46,129,0.88); color: #a5b4fc; }
 .att-card-badge[data-cat="state park"]           { background: rgba(19,78,74,0.88); color: #5eead4; }
 .att-card-badge[data-cat="wildlife refuge"]      { background: rgba(124,45,18,0.88); color: #fb923c; }
-.att-card-badge[data-cat="historic site"]        { background: rgba(59,31,10,0.88); color: #d4a574; }
+.att-card-badge[data-cat="historic site"]        { background: rgba(59,31,10,0.88); color: #e8c9a0; }
 .att-card-badge[data-cat="landmark"]             { background: rgba(74,29,150,0.88); color: #c4b5fd; }
 .att-card-badge[data-cat="national forest"]      { background: rgba(22,101,52,0.88); color: #4ade80; }
-.att-card-badge[data-cat="tribal park"]          { background: rgba(99,40,0,0.88); color: #fb923c; }
+.att-card-badge[data-cat="tribal park"]          { background: rgba(99,40,0,0.88); color: #fdba74; }
 /* fallback */
 .att-card-badge                                  { background: rgba(30,30,60,0.85); color: rgba(255,255,255,0.8); }
 
 .best-badge {
   position: absolute; top: 0.6rem; right: 0.6rem;
-  background: var(--primary); color: #000;
+  background: var(--primary); color: var(--primary-text);
   font-size: 0.66rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px;
 }
 .att-card-fav {
@@ -567,7 +567,7 @@ body.season-winter {
 .rt-card-name { font-family: 'Merriweather', serif; font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
 .rt-card-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rt-card-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-.rt-card-tag { font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); }
+.rt-card-tag { font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); }
 .road-trip-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
 .road-trip-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.85rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--text); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
 .road-trip-pill:hover { border-color: var(--primary); background: rgba(255,255,255,0.12); }
@@ -595,7 +595,7 @@ body.season-winter {
 }
 .vibe-chip:hover, .budget-chip:hover, .travel-chip:hover, .trip-chip:hover, .region-chip:hover, .type-chip:hover { border-color: var(--primary); color: var(--text); }
 .vibe-chip.active, .budget-chip.active, .travel-chip.active, .trip-chip.active, .region-chip.active, .type-chip.active {
-  background: var(--primary); color: #000; border-color: var(--primary);
+  background: var(--primary); color: var(--primary-text); border-color: var(--primary);
 }
 #clear-filters { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0.35rem 0.85rem; border-radius: 999px; transition: all var(--t-fast); white-space: nowrap; }
 #clear-filters:hover { border-color: var(--danger); color: var(--danger); }
@@ -633,10 +633,10 @@ body.season-winter {
   border: 1px solid var(--primary); background: transparent; color: var(--primary);
   font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
-.btn-trip:hover, .btn-trip.active { background: var(--primary); color: #000; }
+.btn-trip:hover, .btn-trip.active { background: var(--primary); color: var(--primary-text); }
 .btn-story {
   flex: 1; padding: 0.42rem 0.7rem; border-radius: 999px;
-  background: var(--primary); color: #000; border: none;
+  background: var(--primary); color: var(--primary-text); border: none;
   font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
 }
 .btn-story:hover { opacity: 0.85; }
@@ -659,7 +659,7 @@ body.season-winter {
   position: fixed; right: 1.2rem; top: 50%; transform: translateY(-50%);
   z-index: 1100; display: flex; flex-direction: column; gap: 0.65rem;
 }
-.prog-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.12); cursor: pointer; transition: all 0.2s; }
+.prog-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.22); cursor: pointer; transition: all 0.2s; }
 .prog-dot.active { background: var(--primary); border-color: var(--primary); transform: scale(1.4); animation: dotPulse 2s ease infinite; }
 @keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 0 6px rgba(255,255,255,0.15); } }
 #chapters-scroll { height: 100vh; overflow-y: scroll; scrollbar-width: none; }
@@ -705,7 +705,7 @@ body.season-winter {
 .ch4-title { font-family: 'Merriweather', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 1.75rem; color: var(--text, #2D1B00); }
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
 .stat-box { background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-.stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8B6914; margin-bottom: 0.3rem; }
+.stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #7a5c10; margin-bottom: 0.3rem; }
 .stat-value { font-size: 1.05rem; font-weight: 700; color: #2D1B00; }
 .cost-breakdown { margin-top: 1.2rem; background: #fff; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
 .cost-breakdown h3 { font-size: 0.9rem; color: #2D1B00; margin-bottom: 0.75rem; }
@@ -713,7 +713,7 @@ body.season-winter {
 .cost-row:last-child { border-bottom: none; }
 .cost-row.cost-total { font-weight: 700; color: #2D1B00; font-size: 0.9rem; border-top: 2px solid #8B6914; padding-top: 0.6rem; margin-top: 0.3rem; }
 .cost-row .cost-label { display: flex; align-items: center; gap: 0.4rem; }
-.cost-note { font-size: 0.72rem; color: #8B6914; margin-top: 0.5rem; font-style: italic; }
+.cost-note { font-size: 0.76rem; color: #7a5c10; margin-top: 0.5rem; font-style: italic; }
 .ch4-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .ch4-tag { background: #EFE8D4; padding: 0.28rem 0.65rem; border-radius: 999px; font-size: 0.8rem; color: #5C4A20; }
 
@@ -726,10 +726,10 @@ body.season-winter {
 .ch5-rating .num { font-size: 1rem; font-weight: 700; color: var(--primary); margin-left: 0.4rem; transition: color 0.3s; }
 .ch5-actions { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap; }
 .ch5-btn { padding: 0.7rem 2rem; border-radius: 999px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
-.ch5-btn-primary { background: var(--primary); color: #000; border-color: var(--primary); }
+.ch5-btn-primary { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
 .ch5-btn-primary:hover { opacity: 0.85; }
 .ch5-btn-secondary { background: transparent; color: var(--primary); border-color: var(--primary); }
-.ch5-btn-secondary:hover { background: var(--primary); color: #000; }
+.ch5-btn-secondary:hover { background: var(--primary); color: var(--primary-text); }
 .ch5-related-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.9rem; }
 .related-cards { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 .related-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; cursor: pointer; width: 175px; transition: transform 0.2s, box-shadow 0.2s; }
@@ -759,7 +759,7 @@ body.season-winter {
 #back-to-top {
   position: fixed; bottom: 2rem; right: 1.5rem; z-index: 1000;
   width: 42px; height: 42px; border-radius: 50%;
-  background: var(--primary); color: #000;
+  background: var(--primary); color: var(--primary-text);
   border: none; font-size: 1.1rem; font-weight: 700;
   cursor: pointer; transition: opacity 0.25s, transform 0.25s, background 0.3s;
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
@@ -829,7 +829,8 @@ body.season-winter {
 }
 /* ── Custom Cursor: Blend Invert ──────────────────────────── */
 @media(hover:hover){body{cursor:none}body *{cursor:none !important}}
-#cursor-blend{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s,opacity 0.6s ease}
+#cursor-blend{position:fixed;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;transition:width 0.3s,height 0.3s,opacity 0.6s ease;display:none}
+@media(hover:hover){#cursor-blend{display:block}}
 #cursor-blend.hover{width:28px;height:28px}
 </style>
 </head>
@@ -1211,8 +1212,8 @@ function openRoadTripStory(tripId) {
             ${!selectedCity ? `<p class="cost-note">${currentLang==='zh'?'选择出发城市可计算机票费用':'Select a departure city to include flight costs'}</p>` : ''}
           </div>`;
         })()}
-        ${d.tips ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🚗 ${currentLang==='zh'?'驾驶建议':'Driving Tips'}</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.tips}</p></div>` : ''}
-        ${d.lodging ? `<div style="margin-top:1rem"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🏨 ${currentLang==='zh'?'住宿推荐':'Where to Stay'}</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.lodging}</p></div>` : ''}
+        ${d.tips ? `<div style="margin-top:1rem;background:#fff;border-radius:12px;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.07)"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🚗 ${currentLang==='zh'?'驾驶建议':'Driving Tips'}</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.tips}</p></div>` : ''}
+        ${d.lodging ? `<div style="margin-top:1rem;background:#fff;border-radius:12px;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.07)"><h3 style="color:#2D1B00;font-size:0.9rem;margin-bottom:0.5rem">🏨 ${currentLang==='zh'?'住宿推荐':'Where to Stay'}</h3><p style="font-size:0.82rem;color:#5a4a2f;line-height:1.6">${d.lodging}</p></div>` : ''}
       </div>
     </div>
     <div class="chapter ch-gonow">
@@ -1254,7 +1255,7 @@ function openRoadTripStory(tripId) {
     const markers = allCoords.map((p, i) => L.marker(p.coords).addTo(rtMap).bindPopup(`<b>${i+1}. ${p.name}</b>`));
     // Draw route line
     if (allCoords.length > 1) {
-      L.polyline(allCoords.map(p => p.coords), {color: '#a78bfa', weight: 3, opacity: 0.7, dashArray: '8,6'}).addTo(rtMap);
+      L.polyline(allCoords.map(p => p.coords), {color: getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#a78bfa', weight: 3, opacity: 0.7, dashArray: '8,6'}).addTo(rtMap);
     }
     // Fit bounds to show all markers
     const bounds = L.latLngBounds(allCoords.map(p => p.coords));
@@ -1426,9 +1427,15 @@ function matchesMonth(a, mi) {
   if (/year.?round|all year/i.test(bt)) return true;
   return bt.includes(MONTH_FULL[mi].toLowerCase().slice(0,3));
 }
+function contrastText(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return (0.299*r + 0.587*g + 0.114*b) / 255 > 0.55 ? '#000' : '#fff';
+}
 function setSeason(season, fromMonth) {
   currentSeason = season;
   document.body.className = `season-${season}`;
+  const primary = getComputedStyle(document.body).getPropertyValue('--primary').trim();
+  if (primary) document.body.style.setProperty('--primary-text', contrastText(primary));
   document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', t.dataset.season === season));
   document.getElementById('picks-season-label').textContent = SEASON_LABEL[season];
   if (!fromMonth) activeMonth = null;
