@@ -527,13 +527,15 @@ body.season-winter {
 
 /* Card body */
 .att-card-body { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
-.att-card-title { font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; font-family: 'Merriweather', serif; line-height: 1.3; }
+.att-card-title { font-size: 0.98rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; font-family: 'Merriweather', serif; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.55rem; }
 .att-card-loc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.45rem; }
 
 /* Chip-style info pills */
 .info-chips {
   display: flex; flex-wrap: wrap; gap: 0.4rem;
   margin-bottom: 0.5rem;
+  height: 5rem; overflow: hidden;
+  margin-bottom: 0.85rem;
 }
 .chip {
   display: inline-flex; align-items: center;
@@ -616,6 +618,8 @@ body.season-winter {
   line-height: 1.55;
   margin-bottom: 0.65rem;
   position: relative;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  height: 4.2rem;
 }
 .att-card-blurb::before {
   content: '\201C';
@@ -1704,7 +1708,7 @@ function renderRouteCards() {
         </div>
       </div>
       <div class="att-card-body">
-        <div class="att-card-blurb" style="font-style:normal;font-family:inherit;font-size:0.8rem;-webkit-line-clamp:2">${currentLang==='zh'&&globalThis.ROUTE_DESC_ZH?.[rt.id]?globalThis.ROUTE_DESC_ZH[rt.id]:rt.desc}</div>
+        <div class="att-card-blurb" style="font-style:normal;font-family:inherit;font-size:0.8rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${currentLang==='zh'&&globalThis.ROUTE_DESC_ZH?.[rt.id]?globalThis.ROUTE_DESC_ZH[rt.id]:rt.desc}</div>
         <div class="info-chips">
           <span class="chip">🚗 ${rt.distance}</span>
           <span class="chip">📅 ${rt.days}</span>
